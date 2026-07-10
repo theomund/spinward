@@ -9,12 +9,15 @@ package viewer
 import rl "vendor:raylib"
 
 run :: proc() {
-	rl.InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, TITLE)
+	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)
 	defer rl.CloseWindow()
+
+	sector := new_sector("Spinward Marches")
 
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.BLACK)
+		draw_sector(sector)
 		rl.EndDrawing()
 	}
 }
