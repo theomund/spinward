@@ -17,7 +17,7 @@ new_coordinate :: proc(col, row: i32) -> Coordinate {
 	return {col, row}
 }
 
-oddq_to_axial :: proc(coord: Coordinate) -> Hex {
+oddq_to_axial :: proc(coord: Coordinate) -> Hex(i32) {
 	parity := coord.col & 1
 	q := coord.col
 	r := coord.row - (coord.col - parity) / 2

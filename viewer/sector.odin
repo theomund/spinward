@@ -10,12 +10,12 @@ import rl "vendor:raylib"
 
 Sector :: struct {
 	name:   cstring,
-	hexes:  [SECTOR_ROWS][SECTOR_COLUMNS]Hex,
+	hexes:  [SECTOR_ROWS][SECTOR_COLUMNS]Hex(i32),
 	origin: Coordinate,
 }
 
 new_sector :: proc(name: cstring, origin: Coordinate) -> Sector {
-	hexes: [SECTOR_ROWS][SECTOR_COLUMNS]Hex
+	hexes: [SECTOR_ROWS][SECTOR_COLUMNS]Hex(i32)
 
 	for &row, y in hexes {
 		for &hex, x in row {
