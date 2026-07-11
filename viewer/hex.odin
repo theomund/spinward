@@ -18,7 +18,7 @@ new_hex :: proc(q: i32, r: i32) -> Hex {
 
 draw_hex :: proc(hex: Hex) {
 	center := oddq_offset_to_pixel(axial_to_oddq(hex))
-	rl.DrawPolyLines(center, 6, HEX_SIZE, 0, rl.WHITE)
+	rl.DrawPolyLines(center, 6, HEX_SIZE, 0, rl.DARKGRAY)
 }
 
 axial_to_oddq :: proc(hex: Hex) -> Coordinate {

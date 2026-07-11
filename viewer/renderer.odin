@@ -12,7 +12,7 @@ run :: proc() {
 	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)
 	defer rl.CloseWindow()
 
-	sector := new_sector("Spinward Marches", {0, 0})
+	sector := new_sector("Spinward Marches", {38, 6})
 
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()

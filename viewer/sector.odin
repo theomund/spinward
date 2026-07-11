@@ -6,20 +6,18 @@
 
 package viewer
 
-import rl "vendor:raylib"
-
 Sector :: struct {
-	name:   string,
+	name:   cstring,
 	hexes:  [SECTOR_ROWS][SECTOR_COLUMNS]Hex,
-	origin: rl.Vector2,
+	origin: Coordinate,
 }
 
-new_sector :: proc(name: string, origin: rl.Vector2) -> Sector {
+new_sector :: proc(name: cstring, origin: Coordinate) -> Sector {
 	hexes: [SECTOR_ROWS][SECTOR_COLUMNS]Hex
 
 	for &row, y in hexes {
 		for &hex, x in row {
-			hex = oddq_to_axial({i32(x), i32(y)})
+			hex = oddq_to_axial({origin.col + i32(x), origin.row + i32(y)})
 		}
 	}
 

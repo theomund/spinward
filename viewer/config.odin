@@ -6,7 +6,7 @@
 
 package viewer
 
-HEX_SIZE :: 24
+HEX_SIZE :: 12
 
 WINDOW_WIDTH :: 1920
 WINDOW_HEIGHT :: 1080
