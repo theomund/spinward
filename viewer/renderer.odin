@@ -12,14 +12,20 @@ run :: proc() {
 	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)
 	defer rl.CloseWindow()
 
+	camera := new_camera()
 	sector := new_sector("Spinward Marches", {38, 6})
 
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
 
 		rl.ClearBackground(rl.BLACK)
-		draw_sector(sector)
 		rl.DrawFPS(16, WINDOW_HEIGHT - 32)
+
+		zoom_camera(&camera)
+
+		rl.BeginMode2D(camera)
+		draw_sector(sector)
+		rl.EndMode2D()
 
 		rl.EndDrawing()
 	}
