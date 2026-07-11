@@ -16,8 +16,11 @@ run :: proc() {
 
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
+
 		rl.ClearBackground(rl.BLACK)
 		draw_sector(sector)
+		rl.DrawFPS(16, WINDOW_HEIGHT - 32)
+
 		rl.EndDrawing()
 	}
 }
