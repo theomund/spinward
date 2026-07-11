@@ -12,7 +12,7 @@ Hex :: struct {
 	q, r: i32,
 }
 
-new_hex :: proc(q: i32, r: i32) -> Hex {
+new_hex :: proc(q, r: i32) -> Hex {
 	return {q, r}
 }
 
