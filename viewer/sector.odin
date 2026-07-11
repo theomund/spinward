@@ -10,25 +10,26 @@ import rl "vendor:raylib"
 
 Sector :: struct {
 	name:   string,
-	hexes:  [SECTOR_SIZE]Hex,
+	hexes:  [SECTOR_ROWS][SECTOR_COLUMNS]Hex,
 	origin: rl.Vector2,
 }
 
-new_sector :: proc(
-	name: string,
-	origin: rl.Vector2 = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2},
-) -> Sector {
-	hexes: [SECTOR_SIZE]Hex
+new_sector :: proc(name: string, origin: rl.Vector2) -> Sector {
+	hexes: [SECTOR_ROWS][SECTOR_COLUMNS]Hex
 
-	for &hex in hexes {
-		hex = new_hex("Unknown", origin)
+	for &row, y in hexes {
+		for &hex, x in row {
+			hex = oddq_to_axial({i32(x), i32(y)})
+		}
 	}
 
 	return {name, hexes, origin}
 }
 
 draw_sector :: proc(sector: Sector) {
-	for hex in sector.hexes {
-		draw_hex(hex)
+	for row in sector.hexes {
+		for hex in row {
+			draw_hex(hex)
+		}
 	}
 }
