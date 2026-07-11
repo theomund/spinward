@@ -21,6 +21,7 @@ run :: proc() {
 		rl.ClearBackground(rl.BLACK)
 		rl.DrawFPS(16, WINDOW_HEIGHT - 32)
 
+		pan_camera(&camera)
 		zoom_camera(&camera)
 
 		rl.BeginMode2D(camera)
