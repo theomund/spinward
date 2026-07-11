@@ -25,7 +25,7 @@ lint:
 	odin check . -vet
 	yamllint .github/workflows/linux.yml
 
-run:	
+run:
 	odin run .
 
 test:
