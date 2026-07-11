@@ -26,7 +26,7 @@ oddq_to_axial :: proc(coord: Coordinate) -> Hex {
 }
 
 oddq_offset_to_pixel :: proc(coord: Coordinate) -> rl.Vector2 {
-	x := 3 / 2 * f32(coord.col)
+	x := 1.5 * f32(coord.col)
 	y := math.SQRT_THREE * (f32(coord.row) + 0.5 * f32(coord.col & 1))
 	x *= HEX_SIZE
 	y *= HEX_SIZE
