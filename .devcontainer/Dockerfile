@@ -8,6 +8,7 @@ RUN dnf copr enable -y sisyphus1813/odin-lang \
     clang-22.1.8 \
     git-2.55.0 \
     hadolint-2.14.0 \
+    kcov-43 \
     libXcursor-devel-1.2.3 \
     libXi-devel-1.8.3 \
     libXinerama-devel-1.1.5 \
