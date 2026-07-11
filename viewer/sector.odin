@@ -6,6 +6,8 @@
 
 package viewer
 
+import rl "vendor:raylib"
+
 Sector :: struct {
 	name:   cstring,
 	hexes:  [SECTOR_ROWS][SECTOR_COLUMNS]Hex,
@@ -30,4 +32,8 @@ draw_sector :: proc(sector: Sector) {
 			draw_hex(hex)
 		}
 	}
+
+	position := oddq_offset_to_pixel({sector.origin.col + 4, sector.origin.row + 18})
+
+	rl.DrawText(sector.name, i32(position.x - 8), i32(position.y - 8), 48, rl.WHITE)
 }
