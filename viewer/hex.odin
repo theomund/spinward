@@ -6,10 +6,11 @@
 
 package viewer
 
+import "core:fmt"
 import "core:math"
 import rl "vendor:raylib"
 
-Hex :: distinct rl.Vector3
+Hex :: rl.Vector3
 
 new_hex :: proc(q, r, s: f32) -> Hex {
 	assert(q + r + s == 0)
@@ -17,8 +18,8 @@ new_hex :: proc(q, r, s: f32) -> Hex {
 	return {q, r, s}
 }
 
-draw_hex :: proc(hex: Hex) {
-	rl.DrawPolyLines({0, 0}, 6, HEX_SIZE, 0, rl.DARKGRAY)
+hex_index :: proc(x, y: i32) -> string {
+	return fmt.aprintf("%02d%02d", x, y)
 }
 
 hex_to_pixel :: proc(layout: Layout, h: Hex) -> Point {

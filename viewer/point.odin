@@ -8,7 +8,7 @@ package viewer
 
 import rl "vendor:raylib"
 
-Point :: distinct rl.Vector2
+Point :: rl.Vector2
 
 new_point :: proc(x, y: f32) -> Point {
 	return {x, y}
