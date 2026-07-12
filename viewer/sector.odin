@@ -6,34 +6,22 @@
 
 package viewer
 
-import rl "vendor:raylib"
-
 Sector :: struct {
 	name:   cstring,
-	hexes:  [SECTOR_ROWS][SECTOR_COLUMNS]Hex(i32),
-	origin: Coordinate,
+	hexes:  map[string]Hex,
+	layout: Layout,
 }
 
-new_sector :: proc(name: cstring, origin: Coordinate) -> Sector {
-	hexes: [SECTOR_ROWS][SECTOR_COLUMNS]Hex(i32)
+new_sector :: proc(name: cstring, origin: Point = {0, 0}) -> Sector {
+	hexes: map[string]Hex
 
-	for &row, y in hexes {
-		for &hex, x in row {
-			hex = oddq_to_axial({origin.col + i32(x), origin.row + i32(y)})
-		}
-	}
+	layout := new_layout(flat_orientation(), origin, {SECTOR_ROWS, SECTOR_COLUMNS})
 
-	return {name, hexes, origin}
+	return {name, hexes, layout}
 }
 
 draw_sector :: proc(sector: Sector) {
-	for row in sector.hexes {
-		for hex in row {
-			draw_hex(hex)
-		}
+	for _, hex in sector.hexes {
+		draw_hex(hex)
 	}
-
-	position := oddq_offset_to_pixel({sector.origin.col + 4, sector.origin.row + 18})
-
-	rl.DrawText(sector.name, i32(position.x - 8), i32(position.y - 8), 48, rl.WHITE)
 }

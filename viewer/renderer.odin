@@ -13,7 +13,7 @@ run :: proc() {
 	defer rl.CloseWindow()
 
 	camera := new_camera()
-	sector := new_sector("Spinward Marches", {38, 6})
+	sector := new_sector("Spinward Marches")
 
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()

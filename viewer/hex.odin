@@ -6,40 +6,46 @@
 
 package viewer
 
-import "base:intrinsics"
 import "core:math"
 import rl "vendor:raylib"
 
-Hex :: struct($T: typeid) where intrinsics.type_is_numeric(T) {
-	q, r: T,
+Hex :: distinct rl.Vector3
+
+new_hex :: proc(q, r, s: f32) -> Hex {
+	assert(q + r + s == 0)
+
+	return {q, r, s}
 }
 
-new_hex :: proc(q, r: $T) -> Hex(T) {
-	return {q, r}
+draw_hex :: proc(hex: Hex) {
+	rl.DrawPolyLines({0, 0}, 6, HEX_SIZE, 0, rl.DARKGRAY)
 }
 
-draw_hex :: proc(hex: Hex(i32)) {
-	center := oddq_offset_to_pixel(axial_to_oddq(hex))
-	rl.DrawPolyLines(center, 6, HEX_SIZE, 0, rl.DARKGRAY)
+hex_to_pixel :: proc(layout: Layout, h: Hex) -> Point {
+	M := layout.orientation
+
+	x := (M.f[0][0] * h.x + M.f[0][1] * h.y) * layout.size.x
+	y := (M.f[1][0] * h.x + M.f[1][1] * h.y) * layout.size.y
+
+	return new_point(x + layout.origin.x, y + layout.origin.y)
 }
 
-axial_to_oddq :: proc(hex: Hex(i32)) -> Coordinate {
-	parity := hex.q & 1
-	col := hex.q
-	row := hex.r + (hex.q - parity) / 2
+hex_round :: proc(h: Hex) -> Hex {
+	q := math.round(h.x)
+	r := math.round(h.y)
+	s := math.round(h.z)
 
-	return new_coordinate(col, row)
-}
+	q_diff := math.abs(q - h.x)
+	r_diff := math.abs(r - h.y)
+	s_diff := math.abs(s - h.z)
 
-pixel_to_flat_hex :: proc(point: rl.Vector2) -> Hex(i32) {
-	x := point.x / HEX_SIZE
-	y := point.y / HEX_SIZE
-	q := ((2.0 / 3) * x)
-	r := ((-1.0 / 3) * x + (math.SQRT_THREE / 3) * y)
+	if q_diff > r_diff && q_diff > s_diff {
+		q = -r - s
+	} else if r_diff > s_diff {
+		r = -q - s
+	} else {
+		s = -q - r
+	}
 
-	return axial_round(new_hex(q, r))
-}
-
-axial_round :: proc(frac: Hex(f32)) -> Hex(i32) {
-	return cube_to_axial(cube_round(axial_to_cube(frac)))
+	return new_hex(q, r, s)
 }
