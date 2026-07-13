@@ -19,7 +19,7 @@ new_hex :: proc(q, r, s: f32) -> Hex {
 }
 
 hex_index :: proc(x, y: i32) -> string {
-	return fmt.aprintf("%02d%02d", x, y)
+	return fmt.tprintf("%02d%02d", x + 1, y + 1)
 }
 
 hex_to_pixel :: proc(layout: Layout, h: Hex) -> Point {
