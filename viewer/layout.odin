@@ -7,9 +7,8 @@
 package viewer
 
 Layout :: struct {
-	orientation: Orientation,
-	origin:      Point,
-	size:        Point,
+	orientation:  Orientation,
+	origin, size: Point,
 }
 
 new_layout :: proc(orientation: Orientation, origin, size: Point) -> Layout {
