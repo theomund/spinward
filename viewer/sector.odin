@@ -10,7 +10,7 @@ import rl "vendor:raylib"
 
 Sector :: struct {
 	name:   cstring,
-	hexes:  map[string]Hex,
+	hexes:  map[string]Hex(int),
 	layout: Layout,
 }
 
@@ -19,11 +19,11 @@ new_sector :: proc(
 	origin: Point = {0, 0},
 	size: Point = {SECTOR_COLUMNS, SECTOR_ROWS},
 ) -> Sector {
-	hexes: map[string]Hex
+	hexes: map[string]Hex(int)
 
-	for y in 0 ..< size.y {
-		for x in 0 ..< size.x {
-			index := hex_index(i32(x), i32(y))
+	for y in 0 ..< int(size.y) {
+		for x in 0 ..< int(size.x) {
+			index := hex_index(x, y)
 			hexes[index] = new_hex(x, y, -x - y)
 		}
 	}
@@ -39,7 +39,7 @@ draw_sector :: proc(sector: Sector) {
 	}
 }
 
-draw_hex :: proc(layout: Layout, hex: Hex) {
+draw_hex :: proc(layout: Layout, hex: Hex(int)) {
 	center := hex_to_pixel(layout, hex)
-	rl.DrawPolyLines(center, 6, HEX_SIZE, 0, rl.DARKGRAY)
+	rl.DrawPolyLines(point_to_vector(center), 6, HEX_SIZE, 0, rl.DARKGRAY)
 }
