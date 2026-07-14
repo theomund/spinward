@@ -24,7 +24,7 @@ hex_index :: proc(x, y: int) -> string {
 	return fmt.tprintf("%02d%02d", x + 1, y + 1)
 }
 
-hex_lerp :: proc(a: Hex(f64), b: Hex(f64), t: f64) -> Hex(f64) {
+hex_lerp :: proc(a, b: Hex(f64), t: f64) -> Hex(f64) {
 	return new_hex(a.q * (1.0 - t) + b.q * t, a.r * (1.0 - t) + b.r * t, a.s * (1.0 - t) + b.s * t)
 }
 

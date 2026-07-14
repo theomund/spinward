@@ -12,6 +12,6 @@ Layout :: struct {
 	size:        Point,
 }
 
-new_layout :: proc(orientation: Orientation, origin: Point, size: Point) -> Layout {
+new_layout :: proc(orientation: Orientation, origin, size: Point) -> Layout {
 	return {orientation, size, origin}
 }
