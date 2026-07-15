@@ -22,3 +22,14 @@ test_pan_camera :: proc(t: ^testing.T) {
 
 	testing.expect_value(t, camera.target, rl.Vector2{-1.0, -2.0})
 }
+
+@(test)
+test_zoom_camera :: proc(t: ^testing.T) {
+	camera := new_camera()
+
+	zoom_camera(&camera, 1.0, {1.0, 2.0})
+
+	testing.expect_value(t, camera.offset, rl.Vector2{1, 2})
+	testing.expect_value(t, camera.target, rl.Vector2{1, 2})
+	testing.expect_value(t, camera.zoom, 1.2214028)
+}
