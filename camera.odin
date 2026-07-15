@@ -13,26 +13,24 @@ new_camera :: proc() -> rl.Camera2D {
 	return {zoom = 1.0}
 }
 
-pan_camera :: proc(camera: ^rl.Camera2D) {
+poll_camera :: proc(camera: ^rl.Camera2D) {
 	if rl.IsMouseButtonDown(.RIGHT) {
-		delta := rl.GetMouseDelta()
-		delta *= -1.0 / camera.zoom
+		pan_camera(camera, rl.GetMouseDelta())
+	}
 
-		camera.target += delta
+	if wheel := rl.GetMouseWheelMove(); wheel != 0.0 {
+		zoom_camera(camera, wheel, rl.GetMousePosition())
 	}
 }
 
-zoom_camera :: proc(camera: ^rl.Camera2D) {
-	if wheel := rl.GetMouseWheelMove(); wheel != 0.0 {
-		position := rl.GetMousePosition()
-		world := rl.GetScreenToWorld2D(position, camera^)
+pan_camera :: proc(camera: ^rl.Camera2D, delta: rl.Vector2) {
+	camera.target += delta * -1.0 / camera.zoom
+}
 
-		camera.offset = position
-		camera.target = world
-
-		scale := 0.2 * wheel
-		value := math.exp(math.log(camera.zoom, math.E) + scale)
-
-		camera.zoom = clamp(value, 0.125, 64.0)
+zoom_camera :: proc(camera: ^rl.Camera2D, wheel: f32, position: rl.Vector2) {
+	camera^ = {
+		offset = position,
+		target = rl.GetScreenToWorld2D(position, camera^),
+		zoom   = clamp(math.exp(math.log(camera.zoom, math.E) + 0.2 * wheel), 0.125, 64.0),
 	}
 }
