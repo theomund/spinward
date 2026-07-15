@@ -8,10 +8,6 @@ package main
 
 import rl "vendor:raylib"
 
-Error :: enum {
-	Initialization_Failed,
-}
-
 run :: proc() -> Error {
 	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)
 	defer rl.CloseWindow()

@@ -9,12 +9,6 @@ package main
 import "core:math"
 import rl "vendor:raylib"
 
-Sector :: struct {
-	name:   cstring,
-	hexes:  map[string]Hex,
-	layout: Layout,
-}
-
 new_sector :: proc(
 	name: cstring,
 	origin: Point = {0, 0},

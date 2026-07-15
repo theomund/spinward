@@ -8,9 +8,6 @@ package main
 
 import "core:fmt"
 import "core:math"
-import rl "vendor:raylib"
-
-Hex :: rl.Vector3
 
 new_hex :: proc(q, r, s: f32) -> Hex {
 	assert(math.round(q + r + s) == 0)
