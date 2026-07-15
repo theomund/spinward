@@ -6,6 +6,7 @@
 
 package main
 
+import "core:math"
 import rl "vendor:raylib"
 
 Sector :: struct {
@@ -27,7 +28,7 @@ new_sector :: proc(
 	bottom := size.y
 
 	for q := left; q < right; q += 1 {
-		q_offset := f32(i32(q) >> 1)
+		q_offset := math.floor(q / 2.0)
 		for r := top - q_offset; r <= bottom - q_offset; r += 1 {
 			hex := new_hex(q, r, -q - r)
 			index := hex_index(hex)
