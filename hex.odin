@@ -31,8 +31,8 @@ hex_to_pixel :: proc(layout: Layout, h: Hex) -> Point {
 	size := layout.size
 	origin := layout.origin
 
-	x := (M.f0 * h.x + M.f1 * h.y) * size.x
-	y := (M.f2 * h.x + M.f3 * h.y) * size.y
+	x := (M.f[0, 0] * h.x + M.f[0, 1] * h.y) * size.x
+	y := (M.f[1, 0] * h.x + M.f[1, 1] * h.y) * size.y
 
 	return new_point(x + origin.x, y + origin.y)
 }

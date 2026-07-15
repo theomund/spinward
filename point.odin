@@ -21,8 +21,8 @@ pixel_to_hex_fractional :: proc(layout: Layout, p: Point) -> Hex {
 
 	pt := new_point((p.x - origin.x) / size.x, (p.y - origin.y) / size.y)
 
-	q := M.b0 * pt.x + M.b1 * pt.y
-	r := M.b2 * pt.x + M.b3 * pt.y
+	q := M.b[0, 0] * pt.x + M.b[0, 1] * pt.y
+	r := M.b[1, 0] * pt.x + M.b[1, 1] * pt.y
 
 	return new_hex(q, r, -q - r)
 }
