@@ -6,8 +6,6 @@
 
 package main
 
-import "viewer"
-
 main :: proc() {
-	viewer.run()
+	run()
 }

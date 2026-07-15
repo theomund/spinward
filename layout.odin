@@ -4,13 +4,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package viewer
+package main
 
-HEX_SIZE :: 12
+Layout :: struct {
+	orientation:  Orientation,
+	origin, size: Point,
+}
 
-WINDOW_WIDTH :: 1920
-WINDOW_HEIGHT :: 1080
-WINDOW_TITLE :: "Spinward"
-
-SECTOR_COLUMNS :: 32
-SECTOR_ROWS :: 40
+new_layout :: proc(orientation: Orientation, origin, size: Point) -> Layout {
+	return {orientation, size, origin}
+}

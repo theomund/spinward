@@ -29,4 +29,4 @@ run:
 	odin run .
 
 test:
-	odin test . --all-packages
+	odin test .
