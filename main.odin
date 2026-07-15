@@ -6,6 +6,10 @@
 
 package main
 
+import "core:os"
+
 main :: proc() {
-	run()
+	if err := run(); err != nil {
+		os.exit(1)
+	}
 }

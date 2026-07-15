@@ -8,9 +8,17 @@ package main
 
 import rl "vendor:raylib"
 
-run :: proc() {
+Error :: enum {
+	Initialization_Failed,
+}
+
+run :: proc() -> Error {
 	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)
 	defer rl.CloseWindow()
+
+	if rl.IsWindowReady() {
+		return .Initialization_Failed
+	}
 
 	camera := new_camera()
 	sector := new_sector("Spinward Marches")
@@ -30,4 +38,6 @@ run :: proc() {
 
 		rl.EndDrawing()
 	}
+
+	return nil
 }
