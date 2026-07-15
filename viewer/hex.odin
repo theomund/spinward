@@ -20,21 +20,23 @@ new_hex :: proc(q, r, s: $T) -> Hex(T) {
 	return {q, r, s}
 }
 
-hex_index :: proc(x, y: int) -> string {
-	return fmt.tprintf("%02d%02d", x + 1, y + 1)
+hex_index :: proc(h: Hex(int)) -> string {
+	return fmt.tprintf("%02d%02d", h.q + 1, h.r + 1)
 }
 
 hex_lerp :: proc(a, b: Hex(f64), t: f64) -> Hex(f64) {
-	return new_hex(a.q * (1.0 - t) + b.q * t, a.r * (1.0 - t) + b.r * t, a.s * (1.0 - t) + b.s * t)
+	return new_hex(math.lerp(a.q, b.q, t), math.lerp(a.r, b.r, t), math.lerp(a.s, b.s, t))
 }
 
 hex_to_pixel :: proc(layout: Layout, h: Hex(int)) -> Point {
 	M := layout.orientation
+	size := layout.size
+	origin := layout.origin
 
-	x := (M.f0 * f64(h.q) + M.f1 * f64(h.r)) * layout.size.x
-	y := (M.f2 * f64(h.q) + M.f3 * f64(h.r)) * layout.size.y
+	x := (M.f0 * f64(h.q) + M.f1 * f64(h.r)) * size.x
+	y := (M.f2 * f64(h.q) + M.f3 * f64(h.r)) * size.y
 
-	return new_point(x + layout.origin.x, y + layout.origin.y)
+	return new_point(x + origin.x, y + origin.y)
 }
 
 hex_round :: proc(h: Hex(f64)) -> Hex(int) {

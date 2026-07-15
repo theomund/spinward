@@ -9,11 +9,17 @@ package viewer
 import "core:testing"
 
 @(test)
+test_new_hex :: proc(t: ^testing.T) {
+	testing.expect_value(t, new_hex(1, 1, -2), Hex(int){1, 1, -2})
+	testing.expect_value(t, new_hex(1.0, 1.0, -2.0), Hex(f64){1.0, 1.0, -2.0})
+}
+
+@(test)
 test_hex_index :: proc(t: ^testing.T) {
-	testing.expect_value(t, hex_index(0, 0), "0101")
-	testing.expect_value(t, hex_index(1, 0), "0201")
-	testing.expect_value(t, hex_index(0, 1), "0102")
-	testing.expect_value(t, hex_index(1, 1), "0202")
+	testing.expect_value(t, hex_index(new_hex(0, 0, 0)), "0101")
+	testing.expect_value(t, hex_index(new_hex(1, 0, -1)), "0201")
+	testing.expect_value(t, hex_index(new_hex(0, 1, -1)), "0102")
+	testing.expect_value(t, hex_index(new_hex(1, 1, -2)), "0202")
 }
 
 @(test)

@@ -21,10 +21,17 @@ new_sector :: proc(
 ) -> Sector {
 	hexes: map[string]Hex(int)
 
-	for y in 0 ..< int(size.y) {
-		for x in 0 ..< int(size.x) {
-			index := hex_index(x, y)
-			hexes[index] = new_hex(x, y, -x - y)
+	left := int(origin.x)
+	right := int(size.x)
+	top := int(origin.y)
+	bottom := int(size.y)
+
+	for q := left; q < right; q += 1 {
+		q_offset := q >> 1
+		for r := top - q_offset; r <= bottom - q_offset; r += 1 {
+			hex := new_hex(q, r, -q - r)
+			index := hex_index(hex)
+			hexes[index] = hex
 		}
 	}
 
@@ -40,6 +47,6 @@ draw_sector :: proc(sector: Sector) {
 }
 
 draw_hex :: proc(layout: Layout, hex: Hex(int)) {
-	center := hex_to_pixel(layout, hex)
-	rl.DrawPolyLines(point_to_vector(center), 6, HEX_SIZE, 0, rl.DARKGRAY)
+	center := point_to_vector(hex_to_pixel(layout, hex))
+	rl.DrawPolyLines(center, 6, HEX_SIZE, 0, rl.DARKGRAY)
 }

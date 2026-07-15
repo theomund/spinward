@@ -22,11 +22,11 @@ point_to_vector :: proc(p: Point) -> rl.Vector2 {
 
 pixel_to_hex_fractional :: proc(layout: Layout, p: Point) -> Hex(f64) {
 	M := layout.orientation
+	origin := layout.origin
+	size := layout.size
 
-	pt := new_point(
-		(p.x - layout.origin.x) / layout.size.x,
-		(p.y - layout.origin.y) / layout.size.y,
-	)
+	pt := new_point((p.x - origin.x) / size.x, (p.y - origin.y) / size.y)
+
 	q := M.b0 * pt.x + M.b1 * pt.y
 	r := M.b2 * pt.x + M.b3 * pt.y
 

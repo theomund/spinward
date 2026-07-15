@@ -31,6 +31,8 @@ zoom_camera :: proc(camera: ^rl.Camera2D) {
 		camera.target = world
 
 		scale := 0.2 * wheel
-		camera.zoom = clamp(math.exp(math.log(camera.zoom, math.E) + scale), 0.125, 64.0)
+		value := math.exp(math.log(camera.zoom, math.E) + scale)
+
+		camera.zoom = clamp(value, 0.125, 64.0)
 	}
 }
