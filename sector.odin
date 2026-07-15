@@ -27,7 +27,7 @@ new_sector :: proc(
 	top := origin.y
 	bottom := size.y
 
-	for q := left; q < right; q += 1 {
+	for q := left; q <= right; q += 1 {
 		q_offset := math.floor(q / 2.0)
 		for r := top - q_offset; r <= bottom - q_offset; r += 1 {
 			hex := new_hex(q, r, -q - r)
