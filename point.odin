@@ -8,19 +8,13 @@ package main
 
 import rl "vendor:raylib"
 
-Point :: struct {
-	x, y: f64,
-}
+Point :: rl.Vector2
 
-new_point :: proc(x, y: f64) -> Point {
+new_point :: proc(x, y: f32) -> Point {
 	return {x, y}
 }
 
-point_to_vector :: proc(p: Point) -> rl.Vector2 {
-	return {f32(p.x), f32(p.y)}
-}
-
-pixel_to_hex_fractional :: proc(layout: Layout, p: Point) -> Hex(f64) {
+pixel_to_hex_fractional :: proc(layout: Layout, p: Point) -> Hex {
 	M := layout.orientation
 	origin := layout.origin
 	size := layout.size
@@ -33,6 +27,6 @@ pixel_to_hex_fractional :: proc(layout: Layout, p: Point) -> Hex(f64) {
 	return new_hex(q, r, -q - r)
 }
 
-pixel_to_hex_rounded :: proc(layout: Layout, p: Point) -> Hex(int) {
+pixel_to_hex_rounded :: proc(layout: Layout, p: Point) -> Hex {
 	return hex_round(pixel_to_hex_fractional(layout, p))
 }

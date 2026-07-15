@@ -9,15 +9,15 @@ package main
 import "core:math"
 
 Orientation :: struct {
-	f0:          f64,
-	f1:          f64,
-	f2:          f64,
-	f3:          f64,
-	b0:          f64,
-	b1:          f64,
-	b2:          f64,
-	b3:          f64,
-	start_angle: f64,
+	f0:          f32,
+	f1:          f32,
+	f2:          f32,
+	f3:          f32,
+	b0:          f32,
+	b1:          f32,
+	b2:          f32,
+	b3:          f32,
+	start_angle: f32,
 }
 
 flat_orientation :: proc() -> Orientation {

@@ -6,47 +6,45 @@
 
 package main
 
-import "base:intrinsics"
 import "core:fmt"
 import "core:math"
+import rl "vendor:raylib"
 
-Hex :: struct($T: typeid) where intrinsics.type_is_numeric(T) {
-	q, r, s: T,
-}
+Hex :: rl.Vector3
 
-new_hex :: proc(q, r, s: $T) -> Hex(T) {
-	assert(math.round(f64(q + r + s)) == 0)
+new_hex :: proc(q, r, s: f32) -> Hex {
+	assert(math.round(q + r + s) == 0)
 
 	return {q, r, s}
 }
 
-hex_index :: proc(h: Hex(int)) -> string {
-	return fmt.tprintf("%02d%02d", h.q + 1, h.r + 1)
+hex_index :: proc(h: Hex) -> string {
+	return fmt.tprintf("%02d%02d", i32(h.x + 1), i32(h.y + 1))
 }
 
-hex_lerp :: proc(a, b: Hex(f64), t: f64) -> Hex(f64) {
-	return new_hex(math.lerp(a.q, b.q, t), math.lerp(a.r, b.r, t), math.lerp(a.s, b.s, t))
+hex_lerp :: proc(a, b: Hex, t: f32) -> Hex {
+	return math.lerp(a, b, t)
 }
 
-hex_to_pixel :: proc(layout: Layout, h: Hex(int)) -> Point {
+hex_to_pixel :: proc(layout: Layout, h: Hex) -> Point {
 	M := layout.orientation
 	size := layout.size
 	origin := layout.origin
 
-	x := (M.f0 * f64(h.q) + M.f1 * f64(h.r)) * size.x
-	y := (M.f2 * f64(h.q) + M.f3 * f64(h.r)) * size.y
+	x := (M.f0 * h.x + M.f1 * h.y) * size.x
+	y := (M.f2 * h.x + M.f3 * h.y) * size.y
 
 	return new_point(x + origin.x, y + origin.y)
 }
 
-hex_round :: proc(h: Hex(f64)) -> Hex(int) {
-	q := int(math.round(h.q))
-	r := int(math.round(h.r))
-	s := int(math.round(h.s))
+hex_round :: proc(h: Hex) -> Hex {
+	q := math.round(h.x)
+	r := math.round(h.y)
+	s := math.round(h.z)
 
-	q_diff := math.abs(f64(q) - h.q)
-	r_diff := math.abs(f64(r) - h.r)
-	s_diff := math.abs(f64(s) - h.s)
+	q_diff := math.abs(q - h.x)
+	r_diff := math.abs(r - h.y)
+	s_diff := math.abs(s - h.z)
 
 	if q_diff > r_diff && q_diff > s_diff {
 		q = -r - s
