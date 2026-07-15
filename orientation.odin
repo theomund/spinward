@@ -20,10 +20,6 @@ Orientation :: struct {
 	start_angle: f64,
 }
 
-new_orientation :: proc(f0, f1, f2, f3, b0, b1, b2, b3, start_angle: f64) -> Orientation {
-	return {f0, f1, f2, f3, b0, b1, b2, b3, start_angle}
-}
-
 flat_orientation :: proc() -> Orientation {
 	return {
 		3.0 / 2.0,
