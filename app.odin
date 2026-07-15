@@ -16,7 +16,7 @@ run :: proc() -> Error {
 	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)
 	defer rl.CloseWindow()
 
-	if rl.IsWindowReady() {
+	if !rl.IsWindowReady() {
 		return .Initialization_Failed
 	}
 
