@@ -19,7 +19,7 @@ clean:
 
 coverage:
 	odin build . -build-mode:test -debug
-	kcov --dump-summary --exclude-pattern=_test.odin --include-path=. --include-pattern=.odin .kcov spinward
+	kcov --dump-summary --exclude-pattern=_test.odin --include-path=. .kcov spinward
 
 format:
 	odinfmt . -w
