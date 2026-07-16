@@ -6,10 +6,9 @@
 
 package main
 
-import "core:os"
+import "core:testing"
 
-main :: proc() {
-	if err := run(); err != nil {
-		os.exit(1)
-	}
+@(test)
+test_new_point :: proc(t: ^testing.T) {
+	testing.expect_value(t, new_point(1, 2), Point{1, 2})
 }

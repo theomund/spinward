@@ -4,16 +4,20 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package viewer
+package main
 
 import rl "vendor:raylib"
 
-run :: proc() {
+run :: proc() -> Error {
 	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)
 	defer rl.CloseWindow()
 
+	if !rl.IsWindowReady() {
+		return .Initialization_Failed
+	}
+
 	camera := new_camera()
-	sector := new_sector("Spinward Marches", {38, 6})
+	sector := new_sector("Spinward Marches")
 
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
@@ -21,13 +25,14 @@ run :: proc() {
 		rl.ClearBackground(rl.BLACK)
 		rl.DrawFPS(16, WINDOW_HEIGHT - 32)
 
-		pan_camera(&camera)
-		zoom_camera(&camera)
+		poll_camera(&camera)
 
 		rl.BeginMode2D(camera)
-		draw_sector(sector)
+		draw_sector(sector, camera)
 		rl.EndMode2D()
 
 		rl.EndDrawing()
 	}
+
+	return nil
 }

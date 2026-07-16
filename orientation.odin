@@ -6,10 +6,14 @@
 
 package main
 
-import "core:os"
+import "core:math"
+import "core:math/linalg"
 
-main :: proc() {
-	if err := run(); err != nil {
-		os.exit(1)
+flat_orientation :: proc() -> Orientation {
+	f := matrix[2, 2]f32{
+		3.0 / 2.0, 0.0,
+		math.SQRT_THREE / 2.0, math.SQRT_THREE,
 	}
+
+	return {f, linalg.inverse(f), 0.0}
 }

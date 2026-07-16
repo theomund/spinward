@@ -6,10 +6,13 @@
 
 package main
 
-import "core:os"
+HEX_SIZE :: 24
 
-main :: proc() {
-	if err := run(); err != nil {
-		os.exit(1)
-	}
-}
+ODD_OFFSET :: -1
+
+WINDOW_WIDTH :: 1920
+WINDOW_HEIGHT :: 1080
+WINDOW_TITLE :: "Spinward"
+
+SECTOR_COLUMNS :: 32
+SECTOR_ROWS :: 40
