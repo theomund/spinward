@@ -9,17 +9,13 @@ package main
 import "core:math"
 import rl "vendor:raylib"
 
-new_sector :: proc(
-	name: string,
-	origin: Point = {0, 0},
-	size: Point = {SECTOR_COLUMNS, SECTOR_ROWS},
-) -> Sector {
+new_sector :: proc(name: string, origin: Point = {0, 0}) -> Sector {
 	hexes: map[string]Hex
 
 	left := origin.x
-	right := size.x
+	right := origin.x + SECTOR_COLUMNS
 	top := origin.y
-	bottom := size.y
+	bottom := origin.y + SECTOR_ROWS
 
 	for q := left; q < right; q += 1 {
 		q_offset := math.floor(q / 2.0)
@@ -30,7 +26,7 @@ new_sector :: proc(
 		}
 	}
 
-	layout := new_layout(flat_orientation(), origin, size)
+	layout := new_layout(flat_orientation(), origin, {HEX_SIZE, HEX_SIZE})
 
 	return {name, hexes, layout}
 }

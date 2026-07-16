@@ -15,5 +15,5 @@ test_new_sector :: proc(t: ^testing.T) {
 
 	testing.expect_value(t, sector.name, "Foo")
 	testing.expect_value(t, sector.layout.origin, Point{0, 0})
-	testing.expect_value(t, sector.layout.size, Point{SECTOR_COLUMNS, SECTOR_ROWS})
+	testing.expect_value(t, sector.layout.size, Point{12, 12})
 }
