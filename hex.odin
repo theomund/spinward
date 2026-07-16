@@ -15,33 +15,35 @@ new_hex :: proc(q, r, s: f32) -> Hex {
 	return {q, r, s}
 }
 
-hex_index :: proc(h: Hex) -> string {
-	return fmt.tprintf("%02d%02d", i32(h.x + 1), i32(h.y + 1))
+hex_index :: proc(hex: Hex) -> string {
+	offset := qoffset_from_cube(hex)
+
+	return fmt.tprintf("%02d%02d", i32(offset.x + 1), i32(offset.y + 1))
 }
 
 hex_lerp :: proc(a, b: Hex, t: f32) -> Hex {
 	return math.lerp(a, b, t)
 }
 
-hex_to_pixel :: proc(layout: Layout, h: Hex) -> Point {
+hex_to_pixel :: proc(layout: Layout, hex: Hex) -> Point {
 	M := layout.orientation
 	size := layout.size
 	origin := layout.origin
 
-	x := (M.f[0, 0] * h.x + M.f[0, 1] * h.y) * size.x
-	y := (M.f[1, 0] * h.x + M.f[1, 1] * h.y) * size.y
+	x := (M.f[0, 0] * hex.x + M.f[0, 1] * hex.y) * size.x
+	y := (M.f[1, 0] * hex.x + M.f[1, 1] * hex.y) * size.y
 
 	return new_point(x + origin.x, y + origin.y)
 }
 
-hex_round :: proc(h: Hex) -> Hex {
-	q := math.round(h.x)
-	r := math.round(h.y)
-	s := math.round(h.z)
+hex_round :: proc(hex: Hex) -> Hex {
+	q := math.round(hex.x)
+	r := math.round(hex.y)
+	s := math.round(hex.z)
 
-	q_diff := math.abs(q - h.x)
-	r_diff := math.abs(r - h.y)
-	s_diff := math.abs(s - h.z)
+	q_diff := math.abs(q - hex.x)
+	r_diff := math.abs(r - hex.y)
+	s_diff := math.abs(s - hex.z)
 
 	if q_diff > r_diff && q_diff > s_diff {
 		q = -r - s

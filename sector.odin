@@ -6,6 +6,7 @@
 
 package main
 
+import "core:fmt"
 import "core:math"
 import rl "vendor:raylib"
 
@@ -21,7 +22,7 @@ new_sector :: proc(
 	top := origin.y
 	bottom := size.y
 
-	for q := left; q <= right; q += 1 {
+	for q := left; q < right; q += 1 {
 		q_offset := math.floor(q / 2.0)
 		for r := top - q_offset; r <= bottom - q_offset; r += 1 {
 			hex := new_hex(q, r, -q - r)
@@ -45,7 +46,7 @@ draw_sector :: proc(sector: Sector) {
 	}
 }
 
-draw_hex :: proc(layout: Layout, h: Hex) {
-	center := hex_to_pixel(layout, h)
+draw_hex :: proc(layout: Layout, hex: Hex) {
+	center := hex_to_pixel(layout, hex)
 	rl.DrawPolyLines(center, 6, HEX_SIZE, 0, rl.DARKGRAY)
 }
