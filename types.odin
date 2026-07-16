@@ -19,6 +19,8 @@ Layout :: struct {
 	origin, size: Point,
 }
 
+Offset :: rl.Vector2
+
 Orientation :: struct {
 	f:           matrix[2, 2]f32,
 	b:           matrix[2, 2]f32,
