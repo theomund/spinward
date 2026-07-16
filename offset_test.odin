@@ -12,3 +12,15 @@ import "core:testing"
 test_new_offset :: proc(t: ^testing.T) {
 	testing.expect_value(t, new_offset(1, 2), Offset{1, 2})
 }
+
+@(test)
+test_qoffset_from_cube :: proc(t: ^testing.T) {
+	testing.expect_value(t, qoffset_from_cube(new_hex(-2, 3, -1)), new_offset(-2, 2))
+	testing.expect_value(t, qoffset_from_cube(new_hex(-1, -1, 2)), new_offset(-1, -2))
+}
+
+@(test)
+test_qoffset_to_cube :: proc(t: ^testing.T) {
+	testing.expect_value(t, qoffset_to_cube(new_offset(-2, 2)), new_hex(-2, 3, -1))
+	testing.expect_value(t, qoffset_to_cube(new_offset(-1, -2)), new_hex(-1, -1, 2))
+}

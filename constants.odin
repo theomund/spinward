@@ -8,6 +8,8 @@ package main
 
 HEX_SIZE :: 12
 
+ODD_OFFSET :: -1
+
 WINDOW_WIDTH :: 1920
 WINDOW_HEIGHT :: 1080
 WINDOW_TITLE :: "Spinward"
