@@ -7,5 +7,5 @@
 package main
 
 new_layout :: proc(orientation: Orientation, origin, size: Point) -> Layout {
-	return {orientation, size, origin}
+	return {orientation, origin, size}
 }

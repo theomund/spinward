@@ -10,7 +10,7 @@ import "core:math"
 import rl "vendor:raylib"
 
 new_sector :: proc(
-	name: cstring,
+	name: string,
 	origin: Point = {0, 0},
 	size: Point = {SECTOR_COLUMNS, SECTOR_ROWS},
 ) -> Sector {
@@ -33,6 +33,10 @@ new_sector :: proc(
 	layout := new_layout(flat_orientation(), origin, size)
 
 	return {name, hexes, layout}
+}
+
+delete_sector :: proc(sector: Sector) {
+	delete(sector.hexes)
 }
 
 draw_sector :: proc(sector: Sector) {

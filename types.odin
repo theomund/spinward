@@ -28,7 +28,7 @@ Orientation :: struct {
 Point :: rl.Vector2
 
 Sector :: struct {
-	name:   cstring,
+	name:   string,
 	hexes:  map[string]Hex,
 	layout: Layout,
 }
