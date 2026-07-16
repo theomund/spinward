@@ -6,7 +6,6 @@
 
 package main
 
-import "core:fmt"
 import "core:math"
 import rl "vendor:raylib"
 
