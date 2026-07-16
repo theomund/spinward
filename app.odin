@@ -28,7 +28,7 @@ run :: proc() -> Error {
 		poll_camera(&camera)
 
 		rl.BeginMode2D(camera)
-		draw_sector(sector)
+		draw_sector(sector, camera)
 		rl.EndMode2D()
 
 		rl.EndDrawing()

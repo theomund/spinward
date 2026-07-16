@@ -6,7 +6,7 @@
 
 package main
 
-HEX_SIZE :: 12
+HEX_SIZE :: 24
 
 ODD_OFFSET :: -1
 
