@@ -6,10 +6,12 @@
 
 package main
 
+import "core:os"
 import rl "vendor:raylib"
 
-Error :: enum {
-	Initialization_Failed,
+Error :: union {
+	os.Error,
+	Spinward_Error,
 }
 
 Hex :: rl.Vector3
@@ -33,4 +35,8 @@ Sector :: struct {
 	name:   string,
 	hexes:  map[string]Hex,
 	layout: Layout,
+}
+
+Spinward_Error :: enum {
+	Initialization_Failed,
 }

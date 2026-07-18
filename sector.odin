@@ -7,10 +7,13 @@
 package main
 
 import "core:math"
+import "core:path/filepath"
 import "core:strings"
 import rl "vendor:raylib"
 
-new_sector :: proc(name: string, origin: Point = {0, 0}) -> Sector {
+new_sector :: proc(path: string, origin: Point = {0, 0}) -> (sector: Sector, err: Error) {
+	name := filepath.short_stem(path)
+
 	hexes: map[string]Hex
 
 	left := origin.x
@@ -29,7 +32,7 @@ new_sector :: proc(name: string, origin: Point = {0, 0}) -> Sector {
 
 	layout := new_layout(flat_orientation(), origin, {HEX_SIZE, HEX_SIZE})
 
-	return {name, hexes, layout}
+	return {name, hexes, layout}, nil
 }
 
 delete_sector :: proc(sector: Sector) {

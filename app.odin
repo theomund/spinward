@@ -19,7 +19,7 @@ run :: proc() -> Error {
 	}
 
 	camera := new_camera()
-	sector := new_sector("Spinward Marches")
+	sector := new_sector("assets/Spinward Marches.tab") or_return
 
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
