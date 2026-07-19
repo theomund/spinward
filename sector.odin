@@ -43,7 +43,8 @@ new_sector :: proc(path: string, origin: Point = {0, 0}) -> (sector: Sector, err
 delete_sector :: proc(sector: Sector) {
 	delete(sector.name)
 
-	for _, system in sector.systems {
+	for index, system in sector.systems {
+		delete(index)
 		delete_system(system)
 	}
 
