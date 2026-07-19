@@ -40,9 +40,8 @@ Sector :: struct {
 }
 
 System :: struct {
-	name:  cstring,
-	hex:   Hex,
-	world: bool,
+	name: cstring,
+	hex:  Hex,
 }
 
 Spinward_Error :: enum {

@@ -53,7 +53,6 @@ new_sector :: proc(path: string, origin: Point = {0, 0}) -> (sector: Sector, err
 
 		if system := &systems[record[2]]; system != nil {
 			system.name = strings.clone_to_cstring(record[3])
-			system.world = true
 		}
 	}
 

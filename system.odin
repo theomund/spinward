@@ -8,8 +8,8 @@ package main
 
 import rl "vendor:raylib"
 
-new_system :: proc(hex: Hex, name: cstring = "", world := false) -> System {
-	return {name, hex, world}
+new_system :: proc(hex: Hex, name: cstring = "") -> System {
+	return {name, hex}
 }
 
 delete_system :: proc(system: System) {
@@ -23,7 +23,7 @@ draw_system :: proc(sector: Sector, index: cstring, system: System) {
 
 	center := hex_to_pixel(sector.layout, system.hex)
 
-	if system.world {
+	if system.name != "" {
 		rl.DrawCircle(i32(center.x), i32(center.y), WORLD_SIZE, rl.BLUE)
 	}
 
