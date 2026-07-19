@@ -8,6 +8,7 @@ package main
 
 import "core:fmt"
 import "core:math"
+import rl "vendor:raylib"
 
 new_hex :: proc(q, r, s: f32) -> Hex {
 	assert(math.round(q + r + s) == 0)
@@ -54,4 +55,10 @@ hex_round :: proc(hex: Hex) -> Hex {
 	}
 
 	return new_hex(q, r, s)
+}
+
+draw_hex :: proc(layout: Layout, hex: Hex, color: rl.Color) {
+	center := hex_to_pixel(layout, hex)
+
+	rl.DrawPolyLines(center, 6, HEX_SIZE, 0, color)
 }

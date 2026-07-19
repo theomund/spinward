@@ -6,7 +6,10 @@
 
 package main
 
-HEX_SIZE :: 24
+FONT_SIZE :: 16
+FONT_SPACING :: 2
+
+HEX_SIZE :: 64
 
 ODD_OFFSET :: -1
 
@@ -16,3 +19,5 @@ WINDOW_TITLE :: "Spinward"
 
 SECTOR_COLUMNS :: 32
 SECTOR_ROWS :: 40
+
+WORLD_SIZE :: 12

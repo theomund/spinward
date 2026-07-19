@@ -6,15 +6,17 @@
 
 package main
 
+import "core:encoding/csv"
 import "core:math"
+import "core:os"
 import "core:path/filepath"
 import "core:strings"
 import rl "vendor:raylib"
 
 new_sector :: proc(path: string, origin: Point = {0, 0}) -> (sector: Sector, err: Error) {
-	name := filepath.short_stem(path)
+	name := strings.clone_to_cstring(filepath.short_stem(path))
 
-	hexes: map[string]Hex
+	systems: map[string]System
 
 	left := origin.x
 	right := origin.x + SECTOR_COLUMNS
@@ -26,17 +28,48 @@ new_sector :: proc(path: string, origin: Point = {0, 0}) -> (sector: Sector, err
 		for r := top - q_offset; r <= bottom - q_offset; r += 1 {
 			hex := new_hex(q, r, -q - r)
 			index := hex_index(hex)
-			hexes[index] = hex
+			systems[index] = new_system(hex)
+		}
+	}
+
+	reader := csv.Reader {
+		comma               = '\t',
+		comment             = '#',
+		fields_per_record   = -1,
+		reuse_record        = true,
+		reuse_record_buffer = true,
+	}
+	defer csv.reader_destroy(&reader)
+
+	data := os.read_entire_file(path, context.allocator) or_return
+	defer delete(data)
+
+	csv.reader_init_with_string(&reader, string(data))
+
+	for record, _, err in csv.iterator_next(&reader) {
+		if err != nil {
+			return sector, err
+		}
+
+		if system := &systems[record[2]]; system != nil {
+			system.name = strings.clone_to_cstring(record[3])
+			system.world = true
 		}
 	}
 
 	layout := new_layout(flat_orientation(), origin, {HEX_SIZE, HEX_SIZE})
 
-	return {name, hexes, layout}, nil
+	return {name, systems, layout}, nil
 }
 
 delete_sector :: proc(sector: Sector) {
-	delete(sector.hexes)
+	delete(sector.name)
+
+	for _, system in sector.systems {
+		delete_system(system)
+	}
+
+	delete(sector.systems)
 }
 
 contains_hex :: proc(hex: Hex) -> bool {
@@ -46,24 +79,14 @@ contains_hex :: proc(hex: Hex) -> bool {
 }
 
 draw_sector :: proc(sector: Sector, camera: rl.Camera2D) {
-	for _, hex in sector.hexes {
-		draw_hex(sector.layout, hex, rl.DARKGRAY)
+	for index, system in sector.systems {
+		draw_system(sector, strings.clone_to_cstring(index), system)
 	}
 
 	position := rl.GetScreenToWorld2D(rl.GetMousePosition(), camera)
 	hovered := pixel_to_hex_rounded(sector.layout, position)
 
 	if contains_hex(hovered) {
-		index := strings.clone_to_cstring(hex_index(hovered))
-
-		rl.DrawText(index, i32(position.x), i32(position.y - 8), 8, rl.WHITE)
-
 		draw_hex(sector.layout, hovered, rl.RED)
 	}
-}
-
-draw_hex :: proc(layout: Layout, hex: Hex, color: rl.Color) {
-	center := hex_to_pixel(layout, hex)
-
-	rl.DrawPolyLines(center, 6, HEX_SIZE, 0, color)
 }

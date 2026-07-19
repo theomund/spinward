@@ -6,10 +6,12 @@
 
 package main
 
+import "core:encoding/csv"
 import "core:os"
 import rl "vendor:raylib"
 
 Error :: union {
+	csv.Error,
 	os.Error,
 	Spinward_Error,
 }
@@ -32,9 +34,15 @@ Orientation :: struct {
 Point :: rl.Vector2
 
 Sector :: struct {
-	name:   string,
-	hexes:  map[string]Hex,
-	layout: Layout,
+	name:    cstring,
+	systems: map[string]System,
+	layout:  Layout,
+}
+
+System :: struct {
+	name:  cstring,
+	hex:   Hex,
+	world: bool,
 }
 
 Spinward_Error :: enum {
