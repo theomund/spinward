@@ -33,6 +33,8 @@ Orientation :: struct {
 
 Point :: rl.Vector2
 
+Reader :: csv.Reader
+
 Sector :: struct {
 	name:    cstring,
 	systems: map[string]System,

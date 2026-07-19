@@ -6,9 +6,7 @@
 
 package main
 
-import "core:encoding/csv"
 import "core:math"
-import "core:os"
 import "core:path/filepath"
 import "core:strings"
 import rl "vendor:raylib"
@@ -32,29 +30,10 @@ new_sector :: proc(path: string, origin: Point = {0, 0}) -> (sector: Sector, err
 		}
 	}
 
-	reader := csv.Reader {
-		comma               = '\t',
-		comment             = '#',
-		fields_per_record   = -1,
-		reuse_record        = true,
-		reuse_record_buffer = true,
-	}
-	defer csv.reader_destroy(&reader)
+	reader := new_reader()
+	defer destroy_reader(&reader)
 
-	data := os.read_entire_file(path, context.allocator) or_return
-	defer delete(data)
-
-	csv.reader_init_with_string(&reader, string(data))
-
-	for record, _, err in csv.iterator_next(&reader) {
-		if err != nil {
-			return sector, err
-		}
-
-		if system := &systems[record[2]]; system != nil {
-			system.name = strings.clone_to_cstring(record[3])
-		}
-	}
+	read_sector(&reader, path, systems)
 
 	layout := new_layout(flat_orientation(), origin, {HEX_SIZE, HEX_SIZE})
 
