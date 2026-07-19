@@ -36,6 +36,7 @@ read_sector :: proc(reader: ^Reader, path: string, systems: map[string]System) -
 		}
 
 		if system := &systems[record[2]]; system != nil {
+			system.allegiance = strings.clone_to_cstring(record[9])
 			system.name = strings.clone_to_cstring(record[3])
 		}
 	}

@@ -8,14 +8,35 @@ package main
 
 import rl "vendor:raylib"
 
-new_system :: proc(hex: Hex, name: cstring = "") -> System {
-	return {name, hex}
+new_system :: proc(hex: Hex) -> System {
+	return {hex = hex}
 }
 
 delete_system :: proc(system: System) {
 	if system.name != "" {
 		delete(system.name)
 	}
+
+	if system.allegiance != "" {
+		delete(system.allegiance)
+	}
+}
+
+draw_border :: proc(sector: Sector, system: System) {
+	color: rl.Color
+
+	switch system.allegiance {
+	case "DaCf":
+		color = rl.WHITE
+	case "ImDd":
+		color = rl.RED
+	case "SwCf":
+		color = rl.DARKBLUE
+	case "ZhIN":
+		color = rl.BLUE
+	}
+
+	draw_hex(sector.layout, system.hex, color)
 }
 
 draw_system :: proc(sector: Sector, index: cstring, system: System) {

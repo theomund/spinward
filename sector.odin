@@ -65,10 +65,14 @@ draw_sector :: proc(sector: Sector, camera: rl.Camera2D) {
 		draw_system(sector, clone, system)
 	}
 
+	for _, system in sector.systems {
+		draw_border(sector, system)
+	}
+
 	position := rl.GetScreenToWorld2D(rl.GetMousePosition(), camera)
 	hovered := pixel_to_hex_rounded(sector.layout, position)
 
 	if contains_hex(hovered) {
-		draw_hex(sector.layout, hovered, rl.RED)
+		draw_hex(sector.layout, hovered, rl.YELLOW)
 	}
 }
