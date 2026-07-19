@@ -15,6 +15,7 @@ RUN dnf copr enable -y sisyphus1813/odin-lang \
     libXinerama-devel-1.1.5 \
     libxkbcommon-devel-1.13.1 \
     libXrandr-devel-1.5.4 \
+    lldb-22.1.8 \
     mesa-libGL-devel-26.1.4 \
     odin-lang-2026.07 \
     ols-2026.05 \

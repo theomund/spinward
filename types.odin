@@ -6,10 +6,16 @@
 
 package main
 
+import "base:runtime"
+import "core:encoding/csv"
+import "core:mem"
+import "core:os"
 import rl "vendor:raylib"
 
-Error :: enum {
-	Initialization_Failed,
+Error :: union {
+	csv.Error,
+	os.Error,
+	Spinward_Error,
 }
 
 Hex :: rl.Vector3
@@ -29,8 +35,25 @@ Orientation :: struct {
 
 Point :: rl.Vector2
 
+Reader :: csv.Reader
+
 Sector :: struct {
-	name:   string,
-	hexes:  map[string]Hex,
-	layout: Layout,
+	name:    cstring,
+	systems: map[string]System,
+	layout:  Layout,
+}
+
+System :: struct {
+	name:       cstring,
+	allegiance: cstring,
+	hex:        Hex,
+}
+
+Spinward_Error :: enum {
+	Initialization_Failed,
+}
+
+Tracker :: struct {
+	allocator: ^mem.Tracking_Allocator,
+	ctx:       runtime.Context,
 }

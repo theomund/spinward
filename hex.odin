@@ -8,6 +8,7 @@ package main
 
 import "core:fmt"
 import "core:math"
+import rl "vendor:raylib"
 
 new_hex :: proc(q, r, s: f32) -> Hex {
 	assert(math.round(q + r + s) == 0)
@@ -18,7 +19,7 @@ new_hex :: proc(q, r, s: f32) -> Hex {
 hex_index :: proc(hex: Hex) -> string {
 	offset := qoffset_from_cube(hex)
 
-	return fmt.tprintf("%02d%02d", i32(offset.x + 1), i32(offset.y + 1))
+	return fmt.aprintf("%02d%02d", i32(offset.x + 1), i32(offset.y + 1))
 }
 
 hex_lerp :: proc(a, b: Hex, t: f32) -> Hex {
@@ -54,4 +55,10 @@ hex_round :: proc(hex: Hex) -> Hex {
 	}
 
 	return new_hex(q, r, s)
+}
+
+draw_hex :: proc(layout: Layout, hex: Hex, color: rl.Color) {
+	center := hex_to_pixel(layout, hex)
+
+	rl.DrawPolyLines(center, 6, HEX_SIZE, 0, color)
 }

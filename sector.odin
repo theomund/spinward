@@ -7,11 +7,14 @@
 package main
 
 import "core:math"
+import "core:path/filepath"
 import "core:strings"
 import rl "vendor:raylib"
 
-new_sector :: proc(name: string, origin: Point = {0, 0}) -> Sector {
-	hexes: map[string]Hex
+new_sector :: proc(path: string, origin: Point = {0, 0}) -> (sector: Sector, err: Error) {
+	name := strings.clone_to_cstring(filepath.short_stem(path))
+
+	systems: map[string]System
 
 	left := origin.x
 	right := origin.x + SECTOR_COLUMNS
@@ -23,17 +26,29 @@ new_sector :: proc(name: string, origin: Point = {0, 0}) -> Sector {
 		for r := top - q_offset; r <= bottom - q_offset; r += 1 {
 			hex := new_hex(q, r, -q - r)
 			index := hex_index(hex)
-			hexes[index] = hex
+			systems[index] = new_system(hex)
 		}
 	}
 
+	reader := new_reader()
+	defer destroy_reader(&reader)
+
+	read_sector(&reader, path, systems)
+
 	layout := new_layout(flat_orientation(), origin, {HEX_SIZE, HEX_SIZE})
 
-	return {name, hexes, layout}
+	return {name, systems, layout}, nil
 }
 
 delete_sector :: proc(sector: Sector) {
-	delete(sector.hexes)
+	delete(sector.name)
+
+	for index, system in sector.systems {
+		delete(index)
+		delete_system(system)
+	}
+
+	delete(sector.systems)
 }
 
 contains_hex :: proc(hex: Hex) -> bool {
@@ -43,24 +58,21 @@ contains_hex :: proc(hex: Hex) -> bool {
 }
 
 draw_sector :: proc(sector: Sector, camera: rl.Camera2D) {
-	for _, hex in sector.hexes {
-		draw_hex(sector.layout, hex, rl.DARKGRAY)
+	for index, system in sector.systems {
+		clone := strings.clone_to_cstring(index)
+		defer delete(clone)
+
+		draw_system(sector, clone, system)
+	}
+
+	for _, system in sector.systems {
+		draw_border(sector, system)
 	}
 
 	position := rl.GetScreenToWorld2D(rl.GetMousePosition(), camera)
 	hovered := pixel_to_hex_rounded(sector.layout, position)
 
 	if contains_hex(hovered) {
-		index := strings.clone_to_cstring(hex_index(hovered))
-
-		rl.DrawText(index, i32(position.x), i32(position.y - 8), 8, rl.WHITE)
-
-		draw_hex(sector.layout, hovered, rl.RED)
+		draw_hex(sector.layout, hovered, rl.YELLOW)
 	}
-}
-
-draw_hex :: proc(layout: Layout, hex: Hex, color: rl.Color) {
-	center := hex_to_pixel(layout, hex)
-
-	rl.DrawPolyLines(center, 6, HEX_SIZE, 0, color)
 }

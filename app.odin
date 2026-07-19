@@ -9,6 +9,8 @@ package main
 import rl "vendor:raylib"
 
 run :: proc() -> Error {
+	rl.SetConfigFlags({.MSAA_4X_HINT})
+
 	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)
 	defer rl.CloseWindow()
 
@@ -17,7 +19,9 @@ run :: proc() -> Error {
 	}
 
 	camera := new_camera()
-	sector := new_sector("Spinward Marches")
+
+	sector := new_sector("assets/Spinward Marches.tab") or_return
+	defer delete_sector(sector)
 
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
