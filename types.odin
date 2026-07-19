@@ -6,7 +6,9 @@
 
 package main
 
+import "base:runtime"
 import "core:encoding/csv"
+import "core:mem"
 import "core:os"
 import rl "vendor:raylib"
 
@@ -48,4 +50,9 @@ System :: struct {
 
 Spinward_Error :: enum {
 	Initialization_Failed,
+}
+
+Tracker :: struct {
+	allocator: ^mem.Tracking_Allocator,
+	ctx:       runtime.Context,
 }

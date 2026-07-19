@@ -58,7 +58,10 @@ contains_hex :: proc(hex: Hex) -> bool {
 
 draw_sector :: proc(sector: Sector, camera: rl.Camera2D) {
 	for index, system in sector.systems {
-		draw_system(sector, strings.clone_to_cstring(index), system)
+		clone := strings.clone_to_cstring(index)
+		defer delete(clone)
+
+		draw_system(sector, clone, system)
 	}
 
 	position := rl.GetScreenToWorld2D(rl.GetMousePosition(), camera)

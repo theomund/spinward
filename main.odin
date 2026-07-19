@@ -9,6 +9,13 @@ package main
 import "core:os"
 
 main :: proc() {
+	when ODIN_DEBUG {
+		tracker := new_tracker()
+		context = tracker.ctx
+
+		defer delete_tracker(tracker)
+	}
+
 	if err := run(); err != nil {
 		os.exit(1)
 	}

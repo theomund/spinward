@@ -19,7 +19,7 @@ new_hex :: proc(q, r, s: f32) -> Hex {
 hex_index :: proc(hex: Hex) -> string {
 	offset := qoffset_from_cube(hex)
 
-	return fmt.tprintf("%02d%02d", i32(offset.x + 1), i32(offset.y + 1))
+	return fmt.aprintf("%02d%02d", i32(offset.x + 1), i32(offset.y + 1))
 }
 
 hex_lerp :: proc(a, b: Hex, t: f32) -> Hex {
