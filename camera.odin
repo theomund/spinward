@@ -34,3 +34,7 @@ zoom_camera :: proc(camera: ^rl.Camera2D, wheel: f32, position: rl.Vector2) {
 		zoom   = clamp(math.exp(math.log(camera.zoom, math.E) + 0.2 * wheel), 0.125, 64.0),
 	}
 }
+
+fade :: proc(zoom, start, end: f32) -> u8 {
+	return u8(math.clamp((start - zoom) / (start - end), 0, 1) * 255)
+}
