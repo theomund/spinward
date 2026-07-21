@@ -75,4 +75,23 @@ draw_sector :: proc(sector: Sector, camera: rl.Camera2D) {
 	if contains_hex(hovered) {
 		draw_hex(sector.layout, hovered, rl.YELLOW)
 	}
+
+	draw_title(sector, camera)
+}
+
+draw_title :: proc(sector: Sector, camera: rl.Camera2D) {
+	minimum_hex := qoffset_to_cube(new_offset(0, 0))
+	maximum_hex := qoffset_to_cube(new_offset(SECTOR_COLUMNS - 1, SECTOR_ROWS - 1))
+	center_hex := (minimum_hex + maximum_hex) / 2
+	center := hex_to_pixel(sector.layout, center_hex)
+
+	font := rl.GetFontDefault()
+	text_size := rl.MeasureTextEx(font, sector.name, TITLE_SIZE, TITLE_SPACING)
+
+	position := Point{center.x - text_size.x / 2, center.y - text_size.y / 2}
+
+	color := rl.WHITE
+	color.a = fade(camera.zoom, 0.5, 0.25)
+
+	rl.DrawTextEx(font, sector.name, position, TITLE_SIZE, TITLE_SPACING, color)
 }
