@@ -10,6 +10,10 @@ import "core:fmt"
 import "core:math"
 import rl "vendor:raylib"
 
+HEX_SIZE :: 64
+
+Hex :: rl.Vector3
+
 new_hex :: proc(q, r, s: f32) -> Hex {
 	assert(math.round(q + r + s) == 0)
 

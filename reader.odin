@@ -10,6 +10,8 @@ import "core:encoding/csv"
 import "core:os"
 import "core:strings"
 
+Reader :: csv.Reader
+
 new_reader :: proc() -> Reader {
 	return {
 		comma = '\t',

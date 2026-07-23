@@ -6,21 +6,20 @@
 
 package main
 
-FONT_SIZE :: 16
-FONT_SPACING :: 2
-
-HEX_SIZE :: 64
-
-ODD_OFFSET :: -1
+import rl "vendor:raylib"
 
 WINDOW_WIDTH :: 1920
 WINDOW_HEIGHT :: 1080
 WINDOW_TITLE :: "Spinward"
 
-SECTOR_COLUMNS :: 32
-SECTOR_ROWS :: 40
+new_window :: proc() -> Error {
+	rl.SetConfigFlags({.MSAA_4X_HINT})
 
-TITLE_SIZE :: 320
-TITLE_SPACING :: 16
+	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)
 
-WORLD_SIZE :: 12
+	return !rl.IsWindowReady() ? .Initialization_Failed : nil
+}
+
+delete_window :: proc() {
+	rl.CloseWindow()
+}

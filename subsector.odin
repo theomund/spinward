@@ -6,6 +6,10 @@
 
 package main
 
+Subsector :: struct {
+	name: cstring,
+}
+
 new_subsector :: proc(name: cstring) -> Subsector {
 	return {name}
 }

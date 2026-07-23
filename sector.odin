@@ -11,6 +11,18 @@ import "core:path/filepath"
 import "core:strings"
 import rl "vendor:raylib"
 
+SECTOR_COLUMNS :: 32
+SECTOR_ROWS :: 40
+
+TITLE_SIZE :: 320
+TITLE_SPACING :: 16
+
+Sector :: struct {
+	name:    cstring,
+	systems: map[string]System,
+	layout:  Layout,
+}
+
 new_sector :: proc(path: string, origin: Point = {0, 0}) -> (sector: Sector, err: Error) {
 	name := strings.clone_to_cstring(filepath.short_stem(path))
 

@@ -10,6 +10,11 @@ import "base:runtime"
 import "core:fmt"
 import "core:mem"
 
+Tracker :: struct {
+	allocator: ^mem.Tracking_Allocator,
+	ctx:       runtime.Context,
+}
+
 new_tracker :: proc() -> Tracker {
 	allocator := new(mem.Tracking_Allocator)
 	ctx := runtime.default_context()

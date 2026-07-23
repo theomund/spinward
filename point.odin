@@ -6,6 +6,10 @@
 
 package main
 
+import rl "vendor:raylib"
+
+Point :: rl.Vector2
+
 new_point :: proc(x, y: f32) -> Point {
 	return {x, y}
 }

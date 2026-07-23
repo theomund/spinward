@@ -6,6 +6,11 @@
 
 package main
 
+Layout :: struct {
+	orientation:  Orientation,
+	origin, size: Point,
+}
+
 new_layout :: proc(orientation: Orientation, origin, size: Point) -> Layout {
 	return {orientation, origin, size}
 }

@@ -9,14 +9,8 @@ package main
 import rl "vendor:raylib"
 
 run :: proc() -> Error {
-	rl.SetConfigFlags({.MSAA_4X_HINT})
-
-	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)
-	defer rl.CloseWindow()
-
-	if !rl.IsWindowReady() {
-		return .Initialization_Failed
-	}
+	new_window()
+	defer delete_window()
 
 	camera := new_camera()
 

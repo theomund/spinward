@@ -8,6 +8,17 @@ package main
 
 import rl "vendor:raylib"
 
+FONT_SIZE :: 16
+FONT_SPACING :: 2
+
+WORLD_SIZE :: 12
+
+System :: struct {
+	name:       cstring,
+	allegiance: cstring,
+	hex:        Hex,
+}
+
 new_system :: proc(hex: Hex) -> System {
 	return {hex = hex}
 }
