@@ -6,12 +6,14 @@
 
 package main
 
+import "base:runtime"
 import "core:encoding/csv"
 import "core:os"
 
 Error :: union {
 	csv.Error,
 	os.Error,
+	runtime.Allocator_Error,
 	Spinward_Error,
 }
 

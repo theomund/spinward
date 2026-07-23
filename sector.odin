@@ -25,7 +25,7 @@ Sector :: struct {
 }
 
 new_sector :: proc(path: string, origin: Point = {0, 0}) -> (sector: Sector, err: Error) {
-	name := strings.clone_to_cstring(filepath.short_stem(path))
+	name := strings.clone_to_cstring(filepath.short_stem(path)) or_return
 
 	systems: map[string]System
 
