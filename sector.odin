@@ -20,8 +20,8 @@ TITLE_SPACING :: 16
 Sector :: struct {
 	name:    cstring,
 	center:  Point,
-	systems: map[string]System,
 	layout:  Layout,
+	systems: map[string]System,
 }
 
 new_sector :: proc(path: string, origin: Point = {0, 0}) -> (sector: Sector, err: Error) {
@@ -55,7 +55,7 @@ new_sector :: proc(path: string, origin: Point = {0, 0}) -> (sector: Sector, err
 	center_hex := (minimum_hex + maximum_hex) / 2
 	center := hex_to_pixel(layout, center_hex)
 
-	return {name, center, systems, layout}, nil
+	return {name, center, layout, systems}, nil
 }
 
 delete_sector :: proc(sector: Sector) {
