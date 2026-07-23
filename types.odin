@@ -43,6 +43,10 @@ Sector :: struct {
 	layout:  Layout,
 }
 
+Subsector :: struct {
+	name: cstring,
+}
+
 System :: struct {
 	name:       cstring,
 	allegiance: cstring,
