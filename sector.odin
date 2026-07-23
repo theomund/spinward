@@ -46,7 +46,7 @@ new_sector :: proc(path: string, origin: Point = {0, 0}) -> (sector: Sector, err
 	reader := new_reader()
 	defer destroy_reader(&reader)
 
-	read_sector(&reader, path, systems)
+	read_sector(&reader, path, systems) or_return
 
 	layout := new_layout(flat_orientation(), origin, {HEX_SIZE, HEX_SIZE})
 
