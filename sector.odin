@@ -19,6 +19,7 @@ TITLE_SPACING :: 16
 
 Sector :: struct {
 	name:    cstring,
+	center:  Point,
 	systems: map[string]System,
 	layout:  Layout,
 }
@@ -49,7 +50,12 @@ new_sector :: proc(path: string, origin: Point = {0, 0}) -> (sector: Sector, err
 
 	layout := new_layout(flat_orientation(), origin, {HEX_SIZE, HEX_SIZE})
 
-	return {name, systems, layout}, nil
+	minimum_hex := qoffset_to_cube(new_offset(0, 0))
+	maximum_hex := qoffset_to_cube(new_offset(SECTOR_COLUMNS - 1, SECTOR_ROWS - 1))
+	center_hex := (minimum_hex + maximum_hex) / 2
+	center := hex_to_pixel(layout, center_hex)
+
+	return {name, center, systems, layout}, nil
 }
 
 delete_sector :: proc(sector: Sector) {
@@ -92,15 +98,10 @@ draw_sector :: proc(sector: Sector, camera: rl.Camera2D) {
 }
 
 draw_title :: proc(sector: Sector, camera: rl.Camera2D) {
-	minimum_hex := qoffset_to_cube(new_offset(0, 0))
-	maximum_hex := qoffset_to_cube(new_offset(SECTOR_COLUMNS - 1, SECTOR_ROWS - 1))
-	center_hex := (minimum_hex + maximum_hex) / 2
-	center := hex_to_pixel(sector.layout, center_hex)
-
 	font := rl.GetFontDefault()
 	text_size := rl.MeasureTextEx(font, sector.name, TITLE_SIZE, TITLE_SPACING)
 
-	position := Point{center.x - text_size.x / 2, center.y - text_size.y / 2}
+	position := Point{sector.center.x - text_size.x / 2, sector.center.y - text_size.y / 2}
 
 	color := rl.WHITE
 	color.a = fade(camera.zoom, 0.5, 0.25)
