@@ -9,7 +9,7 @@ package main
 import rl "vendor:raylib"
 
 run :: proc() -> Error {
-	new_window()
+	new_window() or_return
 	defer delete_window()
 
 	camera := new_camera()
