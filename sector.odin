@@ -75,16 +75,16 @@ draw_sector :: proc(sector: Sector, camera: Camera) {
 		}
 	}
 
-	draw_hovered_hex(sector, camera)
+	draw_hovered_hex(sector.layout, camera)
 	draw_sector_title(sector, camera)
 }
 
-draw_hovered_hex :: proc(sector: Sector, camera: Camera) {
+draw_hovered_hex :: proc(layout: Layout, camera: Camera) {
 	position := rl.GetScreenToWorld2D(rl.GetMousePosition(), camera)
-	hovered := pixel_to_hex_rounded(sector.layout, position)
+	hovered := pixel_to_hex_rounded(layout, position)
 
 	if contains_hex(hovered) {
-		draw_hex(sector.layout, hovered, rl.YELLOW)
+		draw_hex(layout, hovered, rl.YELLOW)
 	}
 }
 
