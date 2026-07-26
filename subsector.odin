@@ -23,14 +23,10 @@ Subsector :: struct {
 }
 
 new_subsector :: proc(name: cstring = "", layout: Layout, origin: Point) -> Subsector {
-	minimum_hex := qoffset_to_cube(new_offset(0, 0))
-	maximum_hex := qoffset_to_cube(new_offset(SUBSECTOR_COLUMNS - 1, SUBSECTOR_ROWS - 1))
-	center_hex := (minimum_hex + maximum_hex) / 2
-
 	subsector_layout := layout
 	subsector_layout.origin = origin
 
-	center := hex_to_pixel(subsector_layout, center_hex)
+	center := grid_center(subsector_layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS)
 
 	systems: [SUBSECTOR_ROWS][SUBSECTOR_COLUMNS]System
 

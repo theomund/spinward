@@ -25,14 +25,8 @@ Sector :: struct {
 }
 
 new_sector :: proc(name: cstring = "", origin: Point = {0, 0}) -> Sector {
-	min_hex := qoffset_to_cube(new_offset(origin.x, origin.y))
-	max_hex := qoffset_to_cube(
-		new_offset(origin.x + SECTOR_WIDTH - 1, origin.y + SECTOR_HEIGHT - 1),
-	)
-	center_hex := (min_hex + max_hex) / 2
-
 	layout := flat_layout(origin)
-	center := hex_to_pixel(layout, center_hex)
+	center := grid_center(layout, SECTOR_WIDTH, SECTOR_HEIGHT)
 
 	subsectors: [SECTOR_ROWS][SECTOR_COLUMNS]Subsector
 
