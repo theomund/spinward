@@ -70,7 +70,7 @@ read_sector :: proc() -> (sector: Sector, err: Error) {
 					}
 				case "Subsector":
 					str := value_to_cstring(element.value) or_return
-					index := int(element.attribs[0].val[0]) - 'A'
+					index := subsector_index(element.attribs[0].val)
 
 					sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = str
 				}
