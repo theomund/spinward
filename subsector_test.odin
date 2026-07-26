@@ -10,5 +10,11 @@ import "core:testing"
 
 @(test)
 test_new_subsector :: proc(t: ^testing.T) {
-	testing.expect_value(t, new_subsector("Darrian"), Subsector{"Darrian"})
+	name: cstring = "Core"
+	layout := flat_layout({0, 0})
+
+	subsector := new_subsector(name, layout, {0, 0})
+	defer delete_subsector(subsector)
+
+	testing.expect_value(t, subsector.name, name)
 }

@@ -7,7 +7,8 @@
 package main
 
 import "core:encoding/csv"
-import "core:os"
+import "core:encoding/xml"
+import "core:path/filepath"
 import "core:strings"
 
 Reader :: csv.Reader
@@ -26,22 +27,63 @@ destroy_reader :: proc(reader: ^Reader) {
 	csv.reader_destroy(reader)
 }
 
-read_sector :: proc(reader: ^Reader, path: string, systems: map[string]System) -> Error {
-	data := os.read_entire_file(path, context.allocator) or_return
-	defer delete(data)
+read_sector :: proc() -> (sector: Sector, err: Error) {
+	assets := #load_directory("assets")
 
-	csv.reader_init_with_string(reader, string(data))
+	sector = new_sector()
 
-	for record, _, err in csv.iterator_next(reader) {
-		if err != nil {
-			return err
-		}
+	for asset in assets {
+		switch filepath.ext(asset.name) {
+		case ".tab":
+			reader := new_reader()
+			defer destroy_reader(&reader)
 
-		if system := &systems[record[2]]; system != nil {
-			system.allegiance = strings.clone_to_cstring(record[9])
-			system.name = strings.clone_to_cstring(record[3])
+			csv.reader_init_with_string(&reader, string(asset.data))
+
+			for record, _, err in csv.iterator_next(&reader) {
+				if err != nil {
+					return {}, err
+				}
+
+				for &sub_row in sector.subsectors {
+					for &subsector in sub_row {
+						for &row in subsector.systems {
+							for &system in row {
+								if record[2] == string(system.index) {
+									system.name = strings.clone_to_cstring(record[3])
+									system.allegiance = new_allegiance(record[9])
+								}
+							}
+						}
+					}
+				}
+			}
+		case ".xml":
+			document := xml.parse(asset.data) or_return
+			defer xml.destroy(document)
+
+			index := 0
+
+			for &element in document.elements {
+				switch element.ident {
+				case "Name":
+					if element.attribs == nil {
+						sector.name = value_to_cstring(&element.value) or_return
+					}
+				case "Subsector":
+					str := value_to_cstring(&element.value) or_return
+					sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = str
+					index += 1
+				}
+			}
 		}
 	}
 
-	return nil
+	return
+}
+
+value_to_cstring :: proc(value: ^[dynamic]xml.Value) -> (str: cstring, err: Error) {
+	str = strings.clone_to_cstring(pop(value).(string)) or_return
+
+	return
 }

@@ -7,11 +7,10 @@
 package main
 
 import "core:testing"
-import rl "vendor:raylib"
 
 @(test)
 test_new_camera :: proc(t: ^testing.T) {
-	testing.expect_value(t, new_camera(), rl.Camera2D{zoom = 1.0})
+	testing.expect_value(t, new_camera(), Camera{zoom = 1.0})
 }
 
 @(test)
@@ -20,7 +19,7 @@ test_pan_camera :: proc(t: ^testing.T) {
 
 	pan_camera(&camera, {1.0, 2.0})
 
-	testing.expect_value(t, camera.target, rl.Vector2{-1.0, -2.0})
+	testing.expect_value(t, camera.target, Point{-1.0, -2.0})
 }
 
 @(test)
@@ -29,7 +28,7 @@ test_zoom_camera :: proc(t: ^testing.T) {
 
 	zoom_camera(&camera, 1.0, {1.0, 2.0})
 
-	testing.expect_value(t, camera.offset, rl.Vector2{1, 2})
-	testing.expect_value(t, camera.target, rl.Vector2{1, 2})
+	testing.expect_value(t, camera.offset, Point{1, 2})
+	testing.expect_value(t, camera.target, Point{1, 2})
 	testing.expect_value(t, camera.zoom, 1.2214028)
 }

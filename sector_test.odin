@@ -10,13 +10,12 @@ import "core:testing"
 
 @(test)
 test_new_sector :: proc(t: ^testing.T) {
-	sector, err := new_sector("assets/Spinward Marches.tab")
-	if err != nil {
-		testing.fail(t)
-	}
+	name: cstring = "Spinward Marches"
+
+	sector := new_sector(name)
 	defer delete_sector(sector)
 
-	testing.expect_value(t, sector.name, "Spinward Marches")
+	testing.expect_value(t, sector.name, name)
 	testing.expect_value(t, sector.layout.origin, Point{0, 0})
 	testing.expect_value(t, sector.layout.size, Point{HEX_SIZE, HEX_SIZE})
 }

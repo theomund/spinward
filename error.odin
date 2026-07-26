@@ -8,6 +8,7 @@ package main
 
 import "base:runtime"
 import "core:encoding/csv"
+import "core:encoding/xml"
 import "core:os"
 
 Error :: union {
@@ -15,6 +16,7 @@ Error :: union {
 	os.Error,
 	runtime.Allocator_Error,
 	Spinward_Error,
+	xml.Error,
 }
 
 Spinward_Error :: enum {

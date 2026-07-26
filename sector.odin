@@ -6,105 +6,91 @@
 
 package main
 
-import "core:math"
-import "core:path/filepath"
-import "core:strings"
 import rl "vendor:raylib"
 
-SECTOR_COLUMNS :: 32
-SECTOR_ROWS :: 40
+SECTOR_COLUMNS :: 4
+SECTOR_ROWS :: 4
 
-TITLE_SIZE :: 320
-TITLE_SPACING :: 16
+SECTOR_WIDTH :: SECTOR_COLUMNS * SUBSECTOR_COLUMNS
+SECTOR_HEIGHT :: SECTOR_ROWS * SUBSECTOR_ROWS
+
+SECTOR_TITLE_SIZE :: 320
+SECTOR_TITLE_SPACING :: 16
 
 Sector :: struct {
-	name:    cstring,
-	center:  Point,
-	layout:  Layout,
-	systems: map[string]System,
+	name:       cstring,
+	center:     Point,
+	layout:     Layout,
+	subsectors: [SECTOR_ROWS][SECTOR_COLUMNS]Subsector,
 }
 
-new_sector :: proc(path: string, origin: Point = {0, 0}) -> (sector: Sector, err: Error) {
-	name := strings.clone_to_cstring(filepath.short_stem(path)) or_return
+new_sector :: proc(name: cstring = "", origin: Point = {0, 0}) -> Sector {
+	min_hex := qoffset_to_cube(new_offset(origin.x, origin.y))
+	max_hex := qoffset_to_cube(
+		new_offset(origin.x + SECTOR_WIDTH - 1, origin.y + SECTOR_HEIGHT - 1),
+	)
+	center_hex := (min_hex + max_hex) / 2
 
-	systems: map[string]System
+	layout := flat_layout(origin)
+	center := hex_to_pixel(layout, center_hex)
 
-	left := origin.x
-	right := origin.x + SECTOR_COLUMNS
-	top := origin.y
-	bottom := origin.y + SECTOR_ROWS - 1
+	subsectors: [SECTOR_ROWS][SECTOR_COLUMNS]Subsector
 
-	for q := left; q < right; q += 1 {
-		q_offset := math.floor(q / 2.0)
-		for r := top - q_offset; r <= bottom - q_offset; r += 1 {
-			hex := new_hex(q, r, -q - r)
-			index := hex_index(hex)
-			systems[index] = new_system(hex)
+	for y in 0 ..< SECTOR_ROWS {
+		for x in 0 ..< SECTOR_COLUMNS {
+			subsector_hex := qoffset_to_cube(
+				new_offset(f32(x) * SUBSECTOR_COLUMNS, f32(y) * SUBSECTOR_ROWS),
+			)
+			subsector_origin := hex_to_pixel(layout, subsector_hex)
+
+			subsectors[y][x] = new_subsector(layout = layout, origin = subsector_origin)
 		}
 	}
 
-	reader := new_reader()
-	defer destroy_reader(&reader)
-
-	read_sector(&reader, path, systems) or_return
-
-	layout := new_layout(flat_orientation(), origin, {HEX_SIZE, HEX_SIZE})
-
-	minimum_hex := qoffset_to_cube(new_offset(0, 0))
-	maximum_hex := qoffset_to_cube(new_offset(SECTOR_COLUMNS - 1, SECTOR_ROWS - 1))
-	center_hex := (minimum_hex + maximum_hex) / 2
-	center := hex_to_pixel(layout, center_hex)
-
-	return {name, center, layout, systems}, nil
+	return {name, center, layout, subsectors}
 }
 
 delete_sector :: proc(sector: Sector) {
-	delete(sector.name)
-
-	for index, system in sector.systems {
-		delete(index)
-		delete_system(system)
+	if sector.name != "" {
+		delete(sector.name)
 	}
 
-	delete(sector.systems)
+	for row in sector.subsectors {
+		for subsector in row {
+			delete_subsector(subsector)
+		}
+	}
 }
 
 contains_hex :: proc(hex: Hex) -> bool {
 	offset := qoffset_from_cube(hex)
 
-	return offset.x >= 0 && offset.y >= 0 && offset.x < SECTOR_COLUMNS && offset.y < SECTOR_ROWS
+	return offset.x >= 0 && offset.y >= 0 && offset.x < SECTOR_WIDTH && offset.y < SECTOR_HEIGHT
 }
 
-draw_sector :: proc(sector: Sector, camera: rl.Camera2D) {
-	for index, system in sector.systems {
-		clone := strings.clone_to_cstring(index)
-		defer delete(clone)
-
-		draw_system(sector, clone, system)
+draw_sector :: proc(sector: Sector, camera: Camera) {
+	for row in sector.subsectors {
+		for subsector in row {
+			draw_subsector(subsector, camera)
+		}
 	}
 
-	for _, system in sector.systems {
-		draw_border(sector, system)
-	}
+	draw_hovered_hex(sector, camera)
+	draw_sector_title(sector, camera)
+}
 
+draw_hovered_hex :: proc(sector: Sector, camera: Camera) {
 	position := rl.GetScreenToWorld2D(rl.GetMousePosition(), camera)
 	hovered := pixel_to_hex_rounded(sector.layout, position)
 
 	if contains_hex(hovered) {
 		draw_hex(sector.layout, hovered, rl.YELLOW)
 	}
-
-	draw_title(sector, camera)
 }
 
-draw_title :: proc(sector: Sector, camera: rl.Camera2D) {
-	font := rl.GetFontDefault()
-	text_size := rl.MeasureTextEx(font, sector.name, TITLE_SIZE, TITLE_SPACING)
-
-	position := Point{sector.center.x - text_size.x / 2, sector.center.y - text_size.y / 2}
-
+draw_sector_title :: proc(sector: Sector, camera: Camera) {
 	color := rl.WHITE
 	color.a = fade(camera.zoom, 0.5, 0.25)
 
-	rl.DrawTextEx(font, sector.name, position, TITLE_SIZE, TITLE_SPACING, color)
+	draw_text(sector.name, sector.center, SECTOR_TITLE_SIZE, SECTOR_TITLE_SPACING, color)
 }

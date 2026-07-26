@@ -6,17 +6,19 @@
 
 package main
 
+import "core:fmt"
 import "core:os"
 
 main :: proc() {
 	when ODIN_DEBUG {
 		tracker := new_tracker()
-		context = tracker.ctx
-
 		defer delete_tracker(tracker)
+
+		context = tracker.ctx
 	}
 
 	if err := run(); err != nil {
+		fmt.eprintln("Got error:", err)
 		os.exit(1)
 	}
 }

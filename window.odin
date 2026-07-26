@@ -23,3 +23,20 @@ new_window :: proc() -> Error {
 delete_window :: proc() {
 	rl.CloseWindow()
 }
+
+render :: proc(sector: Sector, camera: ^Camera) {
+	for !rl.WindowShouldClose() {
+		rl.BeginDrawing()
+
+		rl.ClearBackground(rl.BLACK)
+		rl.DrawFPS(16, WINDOW_HEIGHT - 32)
+
+		poll_camera(camera)
+
+		rl.BeginMode2D(camera^)
+		draw_sector(sector, camera^)
+		rl.EndMode2D()
+
+		rl.EndDrawing()
+	}
+}

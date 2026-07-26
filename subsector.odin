@@ -6,10 +6,113 @@
 
 package main
 
+import "core:math"
+import rl "vendor:raylib"
+
+SUBSECTOR_COLUMNS :: 8
+SUBSECTOR_ROWS :: 10
+
+SUBSECTOR_TITLE_SIZE :: SECTOR_TITLE_SIZE / 4
+SUBSECTOR_TITLE_SPACING :: SECTOR_TITLE_SPACING / 4
+
 Subsector :: struct {
-	name: cstring,
+	name:    cstring,
+	center:  Point,
+	layout:  Layout,
+	systems: [SUBSECTOR_ROWS][SUBSECTOR_COLUMNS]System,
 }
 
-new_subsector :: proc(name: cstring) -> Subsector {
-	return {name}
+new_subsector :: proc(name: cstring = "", layout: Layout, origin: Point) -> Subsector {
+	minimum_hex := qoffset_to_cube(new_offset(0, 0))
+	maximum_hex := qoffset_to_cube(new_offset(SUBSECTOR_COLUMNS - 1, SUBSECTOR_ROWS - 1))
+	center_hex := (minimum_hex + maximum_hex) / 2
+
+	subsector_layout := layout
+	subsector_layout.origin = origin
+
+	center := hex_to_pixel(subsector_layout, center_hex)
+
+	systems: [SUBSECTOR_ROWS][SUBSECTOR_COLUMNS]System
+
+	left := f32(0)
+	right := f32(SUBSECTOR_COLUMNS)
+	top := f32(0)
+	bottom := f32(SUBSECTOR_ROWS - 1)
+
+	for q := left; q < right; q += 1 {
+		q_offset := math.floor(q / 2.0)
+		for r := top - q_offset; r <= bottom - q_offset; r += 1 {
+			hex := new_hex(q, r, -q - r)
+			offset := qoffset_from_cube(hex)
+
+			x := i32(offset.x)
+			y := i32(offset.y)
+
+			system_index := hex_index(hex + pixel_to_hex_rounded(layout, origin))
+
+			systems[y][x] = new_system(hex = hex, index = system_index)
+		}
+	}
+
+	return {name, center, subsector_layout, systems}
+}
+
+delete_subsector :: proc(subsector: Subsector) {
+	if subsector.name != "" {
+		delete(subsector.name)
+	}
+
+	for row in subsector.systems {
+		for system in row {
+			delete_system(system)
+		}
+	}
+}
+
+draw_subsector :: proc(subsector: Subsector, camera: Camera) {
+	for row in subsector.systems {
+		for system in row {
+			draw_system(subsector.layout, system)
+		}
+	}
+
+	for row in subsector.systems {
+		for system in row {
+			draw_allegiance(subsector.layout, system)
+		}
+	}
+
+	draw_subsector_border(subsector)
+
+	draw_subsector_title(subsector, camera)
+}
+
+draw_subsector_border :: proc(subsector: Subsector) {
+	p1 := hex_to_pixel(subsector.layout, qoffset_to_cube(new_offset(0, 0)))
+
+	x := i32(p1.x)
+	y := i32(p1.y)
+
+	p2 := hex_to_pixel(
+		subsector.layout,
+		qoffset_to_cube(new_offset(SUBSECTOR_COLUMNS, SUBSECTOR_ROWS)),
+	)
+
+	width := i32(p2.x - p1.x)
+	height := i32(p2.y - p1.y)
+
+	rl.DrawRectangleLines(x, y, width, height, rl.GRAY)
+}
+
+draw_subsector_title :: proc(subsector: Subsector, camera: Camera) {
+	color := rl.WHITE
+	color.a = fade(camera.zoom, 0.5, 0.25)
+
+	draw_text(
+		subsector.name,
+		subsector.center,
+		SUBSECTOR_TITLE_SIZE,
+		SUBSECTOR_TITLE_SPACING,
+		color,
+	)
 }

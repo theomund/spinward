@@ -6,31 +6,16 @@
 
 package main
 
-import rl "vendor:raylib"
-
 run :: proc() -> Error {
 	new_window() or_return
 	defer delete_window()
 
 	camera := new_camera()
 
-	sector := new_sector("assets/Spinward Marches.tab") or_return
+	sector := read_sector() or_return
 	defer delete_sector(sector)
 
-	for !rl.WindowShouldClose() {
-		rl.BeginDrawing()
-
-		rl.ClearBackground(rl.BLACK)
-		rl.DrawFPS(16, WINDOW_HEIGHT - 32)
-
-		poll_camera(&camera)
-
-		rl.BeginMode2D(camera)
-		draw_sector(sector, camera)
-		rl.EndMode2D()
-
-		rl.EndDrawing()
-	}
+	render(sector, &camera)
 
 	return nil
 }
