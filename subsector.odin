@@ -89,17 +89,16 @@ draw_subsector :: proc(subsector: Subsector, camera: Camera) {
 
 draw_subsector_border :: proc(subsector: Subsector) {
 	p1 := hex_to_pixel(subsector.layout, qoffset_to_cube(new_offset(0, 0)))
-
-	x := i32(p1.x)
-	y := i32(p1.y)
-
 	p2 := hex_to_pixel(
 		subsector.layout,
 		qoffset_to_cube(new_offset(SUBSECTOR_COLUMNS - 1, SUBSECTOR_ROWS - 1)),
 	)
 
-	width := i32(p2.x - p1.x)
-	height := i32(p2.y - p1.y)
+	x := i32(p1.x - HEX_SIZE / (4.0 / 3.0))
+	y := i32(p1.y - HEX_SIZE * (math.SQRT_THREE / 2.0))
+
+	width := i32(p2.x - p1.x + HEX_SIZE * (3.0 / 2.0))
+	height := i32(p2.y - p1.y + HEX_SIZE * (math.SQRT_THREE / 2.0))
 
 	rl.DrawRectangleLines(x, y, width, height, rl.GRAY)
 }
