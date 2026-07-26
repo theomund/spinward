@@ -51,8 +51,6 @@ read_sector :: proc() -> (sector: Sector, err: Error) {
 				}
 
 				index := record[1][0] - 'A'
-				fmt.println(index)
-
 				subsector := &sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS]
 
 				for &row in subsector.systems {
