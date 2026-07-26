@@ -8,6 +8,7 @@ package main
 
 import "core:encoding/csv"
 import "core:encoding/xml"
+import "core:fmt"
 import "core:path/filepath"
 import "core:strings"
 
@@ -42,18 +43,23 @@ read_sector :: proc() -> (sector: Sector, err: Error) {
 
 			for record, _, err in csv.iterator_next(&reader) {
 				if err != nil {
-					return {}, err
+					return sector, err
 				}
 
-				for &sub_row in sector.subsectors {
-					for &subsector in sub_row {
-						for &row in subsector.systems {
-							for &system in row {
-								if record[2] == string(system.index) {
-									system.name = strings.clone_to_cstring(record[3])
-									system.allegiance = new_allegiance(record[9])
-								}
-							}
+				if record[1] == "SS" {
+					continue
+				}
+
+				index := record[1][0] - 'A'
+				fmt.println(index)
+
+				subsector := &sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS]
+
+				for &row in subsector.systems {
+					for &system in row {
+						if record[2] == string(system.index) {
+							system.name = strings.clone_to_cstring(record[3])
+							system.allegiance = new_allegiance(record[9])
 						}
 					}
 				}
