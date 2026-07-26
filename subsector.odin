@@ -65,6 +65,10 @@ delete_subsector :: proc(subsector: Subsector) {
 	}
 }
 
+subsector_index :: proc(index: string) -> u8 {
+	return index[0] - 'A'
+}
+
 draw_subsector :: proc(subsector: Subsector, camera: Camera) {
 	for row in subsector.systems {
 		for system in row {

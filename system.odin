@@ -6,6 +6,7 @@
 
 package main
 
+import "core:strconv"
 import rl "vendor:raylib"
 
 FONT_SIZE :: 16
@@ -37,6 +38,20 @@ delete_system :: proc(system: System) {
 	if system.index != "" {
 		delete(system.index)
 	}
+}
+
+system_index :: proc(index: string) -> (int, int, Error) {
+	x, x_ok := strconv.parse_int(index[0:2], 10)
+	if !x_ok {
+		return x, 0, .Invalid_Index
+	}
+
+	y, y_ok := strconv.parse_int(index[2:4], 10)
+	if !y_ok {
+		return x, y, .Invalid_Index
+	}
+
+	return x - 1, y - 1, nil
 }
 
 draw_system :: proc(layout: Layout, system: System) {

@@ -49,17 +49,14 @@ read_sector :: proc() -> (sector: Sector, err: Error) {
 					continue
 				}
 
-				index := record[1][0] - 'A'
+				index := subsector_index(record[1])
 				subsector := &sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS]
 
-				for &row in subsector.systems {
-					for &system in row {
-						if record[2] == string(system.index) {
-							system.name = strings.clone_to_cstring(record[3])
-							system.allegiance = new_allegiance(record[9])
-						}
-					}
-				}
+				x, y := system_index(record[2]) or_return
+				system := &subsector.systems[y % SUBSECTOR_ROWS][x % SUBSECTOR_COLUMNS]
+
+				system.name = strings.clone_to_cstring(record[3])
+				system.allegiance = new_allegiance(record[9])
 			}
 		case ".xml":
 			document := xml.parse(asset.data) or_return
