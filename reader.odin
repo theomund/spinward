@@ -62,18 +62,17 @@ read_sector :: proc() -> (sector: Sector, err: Error) {
 			document := xml.parse(asset.data) or_return
 			defer xml.destroy(document)
 
-			index := 0
-
 			for &element in document.elements {
 				switch element.ident {
 				case "Name":
 					if element.attribs == nil {
-						sector.name = value_to_cstring(&element.value) or_return
+						sector.name = value_to_cstring(element.value) or_return
 					}
 				case "Subsector":
-					str := value_to_cstring(&element.value) or_return
+					str := value_to_cstring(element.value) or_return
+					index := int(element.attribs[0].val[0]) - 'A'
+
 					sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = str
-					index += 1
 				}
 			}
 		}
@@ -82,8 +81,8 @@ read_sector :: proc() -> (sector: Sector, err: Error) {
 	return
 }
 
-value_to_cstring :: proc(value: ^[dynamic]xml.Value) -> (str: cstring, err: Error) {
-	str = strings.clone_to_cstring(pop(value).(string)) or_return
+value_to_cstring :: proc(value: [dynamic]xml.Value) -> (str: cstring, err: Error) {
+	str = strings.clone_to_cstring(value[0].(string)) or_return
 
 	return
 }
