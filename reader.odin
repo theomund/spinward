@@ -8,7 +8,6 @@ package main
 
 import "core:encoding/csv"
 import "core:encoding/xml"
-import "core:fmt"
 import "core:path/filepath"
 import "core:strings"
 
