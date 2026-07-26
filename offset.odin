@@ -6,6 +6,12 @@
 
 package main
 
+import rl "vendor:raylib"
+
+ODD_OFFSET :: -1
+
+Offset :: rl.Vector2
+
 new_offset :: proc(col, row: f32) -> Offset {
 	return {col, row}
 }

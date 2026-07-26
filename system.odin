@@ -6,10 +6,28 @@
 
 package main
 
+import "core:strconv"
 import rl "vendor:raylib"
 
-new_system :: proc(hex: Hex) -> System {
-	return {hex = hex}
+FONT_SIZE :: 16
+FONT_SPACING :: 2
+
+WORLD_SIZE :: 12
+
+System :: struct {
+	name:       cstring,
+	allegiance: Allegiance,
+	hex:        Hex,
+	index:      cstring,
+}
+
+new_system :: proc(
+	name: cstring = "",
+	allegiance: Allegiance = .Unaligned,
+	hex: Hex,
+	index: cstring = "",
+) -> System {
+	return {name, allegiance, hex, index}
 }
 
 delete_system :: proc(system: System) {
@@ -17,55 +35,34 @@ delete_system :: proc(system: System) {
 		delete(system.name)
 	}
 
-	if system.allegiance != "" {
-		delete(system.allegiance)
+	if system.index != "" {
+		delete(system.index)
 	}
 }
 
-draw_border :: proc(sector: Sector, system: System) {
-	color: rl.Color
-
-	switch system.allegiance {
-	case "DaCf":
-		color = rl.WHITE
-	case "ImDd":
-		color = rl.RED
-	case "SwCf":
-		color = rl.DARKBLUE
-	case "ZhIN":
-		color = rl.BLUE
+system_index :: proc(index: string) -> (int, int, Error) {
+	x, x_ok := strconv.parse_int(index[0:2], 10)
+	if !x_ok {
+		return x, 0, .Invalid_Index
 	}
 
-	draw_hex(sector.layout, system.hex, color)
+	y, y_ok := strconv.parse_int(index[2:4], 10)
+	if !y_ok {
+		return x, y, .Invalid_Index
+	}
+
+	return x - 1, y - 1, nil
 }
 
-draw_system :: proc(sector: Sector, index: cstring, system: System) {
-	draw_hex(sector.layout, system.hex, rl.DARKGRAY)
+draw_system :: proc(layout: Layout, system: System) {
+	draw_hex(layout, system.hex, rl.DARKGRAY)
 
-	center := hex_to_pixel(sector.layout, system.hex)
+	center := hex_to_pixel(layout, system.hex)
 
 	if system.name != "" {
 		rl.DrawCircle(i32(center.x), i32(center.y), WORLD_SIZE, rl.BLUE)
 	}
 
-	font := rl.GetFontDefault()
-	name_size := rl.MeasureTextEx(font, system.name, FONT_SIZE, FONT_SPACING)
-	index_size := rl.MeasureTextEx(font, index, FONT_SIZE, FONT_SPACING)
-
-	rl.DrawTextEx(
-		font,
-		system.name,
-		{center.x - (name_size.x / 2), (center.y - (HEX_SIZE / 2)) - (name_size.y / 2)},
-		FONT_SIZE,
-		FONT_SPACING,
-		rl.WHITE,
-	)
-	rl.DrawTextEx(
-		font,
-		index,
-		{center.x - (index_size.x / 2), (center.y + (HEX_SIZE / 2)) - (index_size.y / 2)},
-		FONT_SIZE,
-		FONT_SPACING,
-		rl.DARKGRAY,
-	)
+	draw_text(system.name, center - {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, rl.WHITE)
+	draw_text(system.index, center + {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, rl.DARKGRAY)
 }

@@ -6,6 +6,19 @@
 
 package main
 
-new_layout :: proc(orientation: Orientation, origin, size: Point) -> Layout {
+Layout :: struct {
+	orientation:  Orientation,
+	origin, size: Point,
+}
+
+new_layout :: proc(
+	orientation: Orientation,
+	origin: Point,
+	size: Point = {HEX_SIZE, HEX_SIZE},
+) -> Layout {
 	return {orientation, origin, size}
+}
+
+flat_layout :: proc(origin: Point) -> Layout {
+	return new_layout(flat_orientation(), origin)
 }

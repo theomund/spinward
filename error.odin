@@ -6,19 +6,20 @@
 
 package main
 
-import "core:fmt"
+import "base:runtime"
+import "core:encoding/csv"
+import "core:encoding/xml"
 import "core:os"
 
-main :: proc() {
-	when ODIN_DEBUG {
-		tracker := new_tracker()
-		defer delete_tracker(tracker)
+Error :: union {
+	csv.Error,
+	os.Error,
+	runtime.Allocator_Error,
+	Spinward_Error,
+	xml.Error,
+}
 
-		context = tracker.ctx
-	}
-
-	if err := run(); err != nil {
-		fmt.eprintln("Got error:", err)
-		os.exit(1)
-	}
+Spinward_Error :: enum {
+	Initialization_Failed,
+	Invalid_Index,
 }

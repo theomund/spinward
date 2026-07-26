@@ -9,11 +9,13 @@ package main
 import "core:math"
 import rl "vendor:raylib"
 
-new_camera :: proc() -> rl.Camera2D {
+Camera :: rl.Camera2D
+
+new_camera :: proc() -> Camera {
 	return {zoom = 1.0}
 }
 
-poll_camera :: proc(camera: ^rl.Camera2D) {
+poll_camera :: proc(camera: ^Camera) {
 	if rl.IsMouseButtonDown(.RIGHT) {
 		pan_camera(camera, rl.GetMouseDelta())
 	}
@@ -23,11 +25,11 @@ poll_camera :: proc(camera: ^rl.Camera2D) {
 	}
 }
 
-pan_camera :: proc(camera: ^rl.Camera2D, delta: rl.Vector2) {
+pan_camera :: proc(camera: ^Camera, delta: Point) {
 	camera.target += delta * -1.0 / camera.zoom
 }
 
-zoom_camera :: proc(camera: ^rl.Camera2D, wheel: f32, position: rl.Vector2) {
+zoom_camera :: proc(camera: ^Camera, wheel: f32, position: Point) {
 	camera^ = {
 		offset = position,
 		target = rl.GetScreenToWorld2D(position, camera^),
