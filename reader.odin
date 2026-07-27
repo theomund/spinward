@@ -8,6 +8,7 @@ package main
 
 import "core:encoding/csv"
 import "core:encoding/xml"
+import "core:fmt"
 import "core:path/filepath"
 import "core:strings"
 
@@ -64,6 +65,23 @@ read_sector :: proc() -> (sector: Sector, err: Error) {
 
 			for &element in document.elements {
 				switch element.ident {
+				case "Border":
+					value := element.value[0].(string)
+
+					newlines, newlines_allocated := strings.remove_all(value, "\n")
+					defer if newlines_allocated {
+						delete(newlines)
+					}
+
+					spaces, spaces_allocated := strings.replace_all(newlines, "      ", " ")
+					defer if spaces_allocated {
+						delete(spaces)
+					}
+
+					border := strings.split(spaces, " ") or_return
+					defer delete(border)
+
+					fmt.println("Border:", border)
 				case "Name":
 					if element.attribs == nil {
 						sector.name = value_to_cstring(element.value) or_return
