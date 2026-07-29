@@ -50,10 +50,9 @@ read_sector :: proc() -> (sector: Sector, err: Error) {
 					continue
 				}
 
-				index := subsector_index(record[1])
-				subsector := &sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS]
-
 				x, y := system_index(record[2]) or_return
+
+				subsector := &sector.subsectors[y / SUBSECTOR_ROWS][x / SUBSECTOR_COLUMNS]
 				system := &subsector.systems[y % SUBSECTOR_ROWS][x % SUBSECTOR_COLUMNS]
 
 				system.name = strings.clone_to_cstring(record[3])
