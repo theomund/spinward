@@ -89,18 +89,16 @@ read_xml :: proc(sector: ^Sector, data: string) -> Error {
 
 			value := element.value[0].(string)
 
-			newlines, newlines_allocated := strings.remove_all(value, "\n")
-			defer if newlines_allocated {
-				delete(newlines)
-			}
+			newlines, newlines_allocated := strings.remove_all(value, "\n", context.temp_allocator)
 
-			spaces, spaces_allocated := strings.replace_all(newlines, "      ", " ")
-			defer if spaces_allocated {
-				delete(spaces)
-			}
+			spaces, spaces_allocated := strings.replace_all(
+				newlines,
+				"      ",
+				" ",
+				context.temp_allocator,
+			)
 
-			borders := strings.split(spaces, " ") or_return
-			defer delete(borders)
+			borders := strings.split(spaces, " ", context.temp_allocator) or_return
 
 			for border in borders {
 				x, y := system_index(border) or_return
@@ -123,6 +121,8 @@ read_xml :: proc(sector: ^Sector, data: string) -> Error {
 			sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = str
 		}
 	}
+
+	free_all(context.temp_allocator) or_return
 
 	return nil
 }

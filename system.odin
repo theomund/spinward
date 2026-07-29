@@ -30,7 +30,7 @@ new_system :: proc(
 	return {name, allegiance, hex, index}
 }
 
-delete_system :: proc(system: System) {
+destroy_system :: proc(system: System) {
 	if system.name != "" {
 		delete(system.name)
 	}

@@ -14,7 +14,7 @@ test_new_sector :: proc(t: ^testing.T) {
 	name := strings.clone_to_cstring("Spinward Marches")
 
 	sector := new_sector(name)
-	defer delete_sector(sector)
+	defer destroy_sector(sector)
 
 	testing.expect_value(t, sector.name, name)
 	testing.expect_value(t, sector.layout.origin, Point{0, 0})

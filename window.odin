@@ -20,7 +20,7 @@ new_window :: proc() -> Error {
 	return !rl.IsWindowReady() ? .Initialization_Failed : nil
 }
 
-delete_window :: proc() {
+destroy_window :: proc() {
 	rl.CloseWindow()
 }
 
