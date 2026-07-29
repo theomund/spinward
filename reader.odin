@@ -8,7 +8,7 @@ package main
 
 import "core:encoding/csv"
 import "core:encoding/xml"
-import "core:fmt"
+import "core:math"
 import "core:path/filepath"
 import "core:strings"
 
@@ -66,6 +66,14 @@ read_sector :: proc() -> (sector: Sector, err: Error) {
 			for &element in document.elements {
 				switch element.ident {
 				case "Border":
+					allegiance: Allegiance
+
+					for attribute in element.attribs {
+						if attribute.key == "Allegiance" {
+							allegiance = new_allegiance(attribute.val)
+						}
+					}
+
 					value := element.value[0].(string)
 
 					newlines, newlines_allocated := strings.remove_all(value, "\n")
@@ -78,10 +86,19 @@ read_sector :: proc() -> (sector: Sector, err: Error) {
 						delete(spaces)
 					}
 
-					border := strings.split(spaces, " ") or_return
-					defer delete(border)
+					borders := strings.split(spaces, " ") or_return
+					defer delete(borders)
 
-					fmt.println("Border:", border)
+					for border in borders {
+						x, y := system_index(border) or_return
+
+						x = math.clamp(x, 0, 31)
+						y = math.clamp(y, 0, 39)
+
+						subsector := &sector.subsectors[y / SUBSECTOR_ROWS][x / SUBSECTOR_COLUMNS]
+						system := &subsector.systems[y % SUBSECTOR_ROWS][x % SUBSECTOR_COLUMNS]
+						system.allegiance = allegiance
+					}
 				case "Name":
 					if element.attribs == nil {
 						sector.name = value_to_cstring(element.value) or_return
