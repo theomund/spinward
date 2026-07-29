@@ -36,83 +36,95 @@ read_sector :: proc() -> (sector: Sector, err: Error) {
 	for asset in assets {
 		switch filepath.ext(asset.name) {
 		case ".tab":
-			reader := new_reader()
-			defer destroy_reader(&reader)
-
-			csv.reader_init_with_string(&reader, string(asset.data))
-
-			for record, _, err in csv.iterator_next(&reader) {
-				if err != nil {
-					return sector, err
-				}
-
-				if record[1] == "SS" {
-					continue
-				}
-
-				x, y := system_index(record[2]) or_return
-
-				subsector := &sector.subsectors[y / SUBSECTOR_ROWS][x / SUBSECTOR_COLUMNS]
-				system := &subsector.systems[y % SUBSECTOR_ROWS][x % SUBSECTOR_COLUMNS]
-
-				system.name = strings.clone_to_cstring(record[3])
-				system.allegiance = new_allegiance(record[9])
-			}
+			read_tab(&sector, string(asset.data))
 		case ".xml":
-			document := xml.parse(asset.data) or_return
-			defer xml.destroy(document)
-
-			for &element in document.elements {
-				switch element.ident {
-				case "Border":
-					allegiance: Allegiance
-
-					for attribute in element.attribs {
-						if attribute.key == "Allegiance" {
-							allegiance = new_allegiance(attribute.val)
-						}
-					}
-
-					value := element.value[0].(string)
-
-					newlines, newlines_allocated := strings.remove_all(value, "\n")
-					defer if newlines_allocated {
-						delete(newlines)
-					}
-
-					spaces, spaces_allocated := strings.replace_all(newlines, "      ", " ")
-					defer if spaces_allocated {
-						delete(spaces)
-					}
-
-					borders := strings.split(spaces, " ") or_return
-					defer delete(borders)
-
-					for border in borders {
-						x, y := system_index(border) or_return
-
-						x = math.clamp(x, 0, 31)
-						y = math.clamp(y, 0, 39)
-
-						subsector := &sector.subsectors[y / SUBSECTOR_ROWS][x / SUBSECTOR_COLUMNS]
-						system := &subsector.systems[y % SUBSECTOR_ROWS][x % SUBSECTOR_COLUMNS]
-						system.allegiance = allegiance
-					}
-				case "Name":
-					if element.attribs == nil {
-						sector.name = value_to_cstring(element.value) or_return
-					}
-				case "Subsector":
-					str := value_to_cstring(element.value) or_return
-					index := subsector_index(element.attribs[0].val)
-
-					sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = str
-				}
-			}
+			read_xml(&sector, string(asset.data))
 		}
 	}
 
 	return
+}
+
+read_tab :: proc(sector: ^Sector, data: string) -> Error {
+	reader := new_reader()
+	defer destroy_reader(&reader)
+
+	csv.reader_init_with_string(&reader, data)
+
+	for record, _, err in csv.iterator_next(&reader) {
+		if err != nil {
+			return err
+		}
+
+		if record[1] == "SS" {
+			continue
+		}
+
+		x, y := system_index(record[2]) or_return
+
+		subsector := &sector.subsectors[y / SUBSECTOR_ROWS][x / SUBSECTOR_COLUMNS]
+		system := &subsector.systems[y % SUBSECTOR_ROWS][x % SUBSECTOR_COLUMNS]
+
+		system.name = strings.clone_to_cstring(record[3])
+		system.allegiance = new_allegiance(record[9])
+	}
+
+	return nil
+}
+
+read_xml :: proc(sector: ^Sector, data: string) -> Error {
+	document := xml.parse(data) or_return
+	defer xml.destroy(document)
+
+	for &element in document.elements {
+		switch element.ident {
+		case "Border":
+			allegiance: Allegiance
+
+			for attribute in element.attribs {
+				if attribute.key == "Allegiance" {
+					allegiance = new_allegiance(attribute.val)
+				}
+			}
+
+			value := element.value[0].(string)
+
+			newlines, newlines_allocated := strings.remove_all(value, "\n")
+			defer if newlines_allocated {
+				delete(newlines)
+			}
+
+			spaces, spaces_allocated := strings.replace_all(newlines, "      ", " ")
+			defer if spaces_allocated {
+				delete(spaces)
+			}
+
+			borders := strings.split(spaces, " ") or_return
+			defer delete(borders)
+
+			for border in borders {
+				x, y := system_index(border) or_return
+
+				x = math.clamp(x, 0, 31)
+				y = math.clamp(y, 0, 39)
+
+				subsector := &sector.subsectors[y / SUBSECTOR_ROWS][x / SUBSECTOR_COLUMNS]
+				system := &subsector.systems[y % SUBSECTOR_ROWS][x % SUBSECTOR_COLUMNS]
+				system.allegiance = allegiance
+			}
+		case "Name":
+			if element.attribs == nil {
+				sector.name = value_to_cstring(element.value) or_return
+			}
+		case "Subsector":
+			str := value_to_cstring(element.value) or_return
+			index := subsector_index(element.attribs[0].val)
+
+			sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = str
+		}
+	}
+
+	return nil
 }
 
 value_to_cstring :: proc(value: [dynamic]xml.Value) -> (str: cstring, err: Error) {
