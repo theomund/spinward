@@ -88,16 +88,8 @@ read_xml :: proc(sector: ^Sector, data: string) -> Error {
 			}
 
 			value := element.value[0].(string)
-
-			newlines, newlines_allocated := strings.remove_all(value, "\n", context.temp_allocator)
-
-			spaces, spaces_allocated := strings.replace_all(
-				newlines,
-				"      ",
-				" ",
-				context.temp_allocator,
-			)
-
+			newlines, _ := strings.remove_all(value, "\n", context.temp_allocator)
+			spaces, _ := strings.replace_all(newlines, "      ", " ", context.temp_allocator)
 			borders := strings.split(spaces, " ", context.temp_allocator) or_return
 
 			for border in borders {
