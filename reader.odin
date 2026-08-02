@@ -72,7 +72,10 @@ read_tab :: proc(sector: ^Sector, data: string) -> Error {
 		subsector := &sector.subsectors[y / SUBSECTOR_ROWS][x / SUBSECTOR_COLUMNS]
 		system := &subsector.systems[y % SUBSECTOR_ROWS][x % SUBSECTOR_COLUMNS]
 
-		system.name = strings.clone_to_cstring(record[3])
+		if record[3] != "" {
+			system.name = strings.clone_to_cstring(record[3])
+		}
+
 		system.allegiance = new_allegiance(record[9])
 	}
 
@@ -105,11 +108,30 @@ read_xml :: proc(sector: ^Sector, data: string) -> Error {
 
 read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	allegiance: Allegiance
+	label: cstring
+	label_position: string
 
 	for attribute in element.attribs {
-		if attribute.key == "Allegiance" {
+		switch attribute.key {
+		case "Allegiance":
 			allegiance = new_allegiance(attribute.val)
+		case "Label":
+			label = strings.clone_to_cstring(attribute.val) or_return
+		case "LabelPosition":
+			label_position = attribute.val
 		}
+	}
+
+	if label == "" {
+		label = from_allegiance(allegiance)
+	}
+
+	if label_position != "" {
+		x, y := system_index(label_position) or_return
+
+		subsector := &sector.subsectors[y / SUBSECTOR_ROWS][x / SUBSECTOR_COLUMNS]
+		system := &subsector.systems[y % SUBSECTOR_ROWS][x % SUBSECTOR_COLUMNS]
+		system.label = label
 	}
 
 	value := element.value[0].(string)
@@ -140,10 +162,11 @@ read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
 }
 
 read_subsector :: proc(element: xml.Element, sector: ^Sector) -> Error {
-	str := value_to_cstring(element.value) or_return
 	index := subsector_index(element.attribs[0].val)
 
-	sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = str
+	sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = value_to_cstring(
+		element.value,
+	) or_return
 
 	return nil
 }

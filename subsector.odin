@@ -72,7 +72,7 @@ subsector_index :: proc(index: string) -> u8 {
 draw_subsector :: proc(subsector: Subsector, camera: Camera) {
 	for row in subsector.systems {
 		for system in row {
-			draw_system(subsector.layout, system)
+			draw_system(subsector.layout, system, camera)
 		}
 	}
 
@@ -107,11 +107,13 @@ draw_subsector_title :: proc(subsector: Subsector, camera: Camera) {
 	color := rl.WHITE
 	color.a = fade(camera.zoom, 0.5, 0.25)
 
-	draw_text(
-		subsector.name,
-		subsector.center,
-		SUBSECTOR_TITLE_SIZE,
-		SUBSECTOR_TITLE_SPACING,
-		color,
-	)
+	if color.a != 0 {
+		draw_text(
+			subsector.name,
+			subsector.center,
+			SUBSECTOR_TITLE_SIZE,
+			SUBSECTOR_TITLE_SPACING,
+			color,
+		)
+	}
 }

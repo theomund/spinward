@@ -82,6 +82,57 @@ new_allegiance :: proc(text: string) -> Allegiance {
 	}
 }
 
+from_allegiance :: proc(allegiance: Allegiance) -> cstring {
+	switch allegiance {
+	case .Aslan_Hierate:
+		return "Aslan Hierate"
+	case .Belgardian_Sojurnate:
+		return "Belgardian Sojurnate"
+	case .Corellan_League:
+		return "Corellan League"
+	case .Darrian_Confederacy:
+		return "Darrian Confederacy"
+	case .Florian_League:
+		return "Florian League"
+	case .Glorious_Empire:
+		return "Glorious Empire"
+	case .Hefrin_Colony:
+		return "Hefrin Colony"
+	case .ISredNi_Protectorate:
+		return "I'Sred*Ni Protectorate"
+	case .Katanga_Empire:
+		return "Katanga Empire"
+	case .Mapepire_Cluster:
+		return "Mapepire Cluster"
+	case .Monarchy_Of_Lod:
+		return "Monarchy of Lod"
+	case .Nakris_Confederation:
+		return "Nakris Confederation"
+	case .Principality_Of_Bruhkarr:
+		return "Principality of Bruhkarr"
+	case .Senlis_Foederate:
+		return "Senlis Foederate"
+	case .Stormhaven_Republic:
+		return "Stormhaven Republic"
+	case .Strend_Cluster:
+		return "Strend Cluster"
+	case .Sword_Worlds_Confederacy:
+		return "Sword Worlds Confederacy"
+	case .Third_Imperium:
+		return "Third Imperium"
+	case .Vargr:
+		return "Vargr"
+	case .Zhodani_Consulate:
+		return "Zhodani Consulate"
+	case .Zydarian_Codominium:
+		return "Zydarian Codominium"
+	case .Unaligned:
+		return ""
+	}
+
+	return ""
+}
+
 draw_allegiance :: proc(layout: Layout, system: System) {
 	color: rl.Color
 
