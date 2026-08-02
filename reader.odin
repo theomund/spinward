@@ -10,6 +10,7 @@ import "core:encoding/csv"
 import "core:encoding/xml"
 import "core:math"
 import "core:path/filepath"
+import "core:strconv"
 import "core:strings"
 
 Reader :: csv.Reader
@@ -28,21 +29,27 @@ destroy_reader :: proc(reader: ^Reader) {
 	csv.reader_destroy(reader)
 }
 
-read_sector :: proc() -> (sector: Sector, err: Error) {
+read_sectors :: proc() -> (sectors: map[string]Sector, err: Error) {
 	assets := #load_directory("assets")
 
-	sector = new_sector()
-
 	for asset in assets {
+		name := filepath.stem(asset.name)
+
+		if name not_in sectors {
+			sectors[name] = new_sector()
+		}
+
+		data := string(asset.data)
+
 		switch filepath.ext(asset.name) {
 		case ".tab":
-			read_tab(&sector, string(asset.data))
+			read_tab(&sectors[name], data) or_return
 		case ".xml":
-			read_xml(&sector, string(asset.data))
+			read_xml(&sectors[name], data) or_return
 		}
 	}
 
-	return
+	return sectors, nil
 }
 
 read_tab :: proc(sector: ^Sector, data: string) -> Error {
@@ -111,6 +118,44 @@ read_xml :: proc(sector: ^Sector, data: string) -> Error {
 			index := subsector_index(element.attribs[0].val)
 
 			sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = str
+		case "X":
+			x, ok := strconv.parse_f32(element.value[0].(string))
+			if !ok {
+				return .Invalid_Index
+			}
+
+			sector.layout.origin.x = x * (1.5 * HEX_SIZE) * SECTOR_WIDTH
+			sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT)
+
+			for &row in sector.subsectors {
+				for &subsector in row {
+					subsector.layout.origin.x += sector.layout.origin.x
+					subsector.center = grid_center(
+						subsector.layout,
+						SUBSECTOR_COLUMNS,
+						SUBSECTOR_ROWS,
+					)
+				}
+			}
+		case "Y":
+			y, ok := strconv.parse_f32(element.value[0].(string))
+			if !ok {
+				return .Invalid_Index
+			}
+
+			sector.layout.origin.y = y * (math.SQRT_THREE * HEX_SIZE) * SECTOR_HEIGHT
+			sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT)
+
+			for &row in sector.subsectors {
+				for &subsector in row {
+					subsector.layout.origin.y += sector.layout.origin.y
+					subsector.center = grid_center(
+						subsector.layout,
+						SUBSECTOR_COLUMNS,
+						SUBSECTOR_ROWS,
+					)
+				}
+			}
 		}
 	}
 

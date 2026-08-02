@@ -12,10 +12,15 @@ run :: proc() -> Error {
 
 	camera := new_camera()
 
-	sector := read_sector() or_return
-	defer destroy_sector(sector)
+	sectors := read_sectors() or_return
 
-	render(sector, &camera)
+	render(sectors, &camera)
+
+	for _, sector in sectors {
+		destroy_sector(sector)
+	}
+
+	delete(sectors)
 
 	return nil
 }

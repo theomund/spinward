@@ -24,7 +24,7 @@ destroy_window :: proc() {
 	rl.CloseWindow()
 }
 
-render :: proc(sector: Sector, camera: ^Camera) {
+render :: proc(sectors: map[string]Sector, camera: ^Camera) {
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
 
@@ -34,7 +34,11 @@ render :: proc(sector: Sector, camera: ^Camera) {
 		poll_camera(camera)
 
 		rl.BeginMode2D(camera^)
-		draw_sector(sector, camera^)
+
+		for _, sector in sectors {
+			draw_sector(sector, camera^)
+		}
+
 		rl.EndMode2D()
 
 		rl.EndDrawing()
