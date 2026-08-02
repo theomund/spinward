@@ -86,80 +86,102 @@ read_xml :: proc(sector: ^Sector, data: string) -> Error {
 	for &element in document.elements {
 		switch element.ident {
 		case "Border":
-			allegiance: Allegiance
-
-			for attribute in element.attribs {
-				if attribute.key == "Allegiance" {
-					allegiance = new_allegiance(attribute.val)
-				}
-			}
-
-			value := element.value[0].(string)
-			newlines, _ := strings.remove_all(value, "\n", context.temp_allocator)
-			spaces, _ := strings.replace_all(newlines, "      ", " ", context.temp_allocator)
-			borders := strings.split(spaces, " ", context.temp_allocator) or_return
-
-			for border in borders {
-				x, y := system_index(border) or_return
-
-				x = math.clamp(x, 0, 31)
-				y = math.clamp(y, 0, 39)
-
-				subsector := &sector.subsectors[y / SUBSECTOR_ROWS][x / SUBSECTOR_COLUMNS]
-				system := &subsector.systems[y % SUBSECTOR_ROWS][x % SUBSECTOR_COLUMNS]
-				system.allegiance = allegiance
-			}
+			read_border(element, sector) or_return
 		case "Name":
-			if element.attribs == nil {
-				sector.name = value_to_cstring(element.value) or_return
-			}
+			read_name(element, sector) or_return
 		case "Subsector":
-			str := value_to_cstring(element.value) or_return
-			index := subsector_index(element.attribs[0].val)
-
-			sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = str
+			read_subsector(element, sector) or_return
 		case "X":
-			x, ok := strconv.parse_f32(element.value[0].(string))
-			if !ok {
-				return .Invalid_Index
-			}
-
-			sector.layout.origin.x = x * (1.5 * HEX_SIZE) * SECTOR_WIDTH
-			sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT)
-
-			for &row in sector.subsectors {
-				for &subsector in row {
-					subsector.layout.origin.x += sector.layout.origin.x
-					subsector.center = grid_center(
-						subsector.layout,
-						SUBSECTOR_COLUMNS,
-						SUBSECTOR_ROWS,
-					)
-				}
-			}
+			read_x(element, sector) or_return
 		case "Y":
-			y, ok := strconv.parse_f32(element.value[0].(string))
-			if !ok {
-				return .Invalid_Index
-			}
-
-			sector.layout.origin.y = y * (math.SQRT_THREE * HEX_SIZE) * SECTOR_HEIGHT
-			sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT)
-
-			for &row in sector.subsectors {
-				for &subsector in row {
-					subsector.layout.origin.y += sector.layout.origin.y
-					subsector.center = grid_center(
-						subsector.layout,
-						SUBSECTOR_COLUMNS,
-						SUBSECTOR_ROWS,
-					)
-				}
-			}
+			read_y(element, sector) or_return
 		}
 	}
 
 	free_all(context.temp_allocator) or_return
+
+	return nil
+}
+
+read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
+	allegiance: Allegiance
+
+	for attribute in element.attribs {
+		if attribute.key == "Allegiance" {
+			allegiance = new_allegiance(attribute.val)
+		}
+	}
+
+	value := element.value[0].(string)
+	newlines, _ := strings.remove_all(value, "\n", context.temp_allocator)
+	spaces, _ := strings.replace_all(newlines, "      ", " ", context.temp_allocator)
+	borders := strings.split(spaces, " ", context.temp_allocator) or_return
+
+	for border in borders {
+		x, y := system_index(border) or_return
+
+		x = math.clamp(x, 0, 31)
+		y = math.clamp(y, 0, 39)
+
+		subsector := &sector.subsectors[y / SUBSECTOR_ROWS][x / SUBSECTOR_COLUMNS]
+		system := &subsector.systems[y % SUBSECTOR_ROWS][x % SUBSECTOR_COLUMNS]
+		system.allegiance = allegiance
+	}
+
+	return nil
+}
+
+read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
+	if element.attribs == nil {
+		sector.name = value_to_cstring(element.value) or_return
+	}
+
+	return nil
+}
+
+read_subsector :: proc(element: xml.Element, sector: ^Sector) -> Error {
+	str := value_to_cstring(element.value) or_return
+	index := subsector_index(element.attribs[0].val)
+
+	sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = str
+
+	return nil
+}
+
+read_x :: proc(element: xml.Element, sector: ^Sector) -> Error {
+	x, ok := strconv.parse_f32(element.value[0].(string))
+	if !ok {
+		return .Invalid_Index
+	}
+
+	sector.layout.origin.x = x * (1.5 * HEX_SIZE) * SECTOR_WIDTH
+	sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT)
+
+	for &row in sector.subsectors {
+		for &subsector in row {
+			subsector.layout.origin.x += sector.layout.origin.x
+			subsector.center = grid_center(subsector.layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS)
+		}
+	}
+
+	return nil
+}
+
+read_y :: proc(element: xml.Element, sector: ^Sector) -> Error {
+	y, ok := strconv.parse_f32(element.value[0].(string))
+	if !ok {
+		return .Invalid_Index
+	}
+
+	sector.layout.origin.y = y * (math.SQRT_THREE * HEX_SIZE) * SECTOR_HEIGHT
+	sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT)
+
+	for &row in sector.subsectors {
+		for &subsector in row {
+			subsector.layout.origin.y += sector.layout.origin.y
+			subsector.center = grid_center(subsector.layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS)
+		}
+	}
 
 	return nil
 }
