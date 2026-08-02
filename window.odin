@@ -29,7 +29,6 @@ render :: proc(sectors: map[string]Sector, camera: ^Camera) {
 		rl.BeginDrawing()
 
 		rl.ClearBackground(rl.BLACK)
-		rl.DrawFPS(16, WINDOW_HEIGHT - 32)
 
 		poll_camera(camera)
 
@@ -40,6 +39,8 @@ render :: proc(sectors: map[string]Sector, camera: ^Camera) {
 		}
 
 		rl.EndMode2D()
+
+		rl.DrawFPS(16, WINDOW_HEIGHT - 32)
 
 		rl.EndDrawing()
 	}
