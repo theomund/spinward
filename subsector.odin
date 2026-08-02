@@ -107,13 +107,11 @@ draw_subsector_title :: proc(subsector: Subsector, camera: Camera) {
 	color := rl.WHITE
 	color.a = fade(camera.zoom, 0.5, 0.25)
 
-	if color.a != 0 {
-		draw_text(
-			subsector.name,
-			subsector.center,
-			SUBSECTOR_TITLE_SIZE,
-			SUBSECTOR_TITLE_SPACING,
-			color,
-		)
-	}
+	draw_text(
+		subsector.name,
+		subsector.center,
+		SUBSECTOR_TITLE_SIZE,
+		SUBSECTOR_TITLE_SPACING,
+		color,
+	)
 }

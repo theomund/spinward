@@ -68,21 +68,15 @@ draw_system :: proc(layout: Layout, system: System, camera: Camera) {
 	color := rl.WHITE
 	color.a = fade(camera.zoom, 0.25, 0.5)
 
-	if color.a != 0 {
-		draw_text(system.name, center - {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, color)
-	}
+	draw_text(system.name, center - {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, color)
 
 	color = rl.DARKGRAY
 	color.a = fade(camera.zoom, 0.25, 0.5)
 
-	if color.a != 0 {
-		draw_text(system.index, center + {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, color)
-	}
+	draw_text(system.index, center + {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, color)
 
 	color = rl.YELLOW
 	color.a = fade(camera.zoom, 0.5, 0.25)
 
-	if color.a != 0 {
-		draw_text(system.label, center, SUBSECTOR_TITLE_SIZE, SUBSECTOR_TITLE_SPACING, color)
-	}
+	draw_text(system.label, center, SUBSECTOR_TITLE_SIZE, SUBSECTOR_TITLE_SPACING, color)
 }

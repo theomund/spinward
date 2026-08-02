@@ -9,8 +9,10 @@ package main
 import rl "vendor:raylib"
 
 draw_text :: proc(text: cstring, center: Point, size, spacing: f32, color: rl.Color) {
-	font := rl.GetFontDefault()
-	text_size := rl.MeasureTextEx(font, text, size, spacing)
+	if color.a != 0 {
+		font := rl.GetFontDefault()
+		text_size := rl.MeasureTextEx(font, text, size, spacing)
 
-	rl.DrawTextEx(font, text, center - text_size / 2, size, spacing, color)
+		rl.DrawTextEx(font, text, center - text_size / 2, size, spacing, color)
+	}
 }
