@@ -114,7 +114,7 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 		case "Allegiance":
 			allegiance = new_allegiance(attribute.val)
 		case "Label":
-			label = strings.clone_to_cstring(attribute.val) or_return
+			label = from_allegiance(new_allegiance(attribute.val))
 		case "LabelPosition":
 			label_position = attribute.val
 		}
