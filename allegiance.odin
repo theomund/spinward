@@ -14,6 +14,7 @@ Allegiance :: enum {
 	Belgardian_Sojurnate,
 	Corellan_League,
 	Darrian_Confederacy,
+	Dzarrgh_Federate,
 	Florian_League,
 	Glorious_Empire,
 	Hefrin_Colony,
@@ -28,7 +29,7 @@ Allegiance :: enum {
 	Strend_Cluster,
 	Sword_Worlds_Confederacy,
 	Third_Imperium,
-	Vargr,
+	United_Followers_Of_Augurgh,
 	Zhodani_Consulate,
 	Zydarian_Codominium,
 }
@@ -71,8 +72,10 @@ new_allegiance :: proc(text: string) -> Allegiance {
 		return .Sword_Worlds_Confederacy
 	case "ImDd", "ImDi", "ImDv", "ImLc":
 		return .Third_Imperium
-	case "VAug", "VDzF":
-		return .Vargr
+	case "VAug":
+		return .United_Followers_Of_Augurgh
+	case "VDzF":
+		return .Dzarrgh_Federate
 	case "ZhIN":
 		return .Zhodani_Consulate
 	case "ZyCo":
@@ -92,8 +95,12 @@ from_allegiance :: proc(allegiance: Allegiance) -> cstring {
 		return "Corellan League"
 	case .Darrian_Confederacy:
 		return "Darrian Confederacy"
+	case .Dzarrgh_Federate:
+		return "Dzarrgh Federate"
 	case .Florian_League:
 		return "Florian League"
+	case .United_Followers_Of_Augurgh:
+		return "United Followers of Augurgh"
 	case .Glorious_Empire:
 		return "Glorious Empire"
 	case .Hefrin_Colony:
@@ -120,8 +127,6 @@ from_allegiance :: proc(allegiance: Allegiance) -> cstring {
 		return "Sword Worlds Confederacy"
 	case .Third_Imperium:
 		return "Third Imperium"
-	case .Vargr:
-		return "Vargr"
 	case .Zhodani_Consulate:
 		return "Zhodani Consulate"
 	case .Zydarian_Codominium:
@@ -145,6 +150,8 @@ draw_allegiance :: proc(layout: Layout, system: System) {
 		color = rl.BROWN
 	case .Darrian_Confederacy:
 		color = rl.WHITE
+	case .Dzarrgh_Federate:
+		color = rl.GREEN
 	case .Florian_League:
 		color = rl.DARKGREEN
 	case .Glorious_Empire:
@@ -173,7 +180,7 @@ draw_allegiance :: proc(layout: Layout, system: System) {
 		color = rl.DARKBLUE
 	case .Third_Imperium:
 		color = rl.RED
-	case .Vargr:
+	case .United_Followers_Of_Augurgh:
 		color = rl.GREEN
 	case .Zhodani_Consulate:
 		color = rl.BLUE
