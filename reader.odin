@@ -72,11 +72,9 @@ read_tab :: proc(sector: ^Sector, data: string) -> Error {
 		subsector := &sector.subsectors[y / SUBSECTOR_ROWS][x / SUBSECTOR_COLUMNS]
 		system := &subsector.systems[y % SUBSECTOR_ROWS][x % SUBSECTOR_COLUMNS]
 
-		if record[3] != "" {
-			system.name = strings.clone_to_cstring(record[3])
-		}
-
 		system.allegiance = new_allegiance(record[9])
+		system.name = record[3] != "" ? strings.clone_to_cstring(record[3]) : "????"
+		system.world = true
 	}
 
 	return nil

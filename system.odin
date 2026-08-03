@@ -20,6 +20,7 @@ System :: struct {
 	hex:        Hex,
 	index:      cstring,
 	label:      cstring,
+	world:      bool,
 }
 
 new_system :: proc(
@@ -28,12 +29,13 @@ new_system :: proc(
 	hex: Hex,
 	index: cstring = "",
 	label: cstring = "",
+	world := false,
 ) -> System {
-	return {name, allegiance, hex, index, label}
+	return {name, allegiance, hex, index, label, world}
 }
 
 destroy_system :: proc(system: System) {
-	if system.name != "" {
+	if system.name != "" && system.name != "????" {
 		delete(system.name)
 	}
 
@@ -61,7 +63,7 @@ draw_system :: proc(layout: Layout, system: System, camera: Camera) {
 
 	center := hex_to_pixel(layout, system.hex)
 
-	if system.name != "" {
+	if system.world {
 		rl.DrawCircle(i32(center.x), i32(center.y), WORLD_SIZE, rl.BLUE)
 	}
 
