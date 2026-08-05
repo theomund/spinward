@@ -15,23 +15,16 @@ FONT_SPACING :: 2
 WORLD_SIZE :: 12
 
 System :: struct {
-	name:       cstring,
+	name:       string,
 	allegiance: Allegiance,
 	hex:        Hex,
-	index:      cstring,
-	label:      cstring,
+	index:      string,
+	label:      string,
 	world:      bool,
 }
 
-new_system :: proc(
-	name: cstring = "",
-	allegiance: Allegiance = .Unaligned,
-	hex: Hex,
-	index: cstring = "",
-	label: cstring = "",
-	world := false,
-) -> System {
-	return {name, allegiance, hex, index, label, world}
+new_system :: proc(hex: Hex, index: string) -> System {
+	return {hex = hex, index = index}
 }
 
 destroy_system :: proc(system: System) {
@@ -54,7 +47,7 @@ system_index :: proc(index: string) -> (int, int, Error) {
 	return x - 1, y - 1, nil
 }
 
-draw_system :: proc(layout: Layout, system: System, camera: Camera) {
+draw_system :: proc(layout: Layout, system: System, camera: Camera) -> Error {
 	draw_hex(layout, system.hex, rl.DARKGRAY)
 
 	center := hex_to_pixel(layout, system.hex)
@@ -66,15 +59,17 @@ draw_system :: proc(layout: Layout, system: System, camera: Camera) {
 	color := rl.WHITE
 	color.a = fade(camera.zoom, 0.25, 0.5)
 
-	draw_text(system.name, center - {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, color)
+	draw_text(system.name, center - {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, color) or_return
 
 	color = rl.DARKGRAY
 	color.a = fade(camera.zoom, 0.25, 0.5)
 
-	draw_text(system.index, center + {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, color)
+	draw_text(system.index, center + {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, color) or_return
 
 	color = rl.YELLOW
 	color.a = fade(camera.zoom, 0.5, 0.25)
 
-	draw_text(system.label, center, SUBSECTOR_TITLE_SIZE, SUBSECTOR_TITLE_SPACING, color)
+	draw_text(system.label, center, SUBSECTOR_TITLE_SIZE, SUBSECTOR_TITLE_SPACING, color) or_return
+
+	return nil
 }

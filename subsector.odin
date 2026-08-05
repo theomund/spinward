@@ -16,19 +16,16 @@ SUBSECTOR_TITLE_SIZE :: SECTOR_TITLE_SIZE / 4
 SUBSECTOR_TITLE_SPACING :: SECTOR_TITLE_SPACING / 4
 
 Subsector :: struct {
-	name:    cstring,
+	name:    string,
 	center:  Point,
 	layout:  Layout,
 	systems: [SUBSECTOR_ROWS][SUBSECTOR_COLUMNS]System,
 }
 
-new_subsector :: proc(name: cstring = "", layout: Layout, origin: Point) -> Subsector {
-	subsector_layout := layout
-	subsector_layout.origin = origin
-
-	center := grid_center(subsector_layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS)
-
-	systems: [SUBSECTOR_ROWS][SUBSECTOR_COLUMNS]System
+new_subsector :: proc(layout: Layout, origin: Point) -> (subsector: Subsector) {
+	subsector.layout = layout
+	subsector.layout.origin = origin
+	subsector.center = grid_center(subsector.layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS)
 
 	left := f32(0)
 	right := f32(SUBSECTOR_COLUMNS)
@@ -46,11 +43,11 @@ new_subsector :: proc(name: cstring = "", layout: Layout, origin: Point) -> Subs
 
 			system_index := hex_index(hex + pixel_to_hex_rounded(layout, origin))
 
-			systems[y][x] = new_system(hex = hex, index = system_index)
+			subsector.systems[y][x] = new_system(hex, system_index)
 		}
 	}
 
-	return {name, center, subsector_layout, systems}
+	return
 }
 
 destroy_subsector :: proc(subsector: Subsector) {
@@ -67,10 +64,10 @@ subsector_index :: proc(index: string) -> u8 {
 	return index[0] - 'A'
 }
 
-draw_subsector :: proc(subsector: Subsector, camera: Camera) {
+draw_subsector :: proc(subsector: Subsector, camera: Camera) -> Error {
 	for row in subsector.systems {
 		for system in row {
-			draw_system(subsector.layout, system, camera)
+			draw_system(subsector.layout, system, camera) or_return
 		}
 	}
 
@@ -82,7 +79,9 @@ draw_subsector :: proc(subsector: Subsector, camera: Camera) {
 
 	draw_subsector_border(subsector)
 
-	draw_subsector_title(subsector, camera)
+	draw_subsector_title(subsector, camera) or_return
+
+	return nil
 }
 
 draw_subsector_border :: proc(subsector: Subsector) {
@@ -101,7 +100,7 @@ draw_subsector_border :: proc(subsector: Subsector) {
 	rl.DrawRectangleLines(x, y, width, height, rl.GRAY)
 }
 
-draw_subsector_title :: proc(subsector: Subsector, camera: Camera) {
+draw_subsector_title :: proc(subsector: Subsector, camera: Camera) -> Error {
 	color := rl.WHITE
 	color.a = fade(camera.zoom, 0.5, 0.25)
 
@@ -111,5 +110,7 @@ draw_subsector_title :: proc(subsector: Subsector, camera: Camera) {
 		SUBSECTOR_TITLE_SIZE,
 		SUBSECTOR_TITLE_SPACING,
 		color,
-	)
+	) or_return
+
+	return nil
 }

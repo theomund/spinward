@@ -10,11 +10,11 @@ import "core:testing"
 
 @(test)
 test_new_subsector :: proc(t: ^testing.T) {
-	name, _ := new_string("Sword Worlds")
+	origin := Point{0, 0}
 	layout := flat_layout({0, 0})
 
-	subsector := new_subsector(name, layout, {0, 0})
+	subsector := new_subsector(layout, origin)
 	defer destroy_subsector(subsector)
 
-	testing.expect_value(t, subsector.name, name)
+	testing.expect_value(t, subsector.name, "")
 }

@@ -8,13 +8,13 @@ package main
 
 import "core:strings"
 
-new_string :: proc(value: string) -> (str: cstring, err: Error) {
-	str = strings.clone_to_cstring(value) or_return
+new_string :: proc(value: string) -> (str: string, err: Error) {
+	str = strings.clone(value) or_return
 
 	return
 }
 
-destroy_string :: proc(str: cstring) -> Error {
+destroy_string :: proc(str: string) -> Error {
 	if str != "" {
 		delete(str) or_return
 	}

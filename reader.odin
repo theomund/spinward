@@ -106,7 +106,7 @@ read_xml :: proc(sector: ^Sector, data: string) -> Error {
 
 read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	allegiance: Allegiance
-	label: cstring
+	label: string
 	label_position: string
 
 	for attribute in element.attribs {

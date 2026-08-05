@@ -24,7 +24,7 @@ destroy_window :: proc() {
 	rl.CloseWindow()
 }
 
-render :: proc(sectors: map[string]Sector, camera: ^Camera) {
+render :: proc(sectors: map[string]Sector, camera: ^Camera) -> Error {
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
 
@@ -35,7 +35,7 @@ render :: proc(sectors: map[string]Sector, camera: ^Camera) {
 		rl.BeginMode2D(camera^)
 
 		for _, sector in sectors {
-			draw_sector(sector, camera^)
+			draw_sector(sector, camera^) or_return
 		}
 
 		rl.EndMode2D()
@@ -44,4 +44,6 @@ render :: proc(sectors: map[string]Sector, camera: ^Camera) {
 
 		rl.EndDrawing()
 	}
+
+	return nil
 }

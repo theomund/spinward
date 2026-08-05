@@ -10,12 +10,10 @@ import "core:testing"
 
 @(test)
 test_new_sector :: proc(t: ^testing.T) {
-	name, _ := new_string("Spinward Marches")
-
-	sector := new_sector(name)
+	sector := new_sector()
 	defer destroy_sector(sector)
 
-	testing.expect_value(t, sector.name, name)
+	testing.expect_value(t, sector.name, "")
 	testing.expect_value(t, sector.layout.origin, Point{0, 0})
 	testing.expect_value(t, sector.layout.size, Point{HEX_SIZE, HEX_SIZE})
 }

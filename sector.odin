@@ -18,30 +18,28 @@ SECTOR_TITLE_SIZE :: 320
 SECTOR_TITLE_SPACING :: 16
 
 Sector :: struct {
-	name:       cstring,
+	name:       string,
 	center:     Point,
 	layout:     Layout,
 	subsectors: [SECTOR_ROWS][SECTOR_COLUMNS]Subsector,
 }
 
-new_sector :: proc(name: cstring = "", origin: Point = {0, 0}) -> Sector {
-	layout := flat_layout(origin)
-	center := grid_center(layout, SECTOR_WIDTH, SECTOR_HEIGHT)
-
-	subsectors: [SECTOR_ROWS][SECTOR_COLUMNS]Subsector
+new_sector :: proc() -> (sector: Sector) {
+	sector.layout = flat_layout({0, 0})
+	sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT)
 
 	for y in 0 ..< SECTOR_ROWS {
 		for x in 0 ..< SECTOR_COLUMNS {
 			subsector_hex := qoffset_to_cube(
 				new_offset(f32(x) * SUBSECTOR_COLUMNS, f32(y) * SUBSECTOR_ROWS),
 			)
-			subsector_origin := hex_to_pixel(layout, subsector_hex)
+			subsector_origin := hex_to_pixel(sector.layout, subsector_hex)
 
-			subsectors[y][x] = new_subsector(layout = layout, origin = subsector_origin)
+			sector.subsectors[y][x] = new_subsector(sector.layout, subsector_origin)
 		}
 	}
 
-	return {name, center, layout, subsectors}
+	return
 }
 
 destroy_sector :: proc(sector: Sector) {
@@ -60,15 +58,17 @@ contains_hex :: proc(hex: Hex) -> bool {
 	return offset.x >= 0 && offset.y >= 0 && offset.x < SECTOR_WIDTH && offset.y < SECTOR_HEIGHT
 }
 
-draw_sector :: proc(sector: Sector, camera: Camera) {
+draw_sector :: proc(sector: Sector, camera: Camera) -> Error {
 	for row in sector.subsectors {
 		for subsector in row {
-			draw_subsector(subsector, camera)
+			draw_subsector(subsector, camera) or_return
 		}
 	}
 
 	draw_hovered_hex(sector.layout, camera)
-	draw_sector_title(sector, camera)
+	draw_sector_title(sector, camera) or_return
+
+	return nil
 }
 
 draw_hovered_hex :: proc(layout: Layout, camera: Camera) {
@@ -80,9 +80,11 @@ draw_hovered_hex :: proc(layout: Layout, camera: Camera) {
 	}
 }
 
-draw_sector_title :: proc(sector: Sector, camera: Camera) {
+draw_sector_title :: proc(sector: Sector, camera: Camera) -> Error {
 	color := rl.WHITE
 	color.a = fade(camera.zoom, 0.5, 0.25)
 
-	draw_text(sector.name, sector.center, SECTOR_TITLE_SIZE, SECTOR_TITLE_SPACING, color)
+	draw_text(sector.name, sector.center, SECTOR_TITLE_SIZE, SECTOR_TITLE_SPACING, color) or_return
+
+	return nil
 }
