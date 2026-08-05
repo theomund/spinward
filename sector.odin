@@ -18,7 +18,7 @@ SECTOR_TITLE_SIZE :: 320
 SECTOR_TITLE_SPACING :: 16
 
 Sector :: struct {
-	name:       string,
+	name:       Text,
 	center:     Point,
 	layout:     Layout,
 	subsectors: [SECTOR_ROWS][SECTOR_COLUMNS]Subsector,

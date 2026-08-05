@@ -16,7 +16,7 @@ SUBSECTOR_TITLE_SIZE :: SECTOR_TITLE_SIZE / 4
 SUBSECTOR_TITLE_SPACING :: SECTOR_TITLE_SPACING / 4
 
 Subsector :: struct {
-	name:    string,
+	name:    Text,
 	center:  Point,
 	layout:  Layout,
 	systems: [SUBSECTOR_ROWS][SUBSECTOR_COLUMNS]System,
@@ -62,7 +62,7 @@ destroy_subsector :: proc(subsector: Subsector) -> Error {
 	return nil
 }
 
-subsector_index :: proc(index: string) -> u8 {
+subsector_index :: proc(index: Text) -> u8 {
 	return index[0] - 'A'
 }
 

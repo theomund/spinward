@@ -15,15 +15,15 @@ FONT_SPACING :: 2
 WORLD_SIZE :: 12
 
 System :: struct {
-	name:       string,
+	name:       Text,
 	allegiance: Allegiance,
 	hex:        Hex,
-	index:      string,
-	label:      string,
+	index:      Text,
+	label:      Text,
 	world:      bool,
 }
 
-new_system :: proc(hex: Hex, index: string) -> System {
+new_system :: proc(hex: Hex, index: Text) -> System {
 	return {hex = hex, index = index}
 }
 
@@ -35,7 +35,7 @@ destroy_system :: proc(system: System) -> Error {
 	return nil
 }
 
-system_index :: proc(index: string) -> (int, int, Error) {
+system_index :: proc(index: Text) -> (int, int, Error) {
 	x, x_ok := strconv.parse_int(index[0:2], 10)
 	if !x_ok {
 		return x, 0, .Invalid_Index

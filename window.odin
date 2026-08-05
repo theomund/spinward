@@ -24,7 +24,7 @@ destroy_window :: proc() {
 	rl.CloseWindow()
 }
 
-render :: proc(sectors: map[string]Sector, camera: ^Camera) -> Error {
+render :: proc(sectors: map[Text]Sector, camera: ^Camera) -> Error {
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
 

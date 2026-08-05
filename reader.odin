@@ -29,7 +29,7 @@ destroy_reader :: proc(reader: ^Reader) {
 	csv.reader_destroy(reader)
 }
 
-read_sectors :: proc() -> (sectors: map[string]Sector, err: Error) {
+read_sectors :: proc() -> (sectors: map[Text]Sector, err: Error) {
 	assets := #load_directory("assets")
 
 	for asset in assets {
@@ -39,7 +39,7 @@ read_sectors :: proc() -> (sectors: map[string]Sector, err: Error) {
 			sectors[name] = new_sector()
 		}
 
-		data := string(asset.data)
+		data := Text(asset.data)
 
 		switch filepath.ext(asset.name) {
 		case ".tab":
@@ -52,7 +52,7 @@ read_sectors :: proc() -> (sectors: map[string]Sector, err: Error) {
 	return sectors, nil
 }
 
-read_tab :: proc(sector: ^Sector, data: string) -> Error {
+read_tab :: proc(sector: ^Sector, data: Text) -> Error {
 	reader := new_reader()
 	defer destroy_reader(&reader)
 
@@ -80,7 +80,7 @@ read_tab :: proc(sector: ^Sector, data: string) -> Error {
 	return nil
 }
 
-read_xml :: proc(sector: ^Sector, data: string) -> Error {
+read_xml :: proc(sector: ^Sector, data: Text) -> Error {
 	document := xml.parse(data) or_return
 	defer xml.destroy(document)
 
@@ -108,8 +108,8 @@ read_xml :: proc(sector: ^Sector, data: string) -> Error {
 
 read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	allegiance: Allegiance
-	label: string
-	label_position: string
+	label: Text
+	label_position: Text
 
 	for attribute in element.attribs {
 		switch attribute.key {
@@ -134,7 +134,7 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 		system.label = label
 	}
 
-	value := element.value[0].(string)
+	value := element.value[0].(Text)
 	newlines, _ := strings.remove_all(value, "\n", context.temp_allocator)
 	spaces, _ := strings.replace_all(newlines, "      ", " ", context.temp_allocator)
 	borders := strings.split(spaces, " ", context.temp_allocator) or_return
@@ -155,11 +155,11 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 
 read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	if element.attribs == nil {
-		sector.name = new_text(element.value[0].(string)) or_return
+		sector.name = new_text(element.value[0].(Text)) or_return
 	} else {
 		for attribute in element.attribs {
 			if attribute.key != "Lang" {
-				sector.name = new_text(element.value[0].(string)) or_return
+				sector.name = new_text(element.value[0].(Text)) or_return
 			}
 		}
 	}
@@ -171,14 +171,14 @@ read_subsector :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	index := subsector_index(element.attribs[0].val)
 
 	sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = new_text(
-		element.value[0].(string),
+		element.value[0].(Text),
 	) or_return
 
 	return nil
 }
 
 read_x :: proc(element: xml.Element, sector: ^Sector) -> Error {
-	x, ok := strconv.parse_f32(element.value[0].(string))
+	x, ok := strconv.parse_f32(element.value[0].(Text))
 	if !ok {
 		return .Invalid_Index
 	}
@@ -197,7 +197,7 @@ read_x :: proc(element: xml.Element, sector: ^Sector) -> Error {
 }
 
 read_y :: proc(element: xml.Element, sector: ^Sector) -> Error {
-	y, ok := strconv.parse_f32(element.value[0].(string))
+	y, ok := strconv.parse_f32(element.value[0].(Text))
 	if !ok {
 		return .Invalid_Index
 	}

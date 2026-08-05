@@ -20,7 +20,7 @@ new_hex :: proc(q, r, s: f32) -> Hex {
 	return {q, r, s}
 }
 
-hex_index :: proc(hex: Hex) -> string {
+hex_index :: proc(hex: Hex) -> Text {
 	offset := qoffset_from_cube(hex)
 
 	x := i32(offset.x + 1)

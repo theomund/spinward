@@ -9,13 +9,15 @@ package main
 import "core:strings"
 import rl "vendor:raylib"
 
-new_text :: proc(value: string) -> (text: string, err: Error) {
+Text :: string
+
+new_text :: proc(value: Text) -> (text: Text, err: Error) {
 	text = strings.clone(value) or_return
 
 	return
 }
 
-destroy_text :: proc(text: string) -> Error {
+destroy_text :: proc(text: Text) -> Error {
 	if text != "" {
 		delete(text) or_return
 	}
@@ -23,7 +25,7 @@ destroy_text :: proc(text: string) -> Error {
 	return nil
 }
 
-draw_text :: proc(text: string, center: Point, size, spacing: f32, color: rl.Color) -> Error {
+draw_text :: proc(text: Text, center: Point, size, spacing: f32, color: rl.Color) -> Error {
 	if color.a != 0 {
 		font := rl.GetFontDefault()
 
