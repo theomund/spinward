@@ -17,7 +17,7 @@ run :: proc() -> Error {
 	render(sectors, &camera) or_return
 
 	for _, sector in sectors {
-		destroy_sector(sector)
+		destroy_sector(sector) or_return
 	}
 
 	delete(sectors)

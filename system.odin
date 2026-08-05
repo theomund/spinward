@@ -27,10 +27,12 @@ new_system :: proc(hex: Hex, index: string) -> System {
 	return {hex = hex, index = index}
 }
 
-destroy_system :: proc(system: System) {
-	destroy_string(system.name)
-	destroy_string(system.index)
-	destroy_string(system.label)
+destroy_system :: proc(system: System) -> Error {
+	destroy_string(system.name) or_return
+	destroy_string(system.index) or_return
+	destroy_string(system.label) or_return
+
+	return nil
 }
 
 system_index :: proc(index: string) -> (int, int, Error) {

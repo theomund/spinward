@@ -42,14 +42,16 @@ new_sector :: proc() -> (sector: Sector) {
 	return
 }
 
-destroy_sector :: proc(sector: Sector) {
-	destroy_string(sector.name)
+destroy_sector :: proc(sector: Sector) -> Error {
+	destroy_string(sector.name) or_return
 
 	for row in sector.subsectors {
 		for subsector in row {
-			destroy_subsector(subsector)
+			destroy_subsector(subsector) or_return
 		}
 	}
+
+	return nil
 }
 
 contains_hex :: proc(hex: Hex) -> bool {

@@ -50,14 +50,16 @@ new_subsector :: proc(layout: Layout, origin: Point) -> (subsector: Subsector) {
 	return
 }
 
-destroy_subsector :: proc(subsector: Subsector) {
-	destroy_string(subsector.name)
+destroy_subsector :: proc(subsector: Subsector) -> Error {
+	destroy_string(subsector.name) or_return
 
 	for row in subsector.systems {
 		for system in row {
-			destroy_system(system)
+			destroy_system(system) or_return
 		}
 	}
+
+	return nil
 }
 
 subsector_index :: proc(index: string) -> u8 {
