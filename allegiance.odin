@@ -47,7 +47,6 @@ allegiances := [Allegiance]Allegiance_Data {
 	.Darrian_Confederacy         = {rl.WHITE, "Darrian Confederacy"},
 	.Dzarrgh_Federate            = {rl.GREEN, "Dzarrgh Federate"},
 	.Florian_League              = {rl.DARKGREEN, "Florian League"},
-	.United_Followers_Of_Augurgh = {rl.GREEN, "United Followers of Augurgh"},
 	.Glorious_Empire             = {rl.BEIGE, "Glorious Empire"},
 	.Hefrin_Colony               = {rl.WHITE, "Hefrin Colony"},
 	.ISredNi_Protectorate        = {rl.PURPLE, "I'Sred*Ni Protectorate"},
@@ -61,9 +60,10 @@ allegiances := [Allegiance]Allegiance_Data {
 	.Strend_Cluster              = {rl.BROWN, "Strend Cluster"},
 	.Sword_Worlds_Confederacy    = {rl.DARKBLUE, "Sword Worlds Confederacy"},
 	.Third_Imperium              = {rl.RED, "Third Imperium"},
+	.Unaligned                   = {rl.BLANK, ""},
+	.United_Followers_Of_Augurgh = {rl.GREEN, "United Followers of Augurgh"},
 	.Zhodani_Consulate           = {rl.BLUE, "Zhodani Consulate"},
 	.Zydarian_Codominium         = {rl.PINK, "Zydarian Codominium"},
-	.Unaligned                   = {rl.BLANK, ""},
 }
 
 new_allegiance :: proc(text: string) -> Allegiance {
@@ -76,6 +76,8 @@ new_allegiance :: proc(text: string) -> Allegiance {
 		return .Corellan_League
 	case "DaCf":
 		return .Darrian_Confederacy
+	case "VDzF":
+		return .Dzarrgh_Federate
 	case "FlLe":
 		return .Florian_League
 	case "GlEm":
@@ -106,8 +108,6 @@ new_allegiance :: proc(text: string) -> Allegiance {
 		return .Third_Imperium
 	case "VAug":
 		return .United_Followers_Of_Augurgh
-	case "VDzF":
-		return .Dzarrgh_Federate
 	case "ZhIN":
 		return .Zhodani_Consulate
 	case "ZyCo":
