@@ -89,7 +89,9 @@ read_xml :: proc(sector: ^Sector, data: string) -> Error {
 		case "Border":
 			read_border(element, sector) or_return
 		case "Name":
-			read_name(element, sector) or_return
+			if sector.name == "" {
+				read_name(element, sector) or_return
+			}
 		case "Subsector":
 			read_subsector(element, sector) or_return
 		case "X":
@@ -154,6 +156,12 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	if element.attribs == nil {
 		sector.name = new_text(element.value[0].(string)) or_return
+	} else {
+		for attribute in element.attribs {
+			if attribute.key != "Lang" {
+				sector.name = new_text(element.value[0].(string)) or_return
+			}
+		}
 	}
 
 	return nil

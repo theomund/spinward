@@ -104,7 +104,7 @@ new_allegiance :: proc(text: string) -> Allegiance {
 		return .Strend_Cluster
 	case "SwCf":
 		return .Sword_Worlds_Confederacy
-	case "ImDd", "ImDi", "ImDv", "ImLc":
+	case "ImAp", "ImDa", "ImDc", "ImDd", "ImDi", "ImDv", "ImLc", "ImSy":
 		return .Third_Imperium
 	case "VAug":
 		return .United_Followers_Of_Augurgh
