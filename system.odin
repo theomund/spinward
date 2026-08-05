@@ -28,9 +28,9 @@ new_system :: proc(hex: Hex, index: string) -> System {
 }
 
 destroy_system :: proc(system: System) -> Error {
-	destroy_string(system.name) or_return
-	destroy_string(system.index) or_return
-	destroy_string(system.label) or_return
+	destroy_text(system.name) or_return
+	destroy_text(system.index) or_return
+	destroy_text(system.label) or_return
 
 	return nil
 }

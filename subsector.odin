@@ -51,7 +51,7 @@ new_subsector :: proc(layout: Layout, origin: Point) -> (subsector: Subsector) {
 }
 
 destroy_subsector :: proc(subsector: Subsector) -> Error {
-	destroy_string(subsector.name) or_return
+	destroy_text(subsector.name) or_return
 
 	for row in subsector.systems {
 		for system in row {

@@ -43,7 +43,7 @@ new_sector :: proc() -> (sector: Sector) {
 }
 
 destroy_sector :: proc(sector: Sector) -> Error {
-	destroy_string(sector.name) or_return
+	destroy_text(sector.name) or_return
 
 	for row in sector.subsectors {
 		for subsector in row {

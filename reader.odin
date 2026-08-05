@@ -73,7 +73,7 @@ read_tab :: proc(sector: ^Sector, data: string) -> Error {
 		system := &subsector.systems[y % SUBSECTOR_ROWS][x % SUBSECTOR_COLUMNS]
 
 		system.allegiance = new_allegiance(record[9])
-		system.name = new_string(record[3] != "" ? record[3] : "????") or_return
+		system.name = new_text(record[3] != "" ? record[3] : "????") or_return
 		system.world = true
 	}
 
@@ -114,14 +114,14 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 		case "Allegiance":
 			allegiance = new_allegiance(attribute.val)
 		case "Label":
-			label = new_string(attribute.val) or_return
+			label = new_text(attribute.val) or_return
 		case "LabelPosition":
 			label_position = attribute.val
 		}
 	}
 
 	if label == "" {
-		label = new_string(allegiances[allegiance].label) or_return
+		label = new_text(allegiances[allegiance].label) or_return
 	}
 
 	if label_position != "" {
@@ -153,7 +153,7 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 
 read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	if element.attribs == nil {
-		sector.name = new_string(element.value[0].(string)) or_return
+		sector.name = new_text(element.value[0].(string)) or_return
 	}
 
 	return nil
@@ -162,7 +162,7 @@ read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
 read_subsector :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	index := subsector_index(element.attribs[0].val)
 
-	sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = new_string(
+	sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = new_text(
 		element.value[0].(string),
 	) or_return
 
