@@ -6,12 +6,11 @@
 
 package main
 
-import "core:strings"
 import "core:testing"
 
 @(test)
 test_new_sector :: proc(t: ^testing.T) {
-	name := strings.clone_to_cstring("Spinward Marches")
+	name, _ := new_string("Spinward Marches")
 
 	sector := new_sector(name)
 	defer destroy_sector(sector)

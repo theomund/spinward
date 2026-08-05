@@ -45,9 +45,7 @@ new_sector :: proc(name: cstring = "", origin: Point = {0, 0}) -> Sector {
 }
 
 destroy_sector :: proc(sector: Sector) {
-	if sector.name != "" {
-		delete(sector.name)
-	}
+	destroy_string(sector.name)
 
 	for row in sector.subsectors {
 		for subsector in row {

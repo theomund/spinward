@@ -73,7 +73,7 @@ read_tab :: proc(sector: ^Sector, data: string) -> Error {
 		system := &subsector.systems[y % SUBSECTOR_ROWS][x % SUBSECTOR_COLUMNS]
 
 		system.allegiance = new_allegiance(record[9])
-		system.name = record[3] != "" ? strings.clone_to_cstring(record[3]) : "????"
+		system.name = new_string(record[3] != "" ? record[3] : "????") or_return
 		system.world = true
 	}
 
@@ -153,7 +153,7 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 
 read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	if element.attribs == nil {
-		sector.name = value_to_cstring(element.value) or_return
+		sector.name = new_string(element.value[0].(string)) or_return
 	}
 
 	return nil
@@ -162,8 +162,8 @@ read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
 read_subsector :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	index := subsector_index(element.attribs[0].val)
 
-	sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = value_to_cstring(
-		element.value,
+	sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = new_string(
+		element.value[0].(string),
 	) or_return
 
 	return nil
@@ -205,10 +205,4 @@ read_y :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	}
 
 	return nil
-}
-
-value_to_cstring :: proc(value: [dynamic]xml.Value) -> (str: cstring, err: Error) {
-	str = strings.clone_to_cstring(value[0].(string)) or_return
-
-	return
 }

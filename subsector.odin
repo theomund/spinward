@@ -54,9 +54,7 @@ new_subsector :: proc(name: cstring = "", layout: Layout, origin: Point) -> Subs
 }
 
 destroy_subsector :: proc(subsector: Subsector) {
-	if subsector.name != "" {
-		delete(subsector.name)
-	}
+	destroy_string(subsector.name)
 
 	for row in subsector.systems {
 		for system in row {

@@ -35,13 +35,8 @@ new_system :: proc(
 }
 
 destroy_system :: proc(system: System) {
-	if system.name != "" && system.name != "????" {
-		delete(system.name)
-	}
-
-	if system.index != "" {
-		delete(system.index)
-	}
+	destroy_string(system.name)
+	destroy_string(system.index)
 }
 
 system_index :: proc(index: string) -> (int, int, Error) {

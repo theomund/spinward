@@ -6,12 +6,11 @@
 
 package main
 
-import "core:strings"
 import "core:testing"
 
 @(test)
 test_new_subsector :: proc(t: ^testing.T) {
-	name := strings.clone_to_cstring("Sword Worlds")
+	name, _ := new_string("Sword Worlds")
 	layout := flat_layout({0, 0})
 
 	subsector := new_subsector(name, layout, {0, 0})
