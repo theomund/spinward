@@ -108,7 +108,7 @@ new_allegiance :: proc(text: string) -> Allegiance {
 		return .Third_Imperium
 	case "VAug":
 		return .United_Followers_Of_Augurgh
-	case "ZhIN":
+	case "ZhCo", "ZhIN":
 		return .Zhodani_Consulate
 	case "ZyCo":
 		return .Zydarian_Codominium
