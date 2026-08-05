@@ -37,6 +37,7 @@ new_system :: proc(
 destroy_system :: proc(system: System) {
 	destroy_string(system.name)
 	destroy_string(system.index)
+	destroy_string(system.label)
 }
 
 system_index :: proc(index: string) -> (int, int, Error) {

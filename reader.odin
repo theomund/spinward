@@ -114,14 +114,14 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 		case "Allegiance":
 			allegiance = new_allegiance(attribute.val)
 		case "Label":
-			label = from_allegiance(new_allegiance(attribute.val))
+			label = new_string(attribute.val) or_return
 		case "LabelPosition":
 			label_position = attribute.val
 		}
 	}
 
 	if label == "" {
-		label = from_allegiance(allegiance)
+		label = new_string(allegiances[allegiance].label) or_return
 	}
 
 	if label_position != "" {

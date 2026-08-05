@@ -34,6 +34,38 @@ Allegiance :: enum {
 	Zydarian_Codominium,
 }
 
+Allegiance_Data :: struct {
+	color: rl.Color,
+	label: string,
+}
+
+@(rodata)
+allegiances := [Allegiance]Allegiance_Data {
+	.Aslan_Hierate               = {rl.YELLOW, "Aslan Hierate"},
+	.Belgardian_Sojurnate        = {rl.BLUE, "Belgardian Sojurnate"},
+	.Corellan_League             = {rl.BROWN, "Corellan League"},
+	.Darrian_Confederacy         = {rl.WHITE, "Darrian Confederacy"},
+	.Dzarrgh_Federate            = {rl.GREEN, "Dzarrgh Federate"},
+	.Florian_League              = {rl.DARKGREEN, "Florian League"},
+	.United_Followers_Of_Augurgh = {rl.GREEN, "United Followers of Augurgh"},
+	.Glorious_Empire             = {rl.BEIGE, "Glorious Empire"},
+	.Hefrin_Colony               = {rl.WHITE, "Hefrin Colony"},
+	.ISredNi_Protectorate        = {rl.PURPLE, "I'Sred*Ni Protectorate"},
+	.Katanga_Empire              = {rl.RED, "Katanga Empire"},
+	.Mapepire_Cluster            = {rl.GRAY, "Mapepire Cluster"},
+	.Monarchy_Of_Lod             = {rl.ORANGE, "Monarchy of Lod"},
+	.Nakris_Confederation        = {rl.DARKBLUE, "Nakris Confederation"},
+	.Principality_Of_Bruhkarr    = {rl.DARKPURPLE, "Principality of Bruhkarr"},
+	.Senlis_Foederate            = {rl.GREEN, "Senlis Foederate"},
+	.Stormhaven_Republic         = {rl.BLUE, "Stormhaven Republic"},
+	.Strend_Cluster              = {rl.BROWN, "Strend Cluster"},
+	.Sword_Worlds_Confederacy    = {rl.DARKBLUE, "Sword Worlds Confederacy"},
+	.Third_Imperium              = {rl.RED, "Third Imperium"},
+	.Zhodani_Consulate           = {rl.BLUE, "Zhodani Consulate"},
+	.Zydarian_Codominium         = {rl.PINK, "Zydarian Codominium"},
+	.Unaligned                   = {rl.BLANK, ""},
+}
+
 new_allegiance :: proc(text: string) -> Allegiance {
 	switch text {
 	case "As":
@@ -85,111 +117,8 @@ new_allegiance :: proc(text: string) -> Allegiance {
 	}
 }
 
-from_allegiance :: proc(allegiance: Allegiance) -> cstring {
-	switch allegiance {
-	case .Aslan_Hierate:
-		return "Aslan Hierate"
-	case .Belgardian_Sojurnate:
-		return "Belgardian Sojurnate"
-	case .Corellan_League:
-		return "Corellan League"
-	case .Darrian_Confederacy:
-		return "Darrian Confederacy"
-	case .Dzarrgh_Federate:
-		return "Dzarrgh Federate"
-	case .Florian_League:
-		return "Florian League"
-	case .United_Followers_Of_Augurgh:
-		return "United Followers of Augurgh"
-	case .Glorious_Empire:
-		return "Glorious Empire"
-	case .Hefrin_Colony:
-		return "Hefrin Colony"
-	case .ISredNi_Protectorate:
-		return "I'Sred*Ni Protectorate"
-	case .Katanga_Empire:
-		return "Katanga Empire"
-	case .Mapepire_Cluster:
-		return "Mapepire Cluster"
-	case .Monarchy_Of_Lod:
-		return "Monarchy of Lod"
-	case .Nakris_Confederation:
-		return "Nakris Confederation"
-	case .Principality_Of_Bruhkarr:
-		return "Principality of Bruhkarr"
-	case .Senlis_Foederate:
-		return "Senlis Foederate"
-	case .Stormhaven_Republic:
-		return "Stormhaven Republic"
-	case .Strend_Cluster:
-		return "Strend Cluster"
-	case .Sword_Worlds_Confederacy:
-		return "Sword Worlds Confederacy"
-	case .Third_Imperium:
-		return "Third Imperium"
-	case .Zhodani_Consulate:
-		return "Zhodani Consulate"
-	case .Zydarian_Codominium:
-		return "Zydarian Codominium"
-	case .Unaligned:
-		return ""
-	}
-
-	return ""
-}
-
 draw_allegiance :: proc(layout: Layout, system: System) {
-	color: rl.Color
-
-	#partial switch system.allegiance {
-	case .Aslan_Hierate:
-		color = rl.YELLOW
-	case .Belgardian_Sojurnate:
-		color = rl.BLUE
-	case .Corellan_League:
-		color = rl.BROWN
-	case .Darrian_Confederacy:
-		color = rl.WHITE
-	case .Dzarrgh_Federate:
-		color = rl.GREEN
-	case .Florian_League:
-		color = rl.DARKGREEN
-	case .Glorious_Empire:
-		color = rl.BEIGE
-	case .Hefrin_Colony:
-		color = rl.WHITE
-	case .ISredNi_Protectorate:
-		color = rl.PURPLE
-	case .Katanga_Empire:
-		color = rl.RED
-	case .Mapepire_Cluster:
-		color = rl.GRAY
-	case .Monarchy_Of_Lod:
-		color = rl.ORANGE
-	case .Nakris_Confederation:
-		color = rl.DARKBLUE
-	case .Principality_Of_Bruhkarr:
-		color = rl.DARKPURPLE
-	case .Senlis_Foederate:
-		color = rl.GREEN
-	case .Stormhaven_Republic:
-		color = rl.BLUE
-	case .Strend_Cluster:
-		color = rl.BROWN
-	case .Sword_Worlds_Confederacy:
-		color = rl.DARKBLUE
-	case .Third_Imperium:
-		color = rl.RED
-	case .United_Followers_Of_Augurgh:
-		color = rl.GREEN
-	case .Zhodani_Consulate:
-		color = rl.BLUE
-	case .Zydarian_Codominium:
-		color = rl.PINK
-	case .Unaligned:
-		return
-	}
-
+	color := allegiances[system.allegiance].color
 	color.a = 64
 
 	draw_hex(layout, system.hex, color, true)
