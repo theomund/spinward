@@ -119,7 +119,10 @@ new_allegiance :: proc(text: string) -> Allegiance {
 
 draw_allegiance :: proc(layout: Layout, system: System) {
 	color := allegiances[system.allegiance].color
-	color.a = 64
+
+	if color != rl.BLANK {
+		color.a = 64
+	}
 
 	draw_hex(layout, system.hex, color, true)
 }
