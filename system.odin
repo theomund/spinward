@@ -55,8 +55,6 @@ draw_system :: proc(layout: Layout, system: System, camera: Camera) -> Error {
 	if point_visible(center, camera) {
 		draw_hex(layout, system.hex, rl.DARKGRAY)
 
-		center := hex_to_pixel(layout, system.hex)
-
 		if system.world {
 			rl.DrawCircle(i32(center.x), i32(center.y), WORLD_SIZE, rl.BLUE)
 		}
