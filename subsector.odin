@@ -75,7 +75,7 @@ draw_subsector :: proc(subsector: Subsector, camera: Camera) -> Error {
 
 	for row in subsector.systems {
 		for system in row {
-			draw_allegiance(subsector.layout, system)
+			draw_allegiance(subsector.layout, system, camera)
 		}
 	}
 
