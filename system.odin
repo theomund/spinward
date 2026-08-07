@@ -20,12 +20,11 @@ System :: struct {
 	hex:        Hex,
 	index:      Text,
 	label:      Text,
-	visible:    bool,
 	world:      bool,
 }
 
 new_system :: proc(hex: Hex, index: Text) -> System {
-	return {hex = hex, index = index, visible = true}
+	return {hex = hex, index = index}
 }
 
 destroy_system :: proc(system: System) -> Error {
@@ -51,48 +50,28 @@ system_index :: proc(index: Text) -> (int, int, Error) {
 }
 
 draw_system :: proc(layout: Layout, system: System, camera: Camera) -> Error {
-	if system.visible {
-		center := hex_to_pixel(layout, system.hex)
+	center := hex_to_pixel(layout, system.hex)
 
-		draw_hex(layout, system.hex, rl.DARKGRAY)
+	draw_hex(layout, system.hex, rl.DARKGRAY)
 
-		if system.world {
-			rl.DrawCircle(i32(center.x), i32(center.y), WORLD_SIZE, rl.BLUE)
-		}
-
-		color := rl.WHITE
-		color.a = fade(camera.zoom, 0.25, 0.5)
-
-		draw_text(
-			system.name,
-			center - {0, HEX_SIZE / 2},
-			FONT_SIZE,
-			FONT_SPACING,
-			color,
-		) or_return
-
-		color = rl.DARKGRAY
-		color.a = fade(camera.zoom, 0.25, 0.5)
-
-		draw_text(
-			system.index,
-			center + {0, HEX_SIZE / 2},
-			FONT_SIZE,
-			FONT_SPACING,
-			color,
-		) or_return
-
-		color = rl.YELLOW
-		color.a = fade(camera.zoom, 0.5, 0.25)
-
-		draw_text(
-			system.label,
-			center,
-			SUBSECTOR_TITLE_SIZE,
-			SUBSECTOR_TITLE_SPACING,
-			color,
-		) or_return
+	if system.world {
+		rl.DrawCircle(i32(center.x), i32(center.y), WORLD_SIZE, rl.BLUE)
 	}
+
+	color := rl.WHITE
+	color.a = fade(camera.zoom, 0.25, 0.5)
+
+	draw_text(system.name, center - {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, color) or_return
+
+	color = rl.DARKGRAY
+	color.a = fade(camera.zoom, 0.25, 0.5)
+
+	draw_text(system.index, center + {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, color) or_return
+
+	color = rl.YELLOW
+	color.a = fade(camera.zoom, 0.5, 0.25)
+
+	draw_text(system.label, center, SUBSECTOR_TITLE_SIZE, SUBSECTOR_TITLE_SPACING, color) or_return
 
 	return nil
 }
