@@ -52,13 +52,16 @@ system_index :: proc(index: Text) -> (int, int, Error) {
 draw_system :: proc(layout: Layout, system: System, camera: Camera) -> Error {
 	center := hex_to_pixel(layout, system.hex)
 
-	draw_hex(layout, system.hex, rl.DARKGRAY)
+	color := rl.DARKGRAY
+	color.a = fade(camera.zoom, 0.25, 0.5)
+
+	draw_hex(layout, system.hex, color)
 
 	if system.world {
 		rl.DrawCircle(i32(center.x), i32(center.y), WORLD_SIZE, rl.BLUE)
 	}
 
-	color := rl.WHITE
+	color = rl.WHITE
 	color.a = fade(camera.zoom, 0.25, 0.5)
 
 	draw_text(system.name, center - {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, color) or_return
