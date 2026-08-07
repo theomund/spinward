@@ -36,7 +36,7 @@ check_sector_visibility :: proc(sector: ^Sector, screen_rect: Rectangle) {
 	x := p1.x - HEX_SIZE / (4.0 / 3.0)
 	y := p1.y - HEX_SIZE * (math.SQRT_THREE / 2.0)
 
-	width := p2.x - p1.x + HEX_SIZE * (3.0 / 2.0)
+	width := p2.x - p1.x + HEX_SIZE * 1.5
 	height := p2.y - p1.y + HEX_SIZE * (math.SQRT_THREE / 2.0)
 
 	sector_rect := new_rectangle(x, y, width, height)
@@ -54,7 +54,7 @@ check_subsector_visibility :: proc(subsector: ^Subsector, screen_rect: Rectangle
 	x := p1.x - HEX_SIZE / (4.0 / 3.0)
 	y := p1.y - HEX_SIZE * (math.SQRT_THREE / 2.0)
 
-	width := p2.x - p1.x + HEX_SIZE * (3.0 / 2.0)
+	width := p2.x - p1.x + HEX_SIZE * 1.5
 	height := p2.y - p1.y + HEX_SIZE * (math.SQRT_THREE / 2.0)
 
 	subsector_rect := new_rectangle(x, y, width, height)
