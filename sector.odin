@@ -22,11 +22,13 @@ Sector :: struct {
 	center:     Point,
 	layout:     Layout,
 	subsectors: [SECTOR_ROWS][SECTOR_COLUMNS]Subsector,
+	visible:    bool,
 }
 
 new_sector :: proc() -> (sector: Sector) {
 	sector.layout = flat_layout({0, 0})
 	sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT)
+	sector.visible = true
 
 	for y in 0 ..< SECTOR_ROWS {
 		for x in 0 ..< SECTOR_COLUMNS {
@@ -61,14 +63,16 @@ contains_hex :: proc(hex: Hex) -> bool {
 }
 
 draw_sector :: proc(sector: Sector, camera: Camera) -> Error {
-	for row in sector.subsectors {
-		for subsector in row {
-			draw_subsector(subsector, camera) or_return
+	if sector.visible {
+		for row in sector.subsectors {
+			for subsector in row {
+				draw_subsector(subsector, camera) or_return
+			}
 		}
-	}
 
-	draw_hovered_hex(sector.layout, camera)
-	draw_sector_title(sector, camera) or_return
+		draw_hovered_hex(sector.layout, camera)
+		draw_sector_title(sector, camera) or_return
+	}
 
 	return nil
 }

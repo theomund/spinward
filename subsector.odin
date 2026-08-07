@@ -20,12 +20,14 @@ Subsector :: struct {
 	center:  Point,
 	layout:  Layout,
 	systems: [SUBSECTOR_ROWS][SUBSECTOR_COLUMNS]System,
+	visible: bool,
 }
 
 new_subsector :: proc(layout: Layout, origin: Point) -> (subsector: Subsector) {
 	subsector.layout = layout
 	subsector.layout.origin = origin
 	subsector.center = grid_center(subsector.layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS)
+	subsector.visible = true
 
 	left := f32(0)
 	right := f32(SUBSECTOR_COLUMNS)
@@ -67,21 +69,22 @@ subsector_index :: proc(index: Text) -> u8 {
 }
 
 draw_subsector :: proc(subsector: Subsector, camera: Camera) -> Error {
-	for row in subsector.systems {
-		for system in row {
-			draw_system(subsector.layout, system, camera) or_return
+	if subsector.visible {
+		for row in subsector.systems {
+			for system in row {
+				draw_system(subsector.layout, system, camera) or_return
+			}
 		}
-	}
 
-	for row in subsector.systems {
-		for system in row {
-			draw_allegiance(subsector.layout, system, camera)
+		for row in subsector.systems {
+			for system in row {
+				draw_allegiance(subsector.layout, system, camera)
+			}
 		}
+
+		draw_subsector_border(subsector)
+		draw_subsector_title(subsector, camera) or_return
 	}
-
-	draw_subsector_border(subsector)
-
-	draw_subsector_title(subsector, camera) or_return
 
 	return nil
 }
@@ -93,13 +96,14 @@ draw_subsector_border :: proc(subsector: Subsector) {
 		qoffset_to_cube(new_offset(SUBSECTOR_COLUMNS - 1, SUBSECTOR_ROWS - 1)),
 	)
 
-	x := i32(p1.x - HEX_SIZE / (4.0 / 3.0))
-	y := i32(p1.y - HEX_SIZE * (math.SQRT_THREE / 2.0))
+	x := p1.x - HEX_SIZE / (4.0 / 3.0)
+	y := p1.y - HEX_SIZE * (math.SQRT_THREE / 2.0)
 
-	width := i32(p2.x - p1.x + HEX_SIZE * (3.0 / 2.0))
-	height := i32(p2.y - p1.y + HEX_SIZE * (math.SQRT_THREE / 2.0))
+	width := p2.x - p1.x + HEX_SIZE * (3.0 / 2.0)
+	height := p2.y - p1.y + HEX_SIZE * (math.SQRT_THREE / 2.0)
 
-	rl.DrawRectangleLines(x, y, width, height, rl.GRAY)
+	rectangle := new_rectangle(x, y, width, height)
+	draw_rectangle(rectangle, rl.GRAY)
 }
 
 draw_subsector_title :: proc(subsector: Subsector, camera: Camera) -> Error {

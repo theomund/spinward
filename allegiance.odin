@@ -118,9 +118,7 @@ new_allegiance :: proc(text: Text) -> Allegiance {
 }
 
 draw_allegiance :: proc(layout: Layout, system: System, camera: Camera) {
-	center := hex_to_pixel(layout, system.hex)
-
-	if point_visible(center, camera) {
+	if system.visible {
 		color := allegiances[system.allegiance].color
 
 		if color != rl.BLANK {

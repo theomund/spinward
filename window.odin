@@ -34,6 +34,8 @@ render :: proc(sectors: map[Text]Sector, camera: ^Camera) -> Error {
 
 		rl.BeginMode2D(camera^)
 
+		check_visibility(sectors, camera^)
+
 		for _, sector in sectors {
 			draw_sector(sector, camera^) or_return
 		}

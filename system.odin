@@ -20,11 +20,12 @@ System :: struct {
 	hex:        Hex,
 	index:      Text,
 	label:      Text,
+	visible:    bool,
 	world:      bool,
 }
 
 new_system :: proc(hex: Hex, index: Text) -> System {
-	return {hex = hex, index = index}
+	return {hex = hex, index = index, visible = true}
 }
 
 destroy_system :: proc(system: System) -> Error {
@@ -50,9 +51,9 @@ system_index :: proc(index: Text) -> (int, int, Error) {
 }
 
 draw_system :: proc(layout: Layout, system: System, camera: Camera) -> Error {
-	center := hex_to_pixel(layout, system.hex)
+	if system.visible {
+		center := hex_to_pixel(layout, system.hex)
 
-	if point_visible(center, camera) {
 		draw_hex(layout, system.hex, rl.DARKGRAY)
 
 		if system.world {

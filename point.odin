@@ -38,15 +38,3 @@ pixel_to_hex_fractional :: proc(layout: Layout, p: Point) -> Hex {
 pixel_to_hex_rounded :: proc(layout: Layout, p: Point) -> Hex {
 	return hex_round(pixel_to_hex_fractional(layout, p))
 }
-
-point_visible :: proc(point: Point, camera: Camera) -> bool {
-	top_left := rl.GetScreenToWorld2D({0, 0}, camera)
-	bottom_right := rl.GetScreenToWorld2D({WINDOW_WIDTH, WINDOW_HEIGHT}, camera)
-
-	return(
-		point.x >= top_left.x &&
-		point.x <= bottom_right.x &&
-		point.y >= top_left.y &&
-		point.y <= bottom_right.y \
-	)
-}
