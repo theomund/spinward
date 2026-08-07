@@ -8,6 +8,7 @@ package main
 
 import "core:encoding/csv"
 import "core:encoding/xml"
+import "core:fmt"
 import "core:math"
 import "core:path/filepath"
 import "core:strconv"
@@ -132,6 +133,8 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 		subsector := &sector.subsectors[y / SUBSECTOR_ROWS][x / SUBSECTOR_COLUMNS]
 		system := &subsector.systems[y % SUBSECTOR_ROWS][x % SUBSECTOR_COLUMNS]
 		system.label = label
+	} else {
+		destroy_text(label)
 	}
 
 	value := element.value[0].(Text)
