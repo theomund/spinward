@@ -12,7 +12,7 @@ import "core:os"
 main :: proc() {
 	when ODIN_DEBUG {
 		tracker := new_tracker()
-		defer delete_tracker(tracker)
+		defer destroy_tracker(tracker)
 
 		context = tracker.ctx
 	}

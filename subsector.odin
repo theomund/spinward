@@ -16,19 +16,18 @@ SUBSECTOR_TITLE_SIZE :: SECTOR_TITLE_SIZE / 4
 SUBSECTOR_TITLE_SPACING :: SECTOR_TITLE_SPACING / 4
 
 Subsector :: struct {
-	name:    cstring,
+	name:    Text,
 	center:  Point,
 	layout:  Layout,
 	systems: [SUBSECTOR_ROWS][SUBSECTOR_COLUMNS]System,
+	visible: bool,
 }
 
-new_subsector :: proc(name: cstring = "", layout: Layout, origin: Point) -> Subsector {
-	subsector_layout := layout
-	subsector_layout.origin = origin
-
-	center := grid_center(subsector_layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS)
-
-	systems: [SUBSECTOR_ROWS][SUBSECTOR_COLUMNS]System
+new_subsector :: proc(layout: Layout, origin: Point) -> (subsector: Subsector) {
+	subsector.layout = layout
+	subsector.layout.origin = origin
+	subsector.center = grid_center(subsector.layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS)
+	subsector.visible = true
 
 	left := f32(0)
 	right := f32(SUBSECTOR_COLUMNS)
@@ -46,45 +45,48 @@ new_subsector :: proc(name: cstring = "", layout: Layout, origin: Point) -> Subs
 
 			system_index := hex_index(hex + pixel_to_hex_rounded(layout, origin))
 
-			systems[y][x] = new_system(hex = hex, index = system_index)
+			subsector.systems[y][x] = new_system(hex, system_index)
 		}
 	}
 
-	return {name, center, subsector_layout, systems}
+	return
 }
 
-delete_subsector :: proc(subsector: Subsector) {
-	if subsector.name != "" {
-		delete(subsector.name)
-	}
+destroy_subsector :: proc(subsector: Subsector) -> Error {
+	destroy_text(subsector.name) or_return
 
 	for row in subsector.systems {
 		for system in row {
-			delete_system(system)
+			destroy_system(system) or_return
 		}
 	}
+
+	return nil
 }
 
-subsector_index :: proc(index: string) -> u8 {
+subsector_index :: proc(index: Text) -> u8 {
 	return index[0] - 'A'
 }
 
-draw_subsector :: proc(subsector: Subsector, camera: Camera) {
-	for row in subsector.systems {
-		for system in row {
-			draw_system(subsector.layout, system)
+draw_subsector :: proc(subsector: Subsector, camera: Camera) -> Error {
+	if subsector.visible {
+		for row in subsector.systems {
+			for system in row {
+				draw_system(subsector.layout, system, camera) or_return
+			}
 		}
+
+		for row in subsector.systems {
+			for system in row {
+				draw_allegiance(subsector.layout, system, camera)
+			}
+		}
+
+		draw_subsector_border(subsector)
+		draw_subsector_title(subsector, camera) or_return
 	}
 
-	for row in subsector.systems {
-		for system in row {
-			draw_allegiance(subsector.layout, system)
-		}
-	}
-
-	draw_subsector_border(subsector)
-
-	draw_subsector_title(subsector, camera)
+	return nil
 }
 
 draw_subsector_border :: proc(subsector: Subsector) {
@@ -94,16 +96,17 @@ draw_subsector_border :: proc(subsector: Subsector) {
 		qoffset_to_cube(new_offset(SUBSECTOR_COLUMNS - 1, SUBSECTOR_ROWS - 1)),
 	)
 
-	x := i32(p1.x - HEX_SIZE / (4.0 / 3.0))
-	y := i32(p1.y - HEX_SIZE * (math.SQRT_THREE / 2.0))
+	x := p1.x - HEX_SIZE / (4.0 / 3.0)
+	y := p1.y - HEX_SIZE * (math.SQRT_THREE / 2.0)
 
-	width := i32(p2.x - p1.x + HEX_SIZE * (3.0 / 2.0))
-	height := i32(p2.y - p1.y + HEX_SIZE * (math.SQRT_THREE / 2.0))
+	width := p2.x - p1.x + HEX_SIZE * 1.5
+	height := p2.y - p1.y + HEX_SIZE * (math.SQRT_THREE / 2.0)
 
-	rl.DrawRectangleLines(x, y, width, height, rl.GRAY)
+	rectangle := new_rectangle(x, y, width, height)
+	draw_rectangle(rectangle, rl.GRAY)
 }
 
-draw_subsector_title :: proc(subsector: Subsector, camera: Camera) {
+draw_subsector_title :: proc(subsector: Subsector, camera: Camera) -> Error {
 	color := rl.WHITE
 	color.a = fade(camera.zoom, 0.5, 0.25)
 
@@ -113,5 +116,7 @@ draw_subsector_title :: proc(subsector: Subsector, camera: Camera) {
 		SUBSECTOR_TITLE_SIZE,
 		SUBSECTOR_TITLE_SPACING,
 		color,
-	)
+	) or_return
+
+	return nil
 }

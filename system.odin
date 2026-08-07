@@ -15,32 +15,27 @@ FONT_SPACING :: 2
 WORLD_SIZE :: 12
 
 System :: struct {
-	name:       cstring,
+	name:       Text,
 	allegiance: Allegiance,
 	hex:        Hex,
-	index:      cstring,
+	index:      Text,
+	label:      Text,
+	world:      bool,
 }
 
-new_system :: proc(
-	name: cstring = "",
-	allegiance: Allegiance = .Unaligned,
-	hex: Hex,
-	index: cstring = "",
-) -> System {
-	return {name, allegiance, hex, index}
+new_system :: proc(hex: Hex, index: Text) -> System {
+	return {hex = hex, index = index}
 }
 
-delete_system :: proc(system: System) {
-	if system.name != "" {
-		delete(system.name)
-	}
+destroy_system :: proc(system: System) -> Error {
+	destroy_text(system.name) or_return
+	destroy_text(system.index) or_return
+	destroy_text(system.label) or_return
 
-	if system.index != "" {
-		delete(system.index)
-	}
+	return nil
 }
 
-system_index :: proc(index: string) -> (int, int, Error) {
+system_index :: proc(index: Text) -> (int, int, Error) {
 	x, x_ok := strconv.parse_int(index[0:2], 10)
 	if !x_ok {
 		return x, 0, .Invalid_Index
@@ -54,15 +49,32 @@ system_index :: proc(index: string) -> (int, int, Error) {
 	return x - 1, y - 1, nil
 }
 
-draw_system :: proc(layout: Layout, system: System) {
-	draw_hex(layout, system.hex, rl.DARKGRAY)
-
+draw_system :: proc(layout: Layout, system: System, camera: Camera) -> Error {
 	center := hex_to_pixel(layout, system.hex)
 
-	if system.name != "" {
+	color := rl.DARKGRAY
+	color.a = fade(camera.zoom, 0.25, 0.5)
+
+	draw_hex(layout, system.hex, color)
+
+	if system.world {
 		rl.DrawCircle(i32(center.x), i32(center.y), WORLD_SIZE, rl.BLUE)
 	}
 
-	draw_text(system.name, center - {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, rl.WHITE)
-	draw_text(system.index, center + {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, rl.DARKGRAY)
+	color = rl.WHITE
+	color.a = fade(camera.zoom, 0.25, 0.5)
+
+	draw_text(system.name, center - {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, color) or_return
+
+	color = rl.DARKGRAY
+	color.a = fade(camera.zoom, 0.25, 0.5)
+
+	draw_text(system.index, center + {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, color) or_return
+
+	color = rl.YELLOW
+	color.a = fade(camera.zoom, 0.5, 0.25)
+
+	draw_text(system.label, center, SUBSECTOR_TITLE_SIZE, SUBSECTOR_TITLE_SPACING, color) or_return
+
+	return nil
 }

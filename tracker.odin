@@ -26,7 +26,7 @@ new_tracker :: proc() -> Tracker {
 	return {allocator, ctx}
 }
 
-delete_tracker :: proc(tracker: Tracker) {
+destroy_tracker :: proc(tracker: Tracker) {
 	if len(tracker.allocator.allocation_map) > 0 {
 		fmt.eprintf("=== %v allocations not freed: ===\n", len(tracker.allocator.allocation_map))
 		for _, entry in tracker.allocator.allocation_map {

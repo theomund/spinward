@@ -20,13 +20,13 @@ new_hex :: proc(q, r, s: f32) -> Hex {
 	return {q, r, s}
 }
 
-hex_index :: proc(hex: Hex) -> cstring {
+hex_index :: proc(hex: Hex) -> Text {
 	offset := qoffset_from_cube(hex)
 
 	x := i32(offset.x + 1)
 	y := i32(offset.y + 1)
 
-	return fmt.caprintf("%02d%02d", x, y)
+	return fmt.aprintf("%02d%02d", x, y)
 }
 
 hex_lerp :: proc(a, b: Hex, t: f32) -> Hex {
@@ -65,11 +65,13 @@ hex_round :: proc(hex: Hex) -> Hex {
 }
 
 draw_hex :: proc(layout: Layout, hex: Hex, color: rl.Color, fill := false) {
-	center := hex_to_pixel(layout, hex)
+	if color.a != 0 {
+		center := hex_to_pixel(layout, hex)
 
-	if fill {
-		rl.DrawPoly(center, 6, HEX_SIZE, 0, color)
-	} else {
-		rl.DrawPolyLines(center, 6, HEX_SIZE, 0, color)
+		if fill {
+			rl.DrawPoly(center, 6, HEX_SIZE, 0, color)
+		} else {
+			rl.DrawPolyLines(center, 6, HEX_SIZE, 0, color)
+		}
 	}
 }

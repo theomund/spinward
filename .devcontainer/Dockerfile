@@ -22,5 +22,4 @@ RUN dnf copr enable -y sisyphus1813/odin-lang \
     yamllint-1.38.0 \
     && dnf clean all
 RUN useradd -m developer
-WORKDIR /home/developer
 USER developer

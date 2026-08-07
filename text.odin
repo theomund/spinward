@@ -6,11 +6,34 @@
 
 package main
 
+import "core:strings"
 import rl "vendor:raylib"
 
-draw_text :: proc(text: cstring, center: Point, size, spacing: f32, color: rl.Color) {
-	font := rl.GetFontDefault()
-	text_size := rl.MeasureTextEx(font, text, size, spacing)
+Text :: string
 
-	rl.DrawTextEx(font, text, center - text_size / 2, size, spacing, color)
+new_text :: proc(value: Text) -> (text: Text, err: Error) {
+	text = strings.clone(value) or_return
+
+	return
+}
+
+destroy_text :: proc(text: Text) -> Error {
+	if text != "" {
+		delete(text) or_return
+	}
+
+	return nil
+}
+
+draw_text :: proc(text: Text, center: Point, size, spacing: f32, color: rl.Color) -> Error {
+	if color.a != 0 {
+		font := rl.GetFontDefault()
+
+		text_clone := strings.clone_to_cstring(text, context.temp_allocator) or_return
+		text_size := rl.MeasureTextEx(font, text_clone, size, spacing)
+
+		rl.DrawTextEx(font, text_clone, center - text_size / 2, size, spacing, color)
+	}
+
+	return nil
 }

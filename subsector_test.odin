@@ -6,16 +6,15 @@
 
 package main
 
-import "core:strings"
 import "core:testing"
 
 @(test)
 test_new_subsector :: proc(t: ^testing.T) {
-	name := strings.clone_to_cstring("Sword Worlds")
+	origin := Point{0, 0}
 	layout := flat_layout({0, 0})
 
-	subsector := new_subsector(name, layout, {0, 0})
-	defer delete_subsector(subsector)
+	subsector := new_subsector(layout, origin)
+	defer destroy_subsector(subsector)
 
-	testing.expect_value(t, subsector.name, name)
+	testing.expect_value(t, subsector.name, "")
 }

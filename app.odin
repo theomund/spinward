@@ -8,14 +8,19 @@ package main
 
 run :: proc() -> Error {
 	new_window() or_return
-	defer delete_window()
+	defer destroy_window()
 
 	camera := new_camera()
 
-	sector := read_sector() or_return
-	defer delete_sector(sector)
+	sectors := read_sectors() or_return
 
-	render(sector, &camera)
+	render(sectors, &camera) or_return
+
+	for _, sector in sectors {
+		destroy_sector(sector) or_return
+	}
+
+	delete(sectors)
 
 	return nil
 }

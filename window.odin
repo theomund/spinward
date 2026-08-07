@@ -20,23 +20,32 @@ new_window :: proc() -> Error {
 	return !rl.IsWindowReady() ? .Initialization_Failed : nil
 }
 
-delete_window :: proc() {
+destroy_window :: proc() {
 	rl.CloseWindow()
 }
 
-render :: proc(sector: Sector, camera: ^Camera) {
+render :: proc(sectors: map[Text]Sector, camera: ^Camera) -> Error {
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
 
 		rl.ClearBackground(rl.BLACK)
-		rl.DrawFPS(16, WINDOW_HEIGHT - 32)
 
 		poll_camera(camera)
 
 		rl.BeginMode2D(camera^)
-		draw_sector(sector, camera^)
+
+		check_visibility(sectors, camera^)
+
+		for _, sector in sectors {
+			draw_sector(sector, camera^) or_return
+		}
+
 		rl.EndMode2D()
+
+		rl.DrawFPS(16, WINDOW_HEIGHT - 32)
 
 		rl.EndDrawing()
 	}
+
+	return nil
 }
