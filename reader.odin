@@ -69,8 +69,7 @@ read_tab :: proc(sector: ^Sector, data: Text) -> Error {
 
 		x, y := system_index(record[2]) or_return
 
-		subsector := &sector.subsectors[y / SUBSECTOR_ROWS][x / SUBSECTOR_COLUMNS]
-		system := &subsector.systems[y % SUBSECTOR_ROWS][x % SUBSECTOR_COLUMNS]
+		system := get_system(sector, x, y)
 
 		system.allegiance = new_allegiance(record[9])
 		system.name = new_text(record[3] != "" ? record[3] : "????") or_return
@@ -129,8 +128,7 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	if label_position != "" {
 		x, y := system_index(label_position) or_return
 
-		subsector := &sector.subsectors[y / SUBSECTOR_ROWS][x / SUBSECTOR_COLUMNS]
-		system := &subsector.systems[y % SUBSECTOR_ROWS][x % SUBSECTOR_COLUMNS]
+		system := get_system(sector, x, y)
 		system.label = label
 	} else {
 		destroy_text(label)
@@ -141,15 +139,27 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	spaces, _ := strings.replace_all(newlines, "      ", " ", context.temp_allocator)
 	borders := strings.split(spaces, " ", context.temp_allocator) or_return
 
+	count := 0
+	offset: Offset
+
 	for border in borders {
 		x, y := system_index(border) or_return
 
-		x = math.clamp(x, 0, 31)
-		y = math.clamp(y, 0, 39)
-
-		subsector := &sector.subsectors[y / SUBSECTOR_ROWS][x / SUBSECTOR_COLUMNS]
-		system := &subsector.systems[y % SUBSECTOR_ROWS][x % SUBSECTOR_COLUMNS]
+		system := get_system(sector, x, y)
 		system.allegiance = allegiance
+
+		offset += new_offset(f32(x), f32(y))
+		count += 1
+	}
+
+	center := offset / f32(count)
+
+	if center.x >= 0 && center.y >= 0 {
+		x := int(math.round(center.x))
+		y := int(math.round(center.y))
+
+		system := get_system(sector, x, y)
+		system.allegiance = .Debug
 	}
 
 	return nil

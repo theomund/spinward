@@ -6,6 +6,7 @@
 
 package main
 
+import "core:math"
 import "core:strconv"
 import rl "vendor:raylib"
 
@@ -47,6 +48,16 @@ system_index :: proc(index: Text) -> (int, int, Error) {
 	}
 
 	return x - 1, y - 1, nil
+}
+
+get_system :: proc(sector: ^Sector, x, y: int) -> ^System {
+	col := math.clamp(x, 0, 31)
+	row := math.clamp(y, 0, 39)
+
+	subsector := &sector.subsectors[row / SUBSECTOR_ROWS][col / SUBSECTOR_COLUMNS]
+	system := &subsector.systems[row % SUBSECTOR_ROWS][col % SUBSECTOR_COLUMNS]
+
+	return system
 }
 
 draw_system :: proc(layout: Layout, system: System, camera: Camera) -> Error {
