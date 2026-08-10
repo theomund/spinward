@@ -32,12 +32,10 @@ new_sector :: proc() -> (sector: Sector) {
 
 	for y in 0 ..< SECTOR_ROWS {
 		for x in 0 ..< SECTOR_COLUMNS {
-			subsector_hex := qoffset_to_cube(
-				new_offset(f32(x) * SUBSECTOR_COLUMNS, f32(y) * SUBSECTOR_ROWS),
-			)
-			subsector_origin := hex_to_pixel(sector.layout, subsector_hex)
+			hex := qoffset_to_cube(new_offset(f32(x) * SUBSECTOR_COLUMNS, f32(y) * SUBSECTOR_ROWS))
+			origin := hex_to_pixel(sector.layout, hex)
 
-			sector.subsectors[y][x] = new_subsector(sector.layout, subsector_origin)
+			sector.subsectors[y][x] = new_subsector(sector.layout, origin)
 		}
 	}
 
