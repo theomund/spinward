@@ -161,6 +161,7 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 
 	flood: queue.Queue(^System)
 	queue.init(&flood) or_return
+	defer queue.destroy(&flood)
 
 	if start := get_system(sector, x, y); !start.visited {
 		queue.push_back(&flood, start) or_return
