@@ -89,9 +89,7 @@ read_xml :: proc(sector: ^Sector, data: Text) -> Error {
 		case "Border":
 			read_border(element, sector) or_return
 		case "Name":
-			if sector.name == "" {
-				read_name(element, sector) or_return
-			}
+			read_name(element, sector) or_return
 		case "Subsector":
 			read_subsector(element, sector) or_return
 		case "X":
