@@ -14,10 +14,26 @@ HEX_SIZE :: 64
 
 Hex :: rl.Vector3
 
+@(rodata)
+hex_directions := [6]Hex {
+	Hex{1, 0, -1},
+	Hex{1, -1, 0},
+	Hex{0, -1, 1},
+	Hex{-1, 0, 1},
+	Hex{-1, 1, 0},
+	Hex{0, 1, -1},
+}
+
 new_hex :: proc(q, r, s: f32) -> Hex {
 	assert(math.round(q + r + s) == 0)
 
 	return {q, r, s}
+}
+
+hex_direction :: proc(direction: int) -> Hex {
+	assert(0 <= direction && direction < 6)
+
+	return hex_directions[direction]
 }
 
 hex_index :: proc(hex: Hex) -> Text {
@@ -31,6 +47,10 @@ hex_index :: proc(hex: Hex) -> Text {
 
 hex_lerp :: proc(a, b: Hex, t: f32) -> Hex {
 	return math.lerp(a, b, t)
+}
+
+hex_neighbor :: proc(hex: Hex, direction: int) -> Hex {
+	return hex + hex_direction(direction)
 }
 
 hex_to_pixel :: proc(layout: Layout, hex: Hex) -> Point {

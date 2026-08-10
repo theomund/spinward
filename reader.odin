@@ -6,6 +6,7 @@
 
 package main
 
+import "core:container/queue"
 import "core:encoding/csv"
 import "core:encoding/xml"
 import "core:math"
@@ -147,6 +148,7 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 
 		system := get_system(sector, x, y)
 		system.allegiance = allegiance
+		system.visited = true
 
 		offset += new_offset(f32(x), f32(y))
 		count += 1
@@ -154,12 +156,36 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 
 	center := offset / f32(count)
 
-	if center.x >= 0 && center.y >= 0 {
-		x := int(math.round(center.x))
-		y := int(math.round(center.y))
+	x := int(center.x)
+	y := int(center.y)
 
-		system := get_system(sector, x, y)
-		system.allegiance = .Debug
+	flood: queue.Queue(^System)
+	queue.init(&flood) or_return
+
+	if start := get_system(sector, x, y); !start.visited {
+		queue.push_back(&flood, start) or_return
+		start.allegiance = .Debug
+	}
+
+	for queue.len(flood) != 0 {
+		current := queue.pop_front(&flood)
+		current.allegiance = .Debug
+		current.visited = true
+
+		current_hex := qoffset_to_cube({f32(x), f32(y)})
+
+		for i in 0 ..= 5 {
+			neighbor_hex := hex_neighbor(current_hex, i)
+			neighbor_offset := qoffset_from_cube(neighbor_hex)
+
+			nx := int(neighbor_offset.x)
+			ny := int(neighbor_offset.y)
+			neighbor_system := get_system(sector, nx, ny)
+
+			if !neighbor_system.visited {
+				queue.push_back(&flood, neighbor_system)
+			}
+		}
 	}
 
 	return nil

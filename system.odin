@@ -21,6 +21,7 @@ System :: struct {
 	hex:        Hex,
 	index:      Text,
 	label:      Text,
+	visited:    bool,
 	world:      bool,
 }
 
