@@ -25,7 +25,7 @@ destroy_text :: proc(text: Text) -> Error {
 	return nil
 }
 
-draw_text :: proc(text: Text, center: Point, size, spacing: f32, color: rl.Color) -> Error {
+draw_text :: proc(text: Text, center: Point, size, spacing: f32, color: Color) -> Error {
 	if color.a != 0 {
 		font := rl.GetFontDefault()
 

@@ -87,8 +87,7 @@ draw_hovered_hex :: proc(layout: Layout, camera: Camera) {
 }
 
 draw_sector_title :: proc(sector: Sector, camera: Camera) -> Error {
-	color := rl.WHITE
-	color.a = fade(camera.zoom, 0.5, 0.25)
+	color := fade_color(rl.WHITE, camera.zoom, 0.5, 0.25)
 
 	draw_text(sector.name, sector.center, SECTOR_TITLE_SIZE, SECTOR_TITLE_SPACING, color) or_return
 

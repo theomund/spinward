@@ -107,8 +107,7 @@ draw_subsector_border :: proc(subsector: Subsector) {
 }
 
 draw_subsector_title :: proc(subsector: Subsector, camera: Camera) -> Error {
-	color := rl.WHITE
-	color.a = fade(camera.zoom, 0.5, 0.25)
+	color := fade_color(rl.WHITE, camera.zoom, 0.5, 0.25)
 
 	draw_text(
 		subsector.name,

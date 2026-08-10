@@ -36,7 +36,7 @@ Allegiance :: enum {
 }
 
 Allegiance_Data :: struct {
-	color: rl.Color,
+	color: Color,
 	label: Text,
 }
 

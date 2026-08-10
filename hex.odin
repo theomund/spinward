@@ -84,7 +84,7 @@ hex_round :: proc(hex: Hex) -> Hex {
 	return new_hex(q, r, s)
 }
 
-draw_hex :: proc(layout: Layout, hex: Hex, color: rl.Color, fill := false) {
+draw_hex :: proc(layout: Layout, hex: Hex, color: Color, fill := false) {
 	if color.a != 0 {
 		center := hex_to_pixel(layout, hex)
 

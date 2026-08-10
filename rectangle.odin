@@ -14,7 +14,7 @@ new_rectangle :: proc(x, y, width, height: f32) -> Rectangle {
 	return {x, y, width, height}
 }
 
-draw_rectangle :: proc(rect: Rectangle, color: rl.Color) {
+draw_rectangle :: proc(rect: Rectangle, color: Color) {
 	x := i32(rect.x)
 	y := i32(rect.y)
 	width := i32(rect.width)
