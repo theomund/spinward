@@ -22,6 +22,9 @@
       }
     }
   },
+  "hostRequirements": {
+    "gpu": "optional"
+  },
   "securityOpt": [
     "seccomp=unconfined"
   ]
