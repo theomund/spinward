@@ -8,6 +8,8 @@ package main
 
 import rl "vendor:raylib"
 
+RECTANGLE_THICKNESS :: 2
+
 Rectangle :: rl.Rectangle
 
 new_rectangle :: proc(x, y, width, height: f32) -> Rectangle {
@@ -15,10 +17,5 @@ new_rectangle :: proc(x, y, width, height: f32) -> Rectangle {
 }
 
 draw_rectangle :: proc(rect: Rectangle, color: Color) {
-	x := i32(rect.x)
-	y := i32(rect.y)
-	width := i32(rect.width)
-	height := i32(rect.height)
-
-	rl.DrawRectangleLines(x, y, width, height, color)
+	rl.DrawRectangleLinesEx(rect, RECTANGLE_THICKNESS, color)
 }
