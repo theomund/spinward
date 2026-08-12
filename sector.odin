@@ -61,16 +61,16 @@ contains_hex :: proc(hex: Hex) -> bool {
 }
 
 draw_sector :: proc(sector: Sector, camera: Camera) -> Error {
-	if sector.visible {
-		for row in sector.subsectors {
-			for subsector in row {
+	for row in sector.subsectors {
+		for subsector in row {
+			if subsector.visible {
 				draw_subsector(subsector, camera) or_return
 			}
 		}
-
-		draw_hovered_hex(sector.layout, camera)
-		draw_sector_title(sector, camera) or_return
 	}
+
+	draw_hovered_hex(sector.layout, camera)
+	draw_sector_title(sector, camera) or_return
 
 	return nil
 }
