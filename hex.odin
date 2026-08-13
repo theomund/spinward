@@ -85,13 +85,11 @@ hex_round :: proc(hex: Hex) -> Hex {
 }
 
 draw_hex :: proc(layout: Layout, hex: Hex, color: Color, fill := false) {
-	if color.a != 0 {
-		center := hex_to_pixel(layout, hex)
+	center := hex_to_pixel(layout, hex)
 
-		if fill {
-			rl.DrawPoly(center, 6, HEX_SIZE, 0, color)
-		} else {
-			rl.DrawPolyLines(center, 6, HEX_SIZE, 0, color)
-		}
+	if fill {
+		rl.DrawPoly(center, 6, HEX_SIZE, 0, color)
+	} else {
+		rl.DrawPolyLines(center, 6, HEX_SIZE, 0, color)
 	}
 }

@@ -10,11 +10,11 @@ import "core:testing"
 
 @(test)
 test_new_text :: proc(t: ^testing.T) {
-    world, err := new_text("Flammarion")
-    if err != nil {
-        testing.fail(t)
-    }
-    defer destroy_text(world)
+	world, err := new_text("Flammarion")
+	if err != nil {
+		testing.fail(t)
+	}
+	defer destroy_text(world)
 
 	testing.expect_value(t, world, "Flammarion")
 }
