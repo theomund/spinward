@@ -57,7 +57,7 @@ destroy_sector :: proc(sector: Sector) -> Error {
 contains_hex :: proc(hex: Hex) -> bool {
 	offset := qoffset_from_cube(hex)
 
-	return offset.x >= 0 && offset.y >= 0 && offset.x < SECTOR_WIDTH && offset.y < SECTOR_HEIGHT
+	return min(offset.x, offset.y) >= 0 && offset.x < SECTOR_WIDTH && offset.y < SECTOR_HEIGHT
 }
 
 draw_sector :: proc(sector: Sector, camera: Camera) -> Error {
