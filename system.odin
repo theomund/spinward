@@ -71,7 +71,7 @@ draw_system :: proc(layout: Layout, system: System, camera: Camera) -> Error {
 	}
 
 	if system.world {
-		rl.DrawCircle(i32(center.x), i32(center.y), WORLD_SIZE, rl.BLUE)
+		rl.DrawCircleV(center, WORLD_SIZE, rl.BLUE)
 	}
 
 	color = fade_color(rl.WHITE, camera.zoom, 0.25, 0.5)
