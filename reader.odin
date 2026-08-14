@@ -84,22 +84,26 @@ read_xml :: proc(sector: ^Sector, data: Text) -> Error {
 	document := xml.parse(data) or_return
 	defer xml.destroy(document)
 
+	x, y: Text
+
 	for &element in document.elements {
 		switch element.ident {
 		case "Border":
 			read_border(element, sector) or_return
 		case "Name":
-			if sector.name != "" {
+			if sector.name == "" {
 				read_name(element, sector) or_return
 			}
 		case "Subsector":
 			read_subsector(element, sector) or_return
 		case "X":
-			read_x(element, sector) or_return
+			x = read_value(element)
 		case "Y":
-			read_y(element, sector) or_return
+			y = read_value(element)
 		}
 	}
+
+	read_coords(x, y, sector) or_return
 
 	free_all(context.temp_allocator) or_return
 
@@ -135,7 +139,7 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 		destroy_text(label)
 	}
 
-	value := element.value[0].(Text)
+	value := read_value(element)
 	newlines, _ := strings.remove_all(value, "\n", context.temp_allocator)
 	spaces, _ := strings.replace_all(newlines, "      ", " ", context.temp_allocator)
 	borders := strings.split(spaces, " ", context.temp_allocator) or_return
@@ -194,7 +198,8 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 
 read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	if element.attribs == nil {
-		sector.name = new_text(element.value[0].(Text)) or_return
+		value := read_value(element)
+		sector.name = new_text(value) or_return
 	} else {
 		for attribute in element.attribs {
 			if attribute.key == "Lang" {
@@ -202,7 +207,8 @@ read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
 			}
 		}
 
-		sector.name = new_text(element.value[0].(Text)) or_return
+		value := read_value(element)
+		sector.name = new_text(value) or_return
 	}
 
 	return nil
@@ -211,25 +217,32 @@ read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
 read_subsector :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	index := subsector_index(element.attribs[0].val)
 
-	sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = new_text(
-		element.value[0].(Text),
-	) or_return
+	value := read_value(element)
+	sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = new_text(value) or_return
 
 	return nil
 }
 
-read_x :: proc(element: xml.Element, sector: ^Sector) -> Error {
-	x, ok := strconv.parse_f32(element.value[0].(Text))
-	if !ok {
+read_coords :: proc(x_text, y_text: Text, sector: ^Sector) -> Error {
+	x, x_ok := strconv.parse_f32(x_text)
+	if !x_ok {
 		return .Invalid_Index
 	}
 
-	sector.layout.origin.x = x * (1.5 * HEX_SIZE) * SECTOR_WIDTH
+	y, y_ok := strconv.parse_f32(y_text)
+	if !y_ok {
+		return .Invalid_Index
+	}
+
+	sector.layout.origin = {
+		x * (1.5 * HEX_SIZE) * SECTOR_WIDTH,
+		y * (math.SQRT_THREE * HEX_SIZE) * SECTOR_HEIGHT,
+	}
 	sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT)
 
 	for &row in sector.subsectors {
 		for &subsector in row {
-			subsector.layout.origin.x += sector.layout.origin.x
+			subsector.layout.origin += sector.layout.origin
 			subsector.center = grid_center(subsector.layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS)
 		}
 	}
@@ -237,21 +250,6 @@ read_x :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	return nil
 }
 
-read_y :: proc(element: xml.Element, sector: ^Sector) -> Error {
-	y, ok := strconv.parse_f32(element.value[0].(Text))
-	if !ok {
-		return .Invalid_Index
-	}
-
-	sector.layout.origin.y = y * (math.SQRT_THREE * HEX_SIZE) * SECTOR_HEIGHT
-	sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT)
-
-	for &row in sector.subsectors {
-		for &subsector in row {
-			subsector.layout.origin.y += sector.layout.origin.y
-			subsector.center = grid_center(subsector.layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS)
-		}
-	}
-
-	return nil
+read_value :: proc(element: xml.Element) -> Text {
+	return element.value[0].(Text)
 }
