@@ -247,7 +247,7 @@ read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
 		sector.name = new_text(value) or_return
 	} else {
 		for attribute in element.attribs {
-			if attribute.key == "Lang" {
+			if attribute.key == "Lang" && attribute.val != "as" {
 				return .Invalid_Name
 			}
 		}
@@ -273,6 +273,34 @@ read_route :: proc(element: xml.Element, sector: ^Sector) -> Error {
 		case "End":
 			x, y := system_index(attribute.val) or_return
 			end = new_offset(f32(x), f32(y))
+		case "StartOffsetX":
+			offset, offset_ok := strconv.parse_f32(attribute.val)
+			if !offset_ok {
+				return .Invalid_Index
+			}
+
+			start += offset * Offset{SECTOR_WIDTH, 0}
+		case "StartOffsetY":
+			offset, offset_ok := strconv.parse_f32(attribute.val)
+			if !offset_ok {
+				return .Invalid_Index
+			}
+
+			start += offset * Offset{0, SECTOR_HEIGHT}
+		case "EndOffsetX":
+			offset, offset_ok := strconv.parse_f32(attribute.val)
+			if !offset_ok {
+				return .Invalid_Index
+			}
+
+			end += offset * Offset{SECTOR_WIDTH, 0}
+		case "EndOffsetY":
+			offset, offset_ok := strconv.parse_f32(attribute.val)
+			if !offset_ok {
+				return .Invalid_Index
+			}
+
+			end += offset * Offset{0, SECTOR_HEIGHT}
 		}
 	}
 
