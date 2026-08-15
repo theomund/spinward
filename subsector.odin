@@ -69,22 +69,20 @@ subsector_index :: proc(index: Text) -> u8 {
 }
 
 draw_subsector :: proc(subsector: Subsector, camera: Camera) -> Error {
-	if subsector.visible {
-		for row in subsector.systems {
-			for system in row {
-				draw_system(subsector.layout, system, camera) or_return
-			}
+	for row in subsector.systems {
+		for system in row {
+			draw_system(subsector.layout, system, camera) or_return
 		}
-
-		for row in subsector.systems {
-			for system in row {
-				draw_allegiance(subsector.layout, system, camera)
-			}
-		}
-
-		draw_subsector_border(subsector)
-		draw_subsector_title(subsector, camera) or_return
 	}
+
+	for row in subsector.systems {
+		for system in row {
+			draw_allegiance(subsector.layout, system, camera)
+		}
+	}
+
+	draw_subsector_border(subsector)
+	draw_subsector_title(subsector, camera) or_return
 
 	return nil
 }
@@ -107,8 +105,7 @@ draw_subsector_border :: proc(subsector: Subsector) {
 }
 
 draw_subsector_title :: proc(subsector: Subsector, camera: Camera) -> Error {
-	color := rl.WHITE
-	color.a = fade(camera.zoom, 0.5, 0.25)
+	color := fade_color(rl.WHITE, camera.zoom, 0.5, 0.25)
 
 	draw_text(
 		subsector.name,

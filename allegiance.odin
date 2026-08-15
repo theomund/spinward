@@ -14,6 +14,7 @@ Allegiance :: enum {
 	Belgardian_Sojurnate,
 	Corellan_League,
 	Darrian_Confederacy,
+	Debug,
 	Dzarrgh_Federate,
 	Florian_League,
 	Glorious_Empire,
@@ -35,7 +36,7 @@ Allegiance :: enum {
 }
 
 Allegiance_Data :: struct {
-	color: rl.Color,
+	color: Color,
 	label: Text,
 }
 
@@ -45,6 +46,7 @@ allegiances := [Allegiance]Allegiance_Data {
 	.Belgardian_Sojurnate        = {rl.BLUE, "Belgardian Sojurnate"},
 	.Corellan_League             = {rl.BROWN, "Corellan League"},
 	.Darrian_Confederacy         = {rl.WHITE, "Darrian Confederacy"},
+	.Debug                       = {rl.RAYWHITE, "Debug"},
 	.Dzarrgh_Federate            = {rl.GREEN, "Dzarrgh Federate"},
 	.Florian_League              = {rl.DARKGREEN, "Florian League"},
 	.Glorious_Empire             = {rl.BEIGE, "Glorious Empire"},
@@ -120,7 +122,7 @@ new_allegiance :: proc(text: Text) -> Allegiance {
 draw_allegiance :: proc(layout: Layout, system: System, camera: Camera) {
 	color := allegiances[system.allegiance].color
 
-	if color != rl.BLANK {
+	if color != rl.BLANK && color != rl.RAYWHITE {
 		color.a = 64
 	}
 

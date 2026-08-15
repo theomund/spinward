@@ -32,12 +32,10 @@ new_sector :: proc() -> (sector: Sector) {
 
 	for y in 0 ..< SECTOR_ROWS {
 		for x in 0 ..< SECTOR_COLUMNS {
-			subsector_hex := qoffset_to_cube(
-				new_offset(f32(x) * SUBSECTOR_COLUMNS, f32(y) * SUBSECTOR_ROWS),
-			)
-			subsector_origin := hex_to_pixel(sector.layout, subsector_hex)
+			hex := qoffset_to_cube(new_offset(f32(x) * SUBSECTOR_COLUMNS, f32(y) * SUBSECTOR_ROWS))
+			origin := hex_to_pixel(sector.layout, hex)
 
-			sector.subsectors[y][x] = new_subsector(sector.layout, subsector_origin)
+			sector.subsectors[y][x] = new_subsector(sector.layout, origin)
 		}
 	}
 
@@ -59,20 +57,20 @@ destroy_sector :: proc(sector: Sector) -> Error {
 contains_hex :: proc(hex: Hex) -> bool {
 	offset := qoffset_from_cube(hex)
 
-	return offset.x >= 0 && offset.y >= 0 && offset.x < SECTOR_WIDTH && offset.y < SECTOR_HEIGHT
+	return min(offset.x, offset.y) >= 0 && offset.x < SECTOR_WIDTH && offset.y < SECTOR_HEIGHT
 }
 
 draw_sector :: proc(sector: Sector, camera: Camera) -> Error {
-	if sector.visible {
-		for row in sector.subsectors {
-			for subsector in row {
+	for row in sector.subsectors {
+		for subsector in row {
+			if subsector.visible {
 				draw_subsector(subsector, camera) or_return
 			}
 		}
-
-		draw_hovered_hex(sector.layout, camera)
-		draw_sector_title(sector, camera) or_return
 	}
+
+	draw_hovered_hex(sector.layout, camera)
+	draw_sector_title(sector, camera) or_return
 
 	return nil
 }
@@ -87,8 +85,7 @@ draw_hovered_hex :: proc(layout: Layout, camera: Camera) {
 }
 
 draw_sector_title :: proc(sector: Sector, camera: Camera) -> Error {
-	color := rl.WHITE
-	color.a = fade(camera.zoom, 0.5, 0.25)
+	color := fade_color(rl.WHITE, camera.zoom, 0.5, 0.25)
 
 	draw_text(sector.name, sector.center, SECTOR_TITLE_SIZE, SECTOR_TITLE_SPACING, color) or_return
 

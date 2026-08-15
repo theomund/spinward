@@ -28,9 +28,9 @@ new_tracker :: proc() -> Tracker {
 
 destroy_tracker :: proc(tracker: Tracker) {
 	if len(tracker.allocator.allocation_map) > 0 {
-		fmt.eprintf("=== %v allocations not freed: ===\n", len(tracker.allocator.allocation_map))
+		fmt.eprintfln("=== %d allocations not freed: ===", len(tracker.allocator.allocation_map))
 		for _, entry in tracker.allocator.allocation_map {
-			fmt.eprintf("- %v bytes @ %v\n", entry.size, entry.location)
+			fmt.eprintfln("- %d bytes @ %v: %s", entry.size, entry.location, cstring(entry.memory))
 		}
 	}
 

@@ -13,25 +13,27 @@ check_visibility :: proc(sectors: map[string]Sector, camera: Camera) {
 	p1 := rl.GetScreenToWorld2D({0, 0}, camera)
 	p2 := rl.GetScreenToWorld2D({WINDOW_WIDTH, WINDOW_HEIGHT}, camera)
 
-	screen_rect := new_rectangle(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y)
+	screen := new_rectangle(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y)
 
 	for _, &sector in sectors {
-		check_sector_visibility(&sector, screen_rect)
+		sector.visible = rectangle_visible(sector.layout, screen, SECTOR_WIDTH, SECTOR_HEIGHT)
 
 		for &row in sector.subsectors {
 			for &subsector in row {
-				check_subsector_visibility(&subsector, screen_rect)
+				subsector.visible = rectangle_visible(
+					subsector.layout,
+					screen,
+					SUBSECTOR_COLUMNS,
+					SUBSECTOR_ROWS,
+				)
 			}
 		}
 	}
 }
 
-check_sector_visibility :: proc(sector: ^Sector, screen_rect: Rectangle) {
-	p1 := hex_to_pixel(sector.layout, qoffset_to_cube(new_offset(0, 0)))
-	p2 := hex_to_pixel(
-		sector.layout,
-		qoffset_to_cube(new_offset(SECTOR_WIDTH - 1, SECTOR_HEIGHT - 1)),
-	)
+rectangle_visible :: proc(layout: Layout, screen: Rectangle, col, row: f32) -> bool {
+	p1 := hex_to_pixel(layout, qoffset_to_cube(new_offset(0, 0)))
+	p2 := hex_to_pixel(layout, qoffset_to_cube(new_offset(col - 1, row - 1)))
 
 	x := p1.x - HEX_SIZE / (4.0 / 3.0)
 	y := p1.y - HEX_SIZE * (math.SQRT_THREE / 2.0)
@@ -39,25 +41,7 @@ check_sector_visibility :: proc(sector: ^Sector, screen_rect: Rectangle) {
 	width := p2.x - p1.x + HEX_SIZE * 1.5
 	height := p2.y - p1.y + HEX_SIZE * (math.SQRT_THREE / 2.0)
 
-	sector_rect := new_rectangle(x, y, width, height)
+	rect := new_rectangle(x, y, width, height)
 
-	sector.visible = rl.CheckCollisionRecs(screen_rect, sector_rect) ? true : false
-}
-
-check_subsector_visibility :: proc(subsector: ^Subsector, screen_rect: Rectangle) {
-	p1 := hex_to_pixel(subsector.layout, qoffset_to_cube(new_offset(0, 0)))
-	p2 := hex_to_pixel(
-		subsector.layout,
-		qoffset_to_cube(new_offset(SUBSECTOR_COLUMNS - 1, SUBSECTOR_ROWS - 1)),
-	)
-
-	x := p1.x - HEX_SIZE / (4.0 / 3.0)
-	y := p1.y - HEX_SIZE * (math.SQRT_THREE / 2.0)
-
-	width := p2.x - p1.x + HEX_SIZE * 1.5
-	height := p2.y - p1.y + HEX_SIZE * (math.SQRT_THREE / 2.0)
-
-	subsector_rect := new_rectangle(x, y, width, height)
-
-	subsector.visible = rl.CheckCollisionRecs(screen_rect, subsector_rect) ? true : false
+	return rl.CheckCollisionRecs(screen, rect)
 }

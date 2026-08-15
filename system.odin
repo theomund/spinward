@@ -6,6 +6,7 @@
 
 package main
 
+import "core:math"
 import "core:strconv"
 import rl "vendor:raylib"
 
@@ -20,6 +21,7 @@ System :: struct {
 	hex:        Hex,
 	index:      Text,
 	label:      Text,
+	visited:    bool,
 	world:      bool,
 }
 
@@ -49,31 +51,36 @@ system_index :: proc(index: Text) -> (int, int, Error) {
 	return x - 1, y - 1, nil
 }
 
+get_system :: proc(sector: ^Sector, x, y: int) -> ^System {
+	col := math.clamp(x, 0, 31)
+	row := math.clamp(y, 0, 39)
+
+	subsector := &sector.subsectors[row / SUBSECTOR_ROWS][col / SUBSECTOR_COLUMNS]
+	system := &subsector.systems[row % SUBSECTOR_ROWS][col % SUBSECTOR_COLUMNS]
+
+	return system
+}
+
 draw_system :: proc(layout: Layout, system: System, camera: Camera) -> Error {
 	center := hex_to_pixel(layout, system.hex)
 
-	color := rl.DARKGRAY
-	color.a = fade(camera.zoom, 0.25, 0.5)
+	color := fade_color(rl.DARKGRAY, camera.zoom, 0.25, 0.5)
 
-	draw_hex(layout, system.hex, color)
-
-	if system.world {
-		rl.DrawCircle(i32(center.x), i32(center.y), WORLD_SIZE, rl.BLUE)
+	if color.a != 0 {
+		draw_hex(layout, system.hex, color)
 	}
 
-	color = rl.WHITE
-	color.a = fade(camera.zoom, 0.25, 0.5)
+	if system.world {
+		rl.DrawCircleV(center, WORLD_SIZE, rl.BLUE)
+	}
 
+	color = fade_color(rl.WHITE, camera.zoom, 0.25, 0.5)
 	draw_text(system.name, center - {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, color) or_return
 
-	color = rl.DARKGRAY
-	color.a = fade(camera.zoom, 0.25, 0.5)
-
+	color = fade_color(rl.DARKGRAY, camera.zoom, 0.25, 0.5)
 	draw_text(system.index, center + {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, color) or_return
 
-	color = rl.YELLOW
-	color.a = fade(camera.zoom, 0.5, 0.25)
-
+	color = fade_color(rl.YELLOW, camera.zoom, 0.5, 0.25)
 	draw_text(system.label, center, SUBSECTOR_TITLE_SIZE, SUBSECTOR_TITLE_SPACING, color) or_return
 
 	return nil

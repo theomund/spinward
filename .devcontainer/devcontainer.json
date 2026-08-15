@@ -22,6 +22,12 @@
       }
     }
   },
+  "hostRequirements": {
+    "gpu": "optional"
+  },
+  "runArgs": [
+    "--network=host"
+  ],
   "securityOpt": [
     "seccomp=unconfined"
   ]

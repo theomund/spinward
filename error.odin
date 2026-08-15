@@ -22,4 +22,5 @@ Error :: union {
 Spinward_Error :: enum {
 	Initialization_Failed,
 	Invalid_Index,
+	Invalid_Name,
 }
