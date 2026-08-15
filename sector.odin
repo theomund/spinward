@@ -21,6 +21,7 @@ Sector :: struct {
 	name:       Text,
 	center:     Point,
 	layout:     Layout,
+	routes:     [dynamic]Route,
 	subsectors: [SECTOR_ROWS][SECTOR_COLUMNS]Subsector,
 	visible:    bool,
 }
@@ -51,6 +52,8 @@ destroy_sector :: proc(sector: Sector) -> Error {
 		}
 	}
 
+	delete(sector.routes)
+
 	return nil
 }
 
@@ -61,6 +64,10 @@ contains_hex :: proc(hex: Hex) -> bool {
 }
 
 draw_sector :: proc(sector: Sector, camera: Camera) -> Error {
+	for route in sector.routes {
+		draw_route(sector.layout, route)
+	}
+
 	for row in sector.subsectors {
 		for subsector in row {
 			if subsector.visible {

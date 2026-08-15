@@ -95,6 +95,8 @@ read_xml :: proc(sector: ^Sector, data: Text) -> Error {
 			if sector.name == "" {
 				read_name(element, sector) or_return
 			}
+		case "Route":
+			read_route(element, sector) or_return
 		case "Subsector":
 			read_subsector(element, sector) or_return
 		case "X":
@@ -253,6 +255,26 @@ read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
 		value := read_value(element)
 		sector.name = new_text(value) or_return
 	}
+
+	return nil
+}
+
+read_route :: proc(element: xml.Element, sector: ^Sector) -> Error {
+	start, end: Offset
+
+	for attribute in element.attribs {
+		switch attribute.key {
+		case "Start":
+			x, y := system_index(attribute.val) or_return
+			start = new_offset(f32(x), f32(y))
+		case "End":
+			x, y := system_index(attribute.val) or_return
+			end = new_offset(f32(x), f32(y))
+		}
+	}
+
+	route := new_route(start, end)
+	append(&sector.routes, route) or_return
 
 	return nil
 }
