@@ -260,10 +260,13 @@ read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
 }
 
 read_route :: proc(element: xml.Element, sector: ^Sector) -> Error {
+	allegiance: Allegiance
 	start, end: Offset
 
 	for attribute in element.attribs {
 		switch attribute.key {
+		case "Allegiance":
+			allegiance = new_allegiance(attribute.val)
 		case "Start":
 			x, y := system_index(attribute.val) or_return
 			start = new_offset(f32(x), f32(y))
@@ -273,7 +276,7 @@ read_route :: proc(element: xml.Element, sector: ^Sector) -> Error {
 		}
 	}
 
-	route := new_route(start, end)
+	route := new_route(allegiance, start, end)
 	append(&sector.routes, route) or_return
 
 	return nil
