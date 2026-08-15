@@ -12,8 +12,8 @@ ROUTE_THICKNESS :: 4
 
 Route :: struct {
 	allegiance: Allegiance,
-	start:        Offset,
-	end:      Offset,
+	start:      Offset,
+	end:        Offset,
 }
 
 new_route :: proc(allegiance: Allegiance, start, end: Offset) -> Route {
