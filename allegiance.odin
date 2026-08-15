@@ -20,6 +20,7 @@ Allegiance :: enum {
 	Debug,
 	Dzarrgh_Federate,
 	Florian_League,
+	Gerontocracy_Of_Ormine,
 	Glorious_Empire,
 	Grand_Duchy_Of_Marlheim,
 	Hefrin_Colony,
@@ -63,6 +64,7 @@ allegiances := [Allegiance]Allegiance_Data {
 	.Debug                       = {rl.RAYWHITE, "Debug"},
 	.Dzarrgh_Federate            = {rl.GREEN, "Dzarrgh Federate"},
 	.Florian_League              = {rl.DARKGREEN, "Florian League"},
+	.Gerontocracy_Of_Ormine      = {rl.WHITE, "Gerontocracy of Ormine"},
 	.Glorious_Empire             = {rl.BEIGE, "Glorious Empire"},
 	.Grand_Duchy_Of_Marlheim     = {rl.BLUE, "Grand Duchy of Marlheim"},
 	.Hefrin_Colony               = {rl.WHITE, "Hefrin Colony"},
@@ -110,6 +112,8 @@ new_allegiance :: proc(text: Text) -> Allegiance {
 		return .Dzarrgh_Federate
 	case "FlLe":
 		return .Florian_League
+	case "GeOr":
+		return .Gerontocracy_Of_Ormine
 	case "GlEm":
 		return .Glorious_Empire
 	case "GdMh":
@@ -142,13 +146,13 @@ new_allegiance :: proc(text: Text) -> Allegiance {
 		return .Senlis_Foederate
 	case "ShRp":
 		return .Stormhaven_Republic
-	case "SoCf", "SoWu":
+	case "SoBF", "SoCf", "SoCT", "SoNS", "SoRD", "SoWu":
 		return .Solomani_Confederation
 	case "StCl":
 		return .Strend_Cluster
 	case "SwCf":
 		return .Sword_Worlds_Confederacy
-	case "ImAp", "ImDa", "ImDc", "ImDd", "ImDi", "ImDs", "ImDv", "ImLa", "ImLc", "ImSy":
+	case "ImAp", "ImDa", "ImDc", "ImDd", "ImDi", "ImDs", "ImDv", "ImLa", "ImLc", "ImSy", "ImVd":
 		return .Third_Imperium
 	case "UnHa":
 		return .Union_Of_Harmony
