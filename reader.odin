@@ -11,6 +11,7 @@ import "core:encoding/csv"
 import "core:encoding/xml"
 import "core:math"
 import "core:path/filepath"
+import "core:slice"
 import "core:strconv"
 import "core:strings"
 
@@ -144,40 +145,65 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	spaces, _ := strings.replace_all(newlines, "      ", " ", context.temp_allocator)
 	borders := strings.split(spaces, " ", context.temp_allocator) or_return
 
-	count := 0
-	offset: Offset
+	xs: [dynamic]int
+	defer delete(xs)
+
+	ys: [dynamic]int
+	defer delete(ys)
 
 	for border in borders {
 		x, y := system_index(border) or_return
 
+		append(&xs, x) or_return
+		append(&ys, y) or_return
+
 		system := get_system(sector, x, y)
 		system.allegiance = allegiance
 		system.visited = true
-
-		offset += new_offset(f32(x), f32(y))
-		count += 1
 	}
 
-	center := offset / f32(count)
+	min_x, max_x, _ := slice.min_max(xs[:])
+	min_y, max_y, _ := slice.min_max(ys[:])
 
-	x := int(center.x)
-	y := int(center.y)
+	min_x -= 1
+	max_x += 1
+
+	min_y -= 1
+	max_y += 1
 
 	flood: queue.Queue(^System)
 	queue.init(&flood) or_return
 	defer queue.destroy(&flood)
 
-	if start := get_system(sector, x, y); !start.visited {
-		queue.push_back(&flood, start) or_return
-		start.allegiance = .Debug
+	for i := min_x; i < max_x; i += 1 {
+		if system := get_system(sector, i, min_y); !system.visited {
+			queue.push_back(&flood, system) or_return
+		}
+	}
+
+	for i := min_y; i < max_y; i += 1 {
+		if system := get_system(sector, max_x, i); !system.visited {
+			queue.push_back(&flood, system) or_return
+		}
+	}
+
+	for i := max_x; i > min_x; i -= 1 {
+		if system := get_system(sector, i, max_y); !system.visited {
+			queue.push_back(&flood, system) or_return
+		}
+	}
+
+	for i := max_y; i > min_y; i -= 1 {
+		if system := get_system(sector, min_x, i); !system.visited {
+			queue.push_back(&flood, system) or_return
+		}
 	}
 
 	for queue.len(flood) != 0 {
 		current := queue.pop_front(&flood)
-		current.allegiance = .Debug
-		current.visited = true
 
-		current_hex := qoffset_to_cube({f32(x), f32(y)})
+		cx, cy := system_index(current.index) or_return
+		current_hex := qoffset_to_cube({f32(cx), f32(cy)})
 
 		for i in 0 ..= 5 {
 			neighbor_hex := hex_neighbor(current_hex, i)
@@ -188,7 +214,24 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 			neighbor_system := get_system(sector, nx, ny)
 
 			if !neighbor_system.visited {
+				neighbor_system.visited = true
 				queue.push_back(&flood, neighbor_system)
+			}
+		}
+	}
+
+	for y := 0; y < SECTOR_HEIGHT; y += 1 {
+		for x := 0; x < SECTOR_WIDTH; x += 1 {
+			if c := get_system(sector, x, y); !c.visited {
+				c.allegiance = allegiance
+			}
+		}
+	}
+
+	for y := 0; y < SECTOR_HEIGHT; y += 1 {
+		for x := 0; x < SECTOR_WIDTH; x += 1 {
+			if c := get_system(sector, x, y); c.visited {
+				c.visited = false
 			}
 		}
 	}
