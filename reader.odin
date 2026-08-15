@@ -224,16 +224,16 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 
 	for y := 0; y < SECTOR_HEIGHT; y += 1 {
 		for x := 0; x < SECTOR_WIDTH; x += 1 {
-			if c := get_system(sector, x, y); !c.visited {
-				c.allegiance = allegiance
+			if system := get_system(sector, x, y); !system.visited {
+				system.allegiance = allegiance
 			}
 		}
 	}
 
 	for y := 0; y < SECTOR_HEIGHT; y += 1 {
 		for x := 0; x < SECTOR_WIDTH; x += 1 {
-			if c := get_system(sector, x, y); c.visited {
-				c.visited = false
+			if system := get_system(sector, x, y); system.visited {
+				system.visited = false
 			}
 		}
 	}
