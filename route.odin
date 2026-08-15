@@ -8,7 +8,7 @@ package main
 
 import rl "vendor:raylib"
 
-ROUTE_THICKNESS :: 2
+ROUTE_THICKNESS :: 4
 
 Route :: struct {
 	start: Offset,
