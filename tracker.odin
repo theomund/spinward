@@ -7,7 +7,7 @@
 package main
 
 import "base:runtime"
-import "core:fmt"
+import "core:log"
 import "core:mem"
 
 Tracker :: struct {
@@ -22,15 +22,16 @@ new_tracker :: proc() -> Tracker {
 	mem.tracking_allocator_init(allocator, ctx.allocator)
 
 	ctx.allocator = mem.tracking_allocator(allocator)
+	ctx.logger = logger
 
 	return {allocator, ctx}
 }
 
 destroy_tracker :: proc(tracker: Tracker) {
 	if len(tracker.allocator.allocation_map) > 0 {
-		fmt.eprintfln("=== %d allocations not freed: ===", len(tracker.allocator.allocation_map))
+		log.errorf("=== %d allocations not freed: ===", len(tracker.allocator.allocation_map))
 		for _, entry in tracker.allocator.allocation_map {
-			fmt.eprintfln("- %d bytes @ %v: %s", entry.size, entry.location, cstring(entry.memory))
+			log.errorf("- %d bytes @ %v: %s", entry.size, entry.location, cstring(entry.memory))
 		}
 	}
 

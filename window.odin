@@ -13,6 +13,8 @@ WINDOW_HEIGHT :: 1080
 WINDOW_TITLE :: "Spinward"
 
 new_window :: proc() -> Error {
+	rl.SetTraceLogCallback(log_callback)
+
 	rl.SetConfigFlags({.MSAA_4X_HINT})
 
 	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)
