@@ -95,6 +95,8 @@ read_xml :: proc(sector: ^Sector, data: Text) -> Error {
 			if sector.name == "" {
 				read_name(element, sector) or_return
 			}
+		case "Route":
+			read_route(element, sector) or_return
 		case "Subsector":
 			read_subsector(element, sector) or_return
 		case "X":
@@ -222,16 +224,16 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 
 	for y := 0; y < SECTOR_HEIGHT; y += 1 {
 		for x := 0; x < SECTOR_WIDTH; x += 1 {
-			if c := get_system(sector, x, y); !c.visited {
-				c.allegiance = allegiance
+			if system := get_system(sector, x, y); !system.visited {
+				system.allegiance = allegiance
 			}
 		}
 	}
 
 	for y := 0; y < SECTOR_HEIGHT; y += 1 {
 		for x := 0; x < SECTOR_WIDTH; x += 1 {
-			if c := get_system(sector, x, y); c.visited {
-				c.visited = false
+			if system := get_system(sector, x, y); system.visited {
+				system.visited = false
 			}
 		}
 	}
@@ -240,21 +242,64 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 }
 
 read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
-	if element.attribs == nil {
-		value := read_value(element)
-		sector.name = new_text(value) or_return
-	} else {
-		for attribute in element.attribs {
-			if attribute.key == "Lang" {
-				return .Invalid_Name
-			}
-		}
-
-		value := read_value(element)
-		sector.name = new_text(value) or_return
-	}
+	value := read_value(element)
+	sector.name = new_text(value) or_return
 
 	return nil
+}
+
+read_route :: proc(element: xml.Element, sector: ^Sector) -> Error {
+	allegiance: Allegiance
+	start, start_offset, end, end_offset: Offset
+	dashed: bool
+
+	for attribute in element.attribs {
+		switch attribute.key {
+		case "Allegiance":
+			allegiance = new_allegiance(attribute.val)
+		case "Start":
+			x, y := system_index(attribute.val) or_return
+			start = new_offset(f32(x), f32(y))
+		case "End":
+			x, y := system_index(attribute.val) or_return
+			end = new_offset(f32(x), f32(y))
+		case "StartOffsetX":
+			start_offset.x = read_f32(attribute.val) or_return
+		case "StartOffsetY":
+			start_offset.y = read_f32(attribute.val) or_return
+		case "EndOffsetX":
+			end_offset.x = read_f32(attribute.val) or_return
+		case "EndOffsetY":
+			end_offset.y = read_f32(attribute.val) or_return
+		case "Style":
+			dashed = attribute.val == "Dashed"
+		case "Type":
+			dashed = attribute.val == "Trade"
+		}
+	}
+
+	route := new_route(allegiance, start, start_offset, end, end_offset, dashed)
+	append(&sector.routes, route) or_return
+
+	return nil
+}
+
+read_f32 :: proc(text: Text) -> (f32, Error) {
+	value, value_ok := strconv.parse_f32(text)
+	if !value_ok {
+		return value, .Invalid_Value
+	}
+
+	return value, nil
+}
+
+read_int :: proc(text: Text) -> (int, Error) {
+	value, value_ok := strconv.parse_int(text, 10)
+	if !value_ok {
+		return value, .Invalid_Value
+	}
+
+	return value, nil
 }
 
 read_subsector :: proc(element: xml.Element, sector: ^Sector) -> Error {
@@ -267,15 +312,8 @@ read_subsector :: proc(element: xml.Element, sector: ^Sector) -> Error {
 }
 
 read_coords :: proc(x_text, y_text: Text, sector: ^Sector) -> Error {
-	x, x_ok := strconv.parse_f32(x_text)
-	if !x_ok {
-		return .Invalid_Index
-	}
-
-	y, y_ok := strconv.parse_f32(y_text)
-	if !y_ok {
-		return .Invalid_Index
-	}
+	x := read_f32(x_text) or_return
+	y := read_f32(y_text) or_return
 
 	sector.layout.origin = {
 		x * (1.5 * HEX_SIZE) * SECTOR_WIDTH,

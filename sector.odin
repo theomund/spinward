@@ -21,6 +21,7 @@ Sector :: struct {
 	name:       Text,
 	center:     Point,
 	layout:     Layout,
+	routes:     [dynamic]Route,
 	subsectors: [SECTOR_ROWS][SECTOR_COLUMNS]Subsector,
 	visible:    bool,
 }
@@ -51,6 +52,8 @@ destroy_sector :: proc(sector: Sector) -> Error {
 		}
 	}
 
+	delete(sector.routes)
+
 	return nil
 }
 
@@ -67,6 +70,10 @@ draw_sector :: proc(sector: Sector, camera: Camera) -> Error {
 				draw_subsector(subsector, camera) or_return
 			}
 		}
+	}
+
+	for route in sector.routes {
+		draw_route(sector.layout, route)
 	}
 
 	draw_hovered_hex(sector.layout, camera)

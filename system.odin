@@ -7,7 +7,6 @@
 package main
 
 import "core:math"
-import "core:strconv"
 import rl "vendor:raylib"
 
 FONT_SIZE :: 16
@@ -37,16 +36,9 @@ destroy_system :: proc(system: System) -> Error {
 	return nil
 }
 
-system_index :: proc(index: Text) -> (int, int, Error) {
-	x, x_ok := strconv.parse_int(index[0:2], 10)
-	if !x_ok {
-		return x, 0, .Invalid_Index
-	}
-
-	y, y_ok := strconv.parse_int(index[2:4], 10)
-	if !y_ok {
-		return x, y, .Invalid_Index
-	}
+system_index :: proc(index: Text) -> (x: int, y: int, err: Error) {
+	x = read_int(index[0:2]) or_return
+	y = read_int(index[2:4]) or_return
 
 	return x - 1, y - 1, nil
 }
