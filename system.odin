@@ -7,7 +7,6 @@
 package main
 
 import "core:math"
-import "core:strconv"
 import rl "vendor:raylib"
 
 FONT_SIZE :: 16
