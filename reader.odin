@@ -261,7 +261,7 @@ read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
 
 read_route :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	allegiance: Allegiance
-	start, end: Offset
+	start, start_offset, end, end_offset: Offset
 
 	for attribute in element.attribs {
 		switch attribute.key {
@@ -274,40 +274,38 @@ read_route :: proc(element: xml.Element, sector: ^Sector) -> Error {
 			x, y := system_index(attribute.val) or_return
 			end = new_offset(f32(x), f32(y))
 		case "StartOffsetX":
-			offset, offset_ok := strconv.parse_f32(attribute.val)
-			if !offset_ok {
-				return .Invalid_Index
-			}
-
-			start += offset * Offset{SECTOR_WIDTH, 0}
+			start_offset.x = read_f32(attribute.val) or_return
 		case "StartOffsetY":
-			offset, offset_ok := strconv.parse_f32(attribute.val)
-			if !offset_ok {
-				return .Invalid_Index
-			}
-
-			start += offset * Offset{0, SECTOR_HEIGHT}
+			start_offset.y = read_f32(attribute.val) or_return
 		case "EndOffsetX":
-			offset, offset_ok := strconv.parse_f32(attribute.val)
-			if !offset_ok {
-				return .Invalid_Index
-			}
-
-			end += offset * Offset{SECTOR_WIDTH, 0}
+			end_offset.x = read_f32(attribute.val) or_return
 		case "EndOffsetY":
-			offset, offset_ok := strconv.parse_f32(attribute.val)
-			if !offset_ok {
-				return .Invalid_Index
-			}
-
-			end += offset * Offset{0, SECTOR_HEIGHT}
+			end_offset.y = read_f32(attribute.val) or_return
 		}
 	}
 
-	route := new_route(allegiance, start, end)
+	route := new_route(allegiance, start, start_offset, end, end_offset)
 	append(&sector.routes, route) or_return
 
 	return nil
+}
+
+read_f32 :: proc(text: Text) -> (f32, Error) {
+	value, value_ok := strconv.parse_f32(text)
+	if !value_ok {
+		return value, .Invalid_Value
+	}
+
+	return value, nil
+}
+
+read_int :: proc(text: Text) -> (int, Error) {
+	value, value_ok := strconv.parse_int(text, 10)
+	if !value_ok {
+		return value, .Invalid_Value
+	}
+
+	return value, nil
 }
 
 read_subsector :: proc(element: xml.Element, sector: ^Sector) -> Error {
@@ -320,15 +318,8 @@ read_subsector :: proc(element: xml.Element, sector: ^Sector) -> Error {
 }
 
 read_coords :: proc(x_text, y_text: Text, sector: ^Sector) -> Error {
-	x, x_ok := strconv.parse_f32(x_text)
-	if !x_ok {
-		return .Invalid_Index
-	}
-
-	y, y_ok := strconv.parse_f32(y_text)
-	if !y_ok {
-		return .Invalid_Index
-	}
+	x := read_f32(x_text) or_return
+	y := read_f32(y_text) or_return
 
 	sector.layout.origin = {
 		x * (1.5 * HEX_SIZE) * SECTOR_WIDTH,

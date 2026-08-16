@@ -6,23 +6,40 @@
 
 package main
 
+import "core:math"
 import rl "vendor:raylib"
 
 ROUTE_THICKNESS :: 4
 
 Route :: struct {
-	allegiance: Allegiance,
-	start:      Offset,
-	end:        Offset,
+	allegiance:   Allegiance,
+	start:        Offset,
+	start_offset: Offset,
+	end:          Offset,
+	end_offset:   Offset,
 }
 
-new_route :: proc(allegiance: Allegiance, start, end: Offset) -> Route {
-	return {allegiance, start, end}
+new_route :: proc(allegiance: Allegiance, start, start_offset, end, end_offset: Offset) -> Route {
+	return {allegiance, start, start_offset, end, end_offset}
 }
 
 draw_route :: proc(layout: Layout, route: Route) {
-	start := hex_to_pixel(layout, qoffset_to_cube(route.start))
-	end := hex_to_pixel(layout, qoffset_to_cube(route.end))
+	start_layout := layout
+	start_layout.origin += {
+		route.start_offset.x * (1.5 * HEX_SIZE) * SECTOR_WIDTH,
+		route.start_offset.y * (math.SQRT_THREE * HEX_SIZE) * SECTOR_HEIGHT,
+	}
+
+	start := hex_to_pixel(start_layout, qoffset_to_cube(route.start))
+
+	end_layout := layout
+	end_layout.origin += {
+		route.end_offset.x * (1.5 * HEX_SIZE) * SECTOR_WIDTH,
+		route.end_offset.y * (math.SQRT_THREE * HEX_SIZE) * SECTOR_HEIGHT,
+	}
+
+	end := hex_to_pixel(end_layout, qoffset_to_cube(route.end))
+
 	color := route.allegiance == .Unaligned ? rl.GREEN : allegiances[route.allegiance].color
 
 	rl.DrawLineEx(start, end, ROUTE_THICKNESS, color)
