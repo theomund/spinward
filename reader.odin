@@ -242,19 +242,8 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 }
 
 read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
-	if element.attribs == nil {
-		value := read_value(element)
-		sector.name = new_text(value) or_return
-	} else {
-		for attribute in element.attribs {
-			if attribute.key == "Lang" && attribute.val != "as" {
-				return .Invalid_Name
-			}
-		}
-
-		value := read_value(element)
-		sector.name = new_text(value) or_return
-	}
+	value := read_value(element)
+	sector.name = new_text(value) or_return
 
 	return nil
 }
