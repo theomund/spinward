@@ -251,6 +251,7 @@ read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
 read_route :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	allegiance: Allegiance
 	start, start_offset, end, end_offset: Offset
+	dashed: bool
 
 	for attribute in element.attribs {
 		switch attribute.key {
@@ -270,10 +271,14 @@ read_route :: proc(element: xml.Element, sector: ^Sector) -> Error {
 			end_offset.x = read_f32(attribute.val) or_return
 		case "EndOffsetY":
 			end_offset.y = read_f32(attribute.val) or_return
+		case "Style":
+			dashed = attribute.val == "Dashed"
+		case "Type":
+			dashed = attribute.val == "Trade"
 		}
 	}
 
-	route := new_route(allegiance, start, start_offset, end, end_offset)
+	route := new_route(allegiance, start, start_offset, end, end_offset, dashed)
 	append(&sector.routes, route) or_return
 
 	return nil

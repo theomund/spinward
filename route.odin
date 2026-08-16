@@ -11,16 +11,22 @@ import rl "vendor:raylib"
 
 ROUTE_THICKNESS :: 4
 
+
 Route :: struct {
 	allegiance:   Allegiance,
 	start:        Offset,
 	start_offset: Offset,
 	end:          Offset,
 	end_offset:   Offset,
+	dashed:       bool,
 }
 
-new_route :: proc(allegiance: Allegiance, start, start_offset, end, end_offset: Offset) -> Route {
-	return {allegiance, start, start_offset, end, end_offset}
+new_route :: proc(
+	allegiance: Allegiance,
+	start, start_offset, end, end_offset: Offset,
+	dashed: bool,
+) -> Route {
+	return {allegiance, start, start_offset, end, end_offset, dashed}
 }
 
 draw_route :: proc(layout: Layout, route: Route) {
@@ -42,5 +48,9 @@ draw_route :: proc(layout: Layout, route: Route) {
 
 	color := route.allegiance == .Unaligned ? rl.GREEN : allegiances[route.allegiance].color
 
-	rl.DrawLineEx(start, end, ROUTE_THICKNESS, color)
+	if route.dashed {
+		rl.DrawLineDashed(start, end, 8, 4, color)
+	} else {
+		rl.DrawLineV(start, end, color)
+	}
 }
