@@ -36,7 +36,7 @@ read_sectors :: proc() -> (sectors: [dynamic]Sector, err: Error) {
 
 	for asset in assets {
 		if asset.name == "M1105.xml" {
-			document := xml.parse(Text(asset.data)) or_return
+			document := xml.parse(asset.data) or_return
 			defer xml.destroy(document)
 
 			id: u32
@@ -68,7 +68,7 @@ read_sectors :: proc() -> (sectors: [dynamic]Sector, err: Error) {
 							if file.name == read_value(element) {
 								switch filepath.ext(file.name) {
 								case ".xml":
-									read_xml(&sector, Text(file.data)) or_return
+									read_xml(&sector, file.data) or_return
 								}
 							}
 						}
@@ -110,7 +110,7 @@ read_tab :: proc(sector: ^Sector, data: Text) -> Error {
 	return nil
 }
 
-read_xml :: proc(sector: ^Sector, data: Text) -> Error {
+read_xml :: proc(sector: ^Sector, data: []u8) -> Error {
 	document := xml.parse(data) or_return
 	defer xml.destroy(document)
 
