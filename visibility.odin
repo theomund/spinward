@@ -9,13 +9,13 @@ package main
 import "core:math"
 import rl "vendor:raylib"
 
-check_visibility :: proc(sectors: map[string]Sector, camera: Camera) {
+check_visibility :: proc(sectors: []Sector, camera: Camera) {
 	p1 := rl.GetScreenToWorld2D({0, 0}, camera)
 	p2 := rl.GetScreenToWorld2D({WINDOW_WIDTH, WINDOW_HEIGHT}, camera)
 
 	screen := new_rectangle(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y)
 
-	for _, &sector in sectors {
+	for &sector in sectors {
 		sector.visible = rectangle_visible(sector.layout, screen, SECTOR_WIDTH, SECTOR_HEIGHT)
 
 		for &row in sector.subsectors {

@@ -14,9 +14,9 @@ run :: proc() -> Error {
 
 	sectors := read_sectors() or_return
 
-	render(sectors, &camera) or_return
+	render(sectors[:], &camera) or_return
 
-	for _, sector in sectors {
+	for sector in sectors {
 		destroy_sector(sector) or_return
 	}
 
