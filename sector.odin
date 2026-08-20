@@ -26,21 +26,25 @@ Sector :: struct {
 	visible:    bool,
 }
 
-new_sector :: proc() -> (sector: Sector) {
-	sector.layout = flat_layout({0, 0})
-	sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT)
-	sector.visible = true
+new_sector :: proc() -> Sector {
+	layout := flat_layout({0, 0})
+	subsectors: [SECTOR_ROWS][SECTOR_COLUMNS]Subsector
 
 	for y in 0 ..< SECTOR_ROWS {
 		for x in 0 ..< SECTOR_COLUMNS {
 			hex := qoffset_to_cube(new_offset(f32(x) * SUBSECTOR_COLUMNS, f32(y) * SUBSECTOR_ROWS))
-			origin := hex_to_pixel(sector.layout, hex)
+			origin := hex_to_pixel(layout, hex)
 
-			sector.subsectors[y][x] = new_subsector(sector.layout, origin)
+			subsectors[y][x] = new_subsector(layout, origin)
 		}
 	}
 
-	return
+	return {
+		center = grid_center(layout, SECTOR_WIDTH, SECTOR_HEIGHT),
+		layout = layout,
+		subsectors = subsectors,
+		visible = true,
+	}
 }
 
 destroy_sector :: proc(sector: Sector) -> Error {
