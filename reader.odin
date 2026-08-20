@@ -196,9 +196,10 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	}
 
 	value := read_value(element)
-	newlines, _ := strings.remove_all(value, "\n", context.temp_allocator)
-	spaces, _ := strings.replace_all(newlines, "      ", " ", context.temp_allocator)
-	borders := strings.split(spaces, " ", context.temp_allocator) or_return
+	value, _ = strings.remove_all(value, "\n", context.temp_allocator)
+	value, _ = strings.replace_all(value, "      ", " ", context.temp_allocator)
+	value, _ = strings.replace_all(value, "  ", " ", context.temp_allocator)
+	borders := strings.split(value, " ", context.temp_allocator) or_return
 
 	xs: [dynamic]int
 	defer delete(xs)
@@ -344,7 +345,13 @@ read_int :: proc(text: Text) -> (int, Error) {
 }
 
 read_subsector :: proc(element: xml.Element, sector: ^Sector) -> Error {
-	index := subsector_index(element.attribs[0].val)
+	index: u8
+
+	for attribute in element.attribs {
+		if attribute.key == "Index" {
+			index = subsector_index(attribute.val)
+		}
+	}
 
 	value := read_value(element)
 	sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = new_text(value) or_return
