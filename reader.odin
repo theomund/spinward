@@ -39,27 +39,33 @@ read_sectors :: proc() -> (sectors: [dynamic]Sector, err: Error) {
 			document := xml.parse(asset.data) or_return
 			defer xml.destroy(document)
 
-			id: u32
+			borders_id, sector_id, routes_id, subsectors_id: u32
 
 			sector: Sector
 			defer destroy_sector(sector)
 
-			data_read, metadata_read: bool
+			data_read: bool
+			x, y: Text
 
 			for element, index in document.elements {
 				if element.ident == "Sector" {
-					if data_read && metadata_read {
+					if data_read {
+						if x != "" && y != "" {
+							read_coords(x, y, &sector)
+						}
+
 						append(&sectors, sector) or_return
 					} else {
 						destroy_sector(sector) or_return
 					}
 
-					id = u32(index)
-					sector = new_sector()
 					data_read = false
-					metadata_read = false
-				} else if element.parent == id {
+					sector = new_sector()
+					sector_id = u32(index)
+				} else if element.parent == sector_id {
 					switch element.ident {
+					case "Borders":
+						borders_id = u32(index)
 					case "DataFile":
 						for file in assets {
 							if file.name == read_value(element) {
@@ -76,13 +82,29 @@ read_sectors :: proc() -> (sectors: [dynamic]Sector, err: Error) {
 							if file.name == read_value(element) {
 								switch filepath.ext(file.name) {
 								case ".xml":
-									read_xml(&sector, file.data) or_return
+									read_xml(&sector, file.data, &x, &y) or_return
 								}
-
-								metadata_read = true
 							}
 						}
+					case "Name":
+						if sector.name == "" {
+							read_name(element, &sector) or_return
+						}
+					case "Routes":
+						routes_id = u32(index)
+					case "Subsectors":
+						subsectors_id = u32(index)
+					case "X":
+						x = read_value(element)
+					case "Y":
+						y = read_value(element)
 					}
+				} else if element.parent == borders_id && element.ident == "Border" {
+					read_border(element, &sector) or_return
+				} else if element.parent == routes_id && element.ident == "Route" {
+					read_route(element, &sector) or_return
+				} else if element.parent == subsectors_id && element.ident == "Subsector" {
+					read_subsector(element, &sector) or_return
 				}
 			}
 
@@ -120,11 +142,9 @@ read_tab :: proc(sector: ^Sector, data: Text) -> Error {
 	return nil
 }
 
-read_xml :: proc(sector: ^Sector, data: []u8) -> Error {
+read_xml :: proc(sector: ^Sector, data: []u8, x, y: ^Text) -> Error {
 	document := xml.parse(data) or_return
 	defer xml.destroy(document)
-
-	x, y: Text
 
 	for element in document.elements {
 		switch element.ident {
@@ -139,15 +159,9 @@ read_xml :: proc(sector: ^Sector, data: []u8) -> Error {
 		case "Subsector":
 			read_subsector(element, sector) or_return
 		case "X":
-			x = read_value(element)
-			if y != "" {
-				read_coords(x, y, sector) or_return
-			}
+			x^ = read_value(element)
 		case "Y":
-			y = read_value(element)
-			if x != "" {
-				read_coords(x, y, sector) or_return
-			}
+			y^ = read_value(element)
 		}
 	}
 
