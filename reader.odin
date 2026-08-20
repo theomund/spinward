@@ -31,27 +31,88 @@ destroy_reader :: proc(reader: ^Reader) {
 	csv.reader_destroy(reader)
 }
 
-read_sectors :: proc() -> (sectors: map[Text]Sector, err: Error) {
+read_sectors :: proc() -> (sectors: [dynamic]Sector, err: Error) {
 	assets := #load_directory("assets")
 
 	for asset in assets {
-		name := filepath.stem(asset.name)
+		if asset.name == "M1105.xml" {
+			document := xml.parse(asset.data) or_return
+			defer xml.destroy(document)
 
-		if name not_in sectors {
-			sectors[name] = new_sector()
-		}
+			borders_id, sector_id, routes_id, subsectors_id: u32
 
-		data := Text(asset.data)
+			sector: Sector
+			defer destroy_sector(sector)
 
-		switch filepath.ext(asset.name) {
-		case ".tab":
-			read_tab(&sectors[name], data) or_return
-		case ".xml":
-			read_xml(&sectors[name], data) or_return
+			data_read: bool
+			x, y: Text
+
+			for element, index in document.elements {
+				if element.ident == "Sector" {
+					if data_read {
+						if x != "" && y != "" {
+							read_coords(x, y, &sector)
+						}
+
+						append(&sectors, sector) or_return
+					} else {
+						destroy_sector(sector) or_return
+					}
+
+					data_read = false
+					sector = new_sector()
+					sector_id = u32(index)
+				} else if element.parent == sector_id {
+					switch element.ident {
+					case "Borders":
+						borders_id = u32(index)
+					case "DataFile":
+						for file in assets {
+							if file.name == read_value(element) {
+								switch filepath.ext(file.name) {
+								case ".tab":
+									read_tab(&sector, Text(file.data)) or_return
+								}
+
+								data_read = true
+							}
+						}
+					case "MetadataFile":
+						for file in assets {
+							if file.name == read_value(element) {
+								switch filepath.ext(file.name) {
+								case ".xml":
+									read_xml(&sector, file.data, &x, &y) or_return
+								}
+							}
+						}
+					case "Name":
+						if sector.name == "" {
+							read_name(element, &sector) or_return
+						}
+					case "Routes":
+						routes_id = u32(index)
+					case "Subsectors":
+						subsectors_id = u32(index)
+					case "X":
+						x = read_value(element)
+					case "Y":
+						y = read_value(element)
+					}
+				} else if element.parent == borders_id && element.ident == "Border" {
+					read_border(element, &sector) or_return
+				} else if element.parent == routes_id && element.ident == "Route" {
+					read_route(element, &sector) or_return
+				} else if element.parent == subsectors_id && element.ident == "Subsector" {
+					read_subsector(element, &sector) or_return
+				}
+			}
+
+			return
 		}
 	}
 
-	return sectors, nil
+	return sectors, .Initialization_Failed
 }
 
 read_tab :: proc(sector: ^Sector, data: Text) -> Error {
@@ -65,7 +126,7 @@ read_tab :: proc(sector: ^Sector, data: Text) -> Error {
 			return err
 		}
 
-		if record[1] == "SS" {
+		if record[0] == "Sector" {
 			continue
 		}
 
@@ -81,13 +142,11 @@ read_tab :: proc(sector: ^Sector, data: Text) -> Error {
 	return nil
 }
 
-read_xml :: proc(sector: ^Sector, data: Text) -> Error {
+read_xml :: proc(sector: ^Sector, data: []u8, x, y: ^Text) -> Error {
 	document := xml.parse(data) or_return
 	defer xml.destroy(document)
 
-	x, y: Text
-
-	for &element in document.elements {
+	for element in document.elements {
 		switch element.ident {
 		case "Border":
 			read_border(element, sector) or_return
@@ -100,15 +159,11 @@ read_xml :: proc(sector: ^Sector, data: Text) -> Error {
 		case "Subsector":
 			read_subsector(element, sector) or_return
 		case "X":
-			x = read_value(element)
+			x^ = read_value(element)
 		case "Y":
-			y = read_value(element)
+			y^ = read_value(element)
 		}
 	}
-
-	read_coords(x, y, sector) or_return
-
-	free_all(context.temp_allocator) or_return
 
 	return nil
 }
@@ -123,29 +178,28 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 		case "Allegiance":
 			allegiance = new_allegiance(attribute.val)
 		case "Label":
-			label = new_text(attribute.val) or_return
+			label = attribute.val
 		case "LabelPosition":
 			label_position = attribute.val
 		}
 	}
 
 	if label == "" {
-		label = new_text(allegiances[allegiance].label) or_return
+		label = allegiances[allegiance].label
 	}
 
 	if label_position != "" {
 		x, y := system_index(label_position) or_return
 
 		system := get_system(sector, x, y)
-		system.label = label
-	} else {
-		destroy_text(label)
+		system.label = new_text(label) or_return
 	}
 
 	value := read_value(element)
-	newlines, _ := strings.remove_all(value, "\n", context.temp_allocator)
-	spaces, _ := strings.replace_all(newlines, "      ", " ", context.temp_allocator)
-	borders := strings.split(spaces, " ", context.temp_allocator) or_return
+	value, _ = strings.remove_all(value, "\n", context.temp_allocator)
+	value, _ = strings.replace_all(value, "      ", " ", context.temp_allocator)
+	value, _ = strings.replace_all(value, "  ", " ", context.temp_allocator)
+	borders := strings.split(value, " ", context.temp_allocator) or_return
 
 	xs: [dynamic]int
 	defer delete(xs)
@@ -181,22 +235,16 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 		if system := get_system(sector, i, min_y); !system.visited {
 			queue.push_back(&flood, system) or_return
 		}
-	}
-
-	for i := min_y; i < max_y; i += 1 {
-		if system := get_system(sector, max_x, i); !system.visited {
-			queue.push_back(&flood, system) or_return
-		}
-	}
-
-	for i := max_x; i > min_x; i -= 1 {
 		if system := get_system(sector, i, max_y); !system.visited {
 			queue.push_back(&flood, system) or_return
 		}
 	}
 
-	for i := max_y; i > min_y; i -= 1 {
+	for i := min_y; i < max_y; i += 1 {
 		if system := get_system(sector, min_x, i); !system.visited {
+			queue.push_back(&flood, system) or_return
+		}
+		if system := get_system(sector, max_x, i); !system.visited {
 			queue.push_back(&flood, system) or_return
 		}
 	}
@@ -217,7 +265,7 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 
 			if !neighbor_system.visited {
 				neighbor_system.visited = true
-				queue.push_back(&flood, neighbor_system)
+				queue.push_back(&flood, neighbor_system) or_return
 			}
 		}
 	}
@@ -226,13 +274,7 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 		for x := 0; x < SECTOR_WIDTH; x += 1 {
 			if system := get_system(sector, x, y); !system.visited {
 				system.allegiance = allegiance
-			}
-		}
-	}
-
-	for y := 0; y < SECTOR_HEIGHT; y += 1 {
-		for x := 0; x < SECTOR_WIDTH; x += 1 {
-			if system := get_system(sector, x, y); system.visited {
+			} else {
 				system.visited = false
 			}
 		}
@@ -287,7 +329,7 @@ read_route :: proc(element: xml.Element, sector: ^Sector) -> Error {
 read_f32 :: proc(text: Text) -> (f32, Error) {
 	value, value_ok := strconv.parse_f32(text)
 	if !value_ok {
-		return value, .Invalid_Value
+		return value, .Invalid_Float
 	}
 
 	return value, nil
@@ -296,14 +338,20 @@ read_f32 :: proc(text: Text) -> (f32, Error) {
 read_int :: proc(text: Text) -> (int, Error) {
 	value, value_ok := strconv.parse_int(text, 10)
 	if !value_ok {
-		return value, .Invalid_Value
+		return value, .Invalid_Int
 	}
 
 	return value, nil
 }
 
 read_subsector :: proc(element: xml.Element, sector: ^Sector) -> Error {
-	index := subsector_index(element.attribs[0].val)
+	index: u8
+
+	for attribute in element.attribs {
+		if attribute.key == "Index" {
+			index = subsector_index(attribute.val)
+		}
+	}
 
 	value := read_value(element)
 	sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = new_text(value) or_return

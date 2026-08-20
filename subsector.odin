@@ -23,33 +23,37 @@ Subsector :: struct {
 	visible: bool,
 }
 
-new_subsector :: proc(layout: Layout, origin: Point) -> (subsector: Subsector) {
-	subsector.layout = layout
-	subsector.layout.origin = origin
-	subsector.center = grid_center(subsector.layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS)
-	subsector.visible = true
+new_subsector :: proc(layout: Layout, origin: Point) -> Subsector {
+	left := 0
+	right := SUBSECTOR_COLUMNS
+	top := 0
+	bottom := SUBSECTOR_ROWS - 1
 
-	left := f32(0)
-	right := f32(SUBSECTOR_COLUMNS)
-	top := f32(0)
-	bottom := f32(SUBSECTOR_ROWS - 1)
+	systems: [SUBSECTOR_ROWS][SUBSECTOR_COLUMNS]System
 
 	for q := left; q < right; q += 1 {
-		q_offset := math.floor(q / 2.0)
+		q_offset := q >> 1
 		for r := top - q_offset; r <= bottom - q_offset; r += 1 {
-			hex := new_hex(q, r, -q - r)
+			hex := new_hex(f32(q), f32(r), f32(-q - r))
 			offset := qoffset_from_cube(hex)
 
 			x := i32(offset.x)
 			y := i32(offset.y)
 
 			system_index := hex_index(hex + pixel_to_hex_rounded(layout, origin))
-
-			subsector.systems[y][x] = new_system(hex, system_index)
+			systems[y][x] = new_system(hex, system_index)
 		}
 	}
 
-	return
+	subsector_layout := layout
+	subsector_layout.origin = origin
+
+	return {
+		center = grid_center(subsector_layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS),
+		layout = subsector_layout,
+		systems = systems,
+		visible = true,
+	}
 }
 
 destroy_subsector :: proc(subsector: Subsector) -> Error {

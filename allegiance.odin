@@ -126,7 +126,27 @@ new_allegiance :: proc(text: Text) -> Allegiance {
 	switch text {
 	case "AnTC":
 		return .Anubian_Trade_Coalition
-	case "As":
+	case "As",
+	     "AsIf",
+	     "AsOf",
+	     "AsTA",
+	     "AsMw",
+	     "AsSc",
+	     "AsT0",
+	     "AsT1",
+	     "AsT2",
+	     "AsT3",
+	     "AsT4",
+	     "AsT5",
+	     "AsT6",
+	     "AsT7",
+	     "AsT8",
+	     "AsT9",
+	     "AsTv",
+	     "AsTz",
+	     "AsVc",
+	     "AsWc",
+	     "AsXX":
 		return .Aslan_Hierate
 	case "BlSo":
 		return .Belgardian_Sojurnate
