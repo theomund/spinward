@@ -56,7 +56,7 @@ destroy_sector :: proc(sector: Sector) -> Error {
 		}
 	}
 
-	delete(sector.routes)
+	delete(sector.routes) or_return
 
 	return nil
 }

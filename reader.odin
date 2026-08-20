@@ -40,11 +40,15 @@ read_sectors :: proc() -> (sectors: [dynamic]Sector, err: Error) {
 			defer xml.destroy(document)
 
 			id: u32
+
 			sector: Sector
+			defer destroy_sector(sector)
+
+			data_read, metadata_read: bool
 
 			for element, index in document.elements {
 				if element.ident == "Sector" {
-					if sector.name != "" {
+					if data_read && metadata_read {
 						append(&sectors, sector) or_return
 					} else {
 						destroy_sector(sector) or_return
@@ -52,6 +56,8 @@ read_sectors :: proc() -> (sectors: [dynamic]Sector, err: Error) {
 
 					id = u32(index)
 					sector = new_sector()
+					data_read = false
+					metadata_read = false
 				} else if element.parent == id {
 					switch element.ident {
 					case "DataFile":
@@ -61,6 +67,8 @@ read_sectors :: proc() -> (sectors: [dynamic]Sector, err: Error) {
 								case ".tab":
 									read_tab(&sector, Text(file.data)) or_return
 								}
+
+								data_read = true
 							}
 						}
 					case "MetadataFile":
@@ -70,6 +78,8 @@ read_sectors :: proc() -> (sectors: [dynamic]Sector, err: Error) {
 								case ".xml":
 									read_xml(&sector, file.data) or_return
 								}
+
+								metadata_read = true
 							}
 						}
 					}
