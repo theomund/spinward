@@ -30,7 +30,7 @@ format:
 
 lint:
 	hadolint .devcontainer/Dockerfile
-	odin check . -strict-style -vet
+	odin check . -disallow-do -strict-style -vet -vet-tabs -warnings-as-errors
 	yamllint .github/workflows/linux.yml
 
 run:
