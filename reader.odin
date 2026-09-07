@@ -117,9 +117,13 @@ read_xml :: proc(data: []u8, sector: ^Sector, x, y: ^Text) -> Error {
 		case "Subsector":
 			read_subsector(element, sector) or_return
 		case "X":
-			x^ = read_value(element)
+			if x^ == "" {
+				x^ = read_value(element)
+			}
 		case "Y":
-			y^ = read_value(element)
+			if y^ == "" {
+				y^ = read_value(element)
+			}
 		}
 	}
 
@@ -329,5 +333,5 @@ read_coords :: proc(x_text, y_text: Text, sector: ^Sector) -> Error {
 }
 
 read_value :: proc(element: xml.Element) -> Text {
-	return element.value[0].(Text)
+	return len(element.value) > 0 ? element.value[0].(Text) : ""
 }

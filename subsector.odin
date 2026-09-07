@@ -79,13 +79,6 @@ draw_subsector :: proc(subsector: Subsector, camera: Camera) -> Error {
 		}
 	}
 
-	draw_subsector_border(subsector)
-	draw_subsector_title(subsector, camera) or_return
-
-	return nil
-}
-
-draw_subsector_border :: proc(subsector: Subsector) {
 	p1 := hex_to_pixel(subsector.layout, qoffset_to_cube({0, 0}))
 	p2 := hex_to_pixel(
 		subsector.layout,
@@ -103,9 +96,7 @@ draw_subsector_border :: proc(subsector: Subsector) {
 		},
 		rl.GRAY,
 	)
-}
 
-draw_subsector_title :: proc(subsector: Subsector, camera: Camera) -> Error {
 	draw_text(
 		subsector.name,
 		subsector.center,
