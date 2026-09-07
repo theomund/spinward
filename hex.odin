@@ -62,7 +62,7 @@ hex_to_pixel :: proc(layout: Layout, hex: Hex) -> Point {
 	x := (M.f[0, 0] * hex.x + M.f[0, 1] * hex.y) * size.x
 	y := (M.f[1, 0] * hex.x + M.f[1, 1] * hex.y) * size.y
 
-	return new_point(x + origin.x, y + origin.y)
+	return Point{x + origin.x, y + origin.y}
 }
 
 hex_round :: proc(hex: Hex) -> Hex {

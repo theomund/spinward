@@ -6,14 +6,13 @@
 
 package main
 
-import "core:math"
 import rl "vendor:raylib"
 
 check_visibility :: proc(sectors: []Sector, camera: Camera) {
 	p1 := rl.GetScreenToWorld2D({0, 0}, camera)
 	p2 := rl.GetScreenToWorld2D({WINDOW_WIDTH, WINDOW_HEIGHT}, camera)
 
-	screen := new_rectangle(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y)
+	screen := Rectangle{p1.x, p1.y, p2.x - p1.x, p2.y - p1.y}
 
 	for &sector in sectors {
 		sector.visible = rectangle_visible(sector.layout, screen, SECTOR_WIDTH, SECTOR_HEIGHT)
@@ -32,16 +31,18 @@ check_visibility :: proc(sectors: []Sector, camera: Camera) {
 }
 
 rectangle_visible :: proc(layout: Layout, screen: Rectangle, col, row: f32) -> bool {
-	p1 := hex_to_pixel(layout, qoffset_to_cube(new_offset(0, 0)))
-	p2 := hex_to_pixel(layout, qoffset_to_cube(new_offset(col - 1, row - 1)))
+	p1 := hex_to_pixel(layout, qoffset_to_cube({0, 0}))
+	p2 := hex_to_pixel(layout, qoffset_to_cube({col - 1, row - 1}))
+
+	M := layout.orientation
 
 	x := p1.x - HEX_SIZE / (4.0 / 3.0)
-	y := p1.y - HEX_SIZE * (math.SQRT_THREE / 2.0)
+	y := p1.y - HEX_SIZE * M.f[0][1]
 
-	width := p2.x - p1.x + HEX_SIZE * 1.5
-	height := p2.y - p1.y + HEX_SIZE * (math.SQRT_THREE / 2.0)
+	width := p2.x - p1.x + HEX_SIZE * M.f[0][0]
+	height := p2.y - p1.y + HEX_SIZE * M.f[0][1]
 
-	rect := new_rectangle(x, y, width, height)
+	rect := Rectangle{x, y, width, height}
 
 	return rl.CheckCollisionRecs(screen, rect)
 }

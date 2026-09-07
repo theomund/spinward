@@ -6,11 +6,9 @@
 
 package main
 
-import "base:runtime"
 import "core:container/queue"
 import "core:encoding/csv"
 import "core:encoding/xml"
-import "core:math"
 import "core:path/filepath"
 import "core:slice"
 import "core:strconv"
@@ -30,7 +28,7 @@ read_sectors :: proc() -> (sectors: [dynamic]Sector, err: Error) {
 
 			x, y: Text
 
-			for element, index in document.elements {
+			for element in document.elements {
 				switch element.ident {
 				case "Border":
 					read_border(element, &sector) or_return
@@ -94,9 +92,8 @@ read_tab :: proc(sector: ^Sector, data: Text) -> Error {
 			continue
 		}
 
-		x, y := system_index(record[2]) or_return
-
-		system := get_system(sector, x, y)
+		offset := system_index(record[2]) or_return
+		system := get_system(sector, offset)
 
 		system.allegiance = new_allegiance(record[9])
 		system.name = new_text(record[3] != "" ? record[3] : "????") or_return
@@ -150,9 +147,9 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	}
 
 	if label_position != "" {
-		x, y := system_index(label_position) or_return
+		offset := system_index(label_position) or_return
 
-		system := get_system(sector, x, y)
+		system := get_system(sector, offset)
 		system.label = new_text(label) or_return
 	}
 
@@ -162,16 +159,16 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	value, _ = strings.replace_all(value, "  ", " ", context.temp_allocator)
 	borders := strings.split(value, " ", context.temp_allocator) or_return
 
-	xs := make([dynamic]int, 0, context.temp_allocator)
-	ys := make([dynamic]int, 0, context.temp_allocator)
+	xs := make([dynamic]f32, 0, context.temp_allocator)
+	ys := make([dynamic]f32, 0, context.temp_allocator)
 
 	for border in borders {
-		x, y := system_index(border) or_return
+		offset := system_index(border) or_return
 
-		append(&xs, x) or_return
-		append(&ys, y) or_return
+		append(&xs, offset.x) or_return
+		append(&ys, offset.y) or_return
 
-		system := get_system(sector, x, y)
+		system := get_system(sector, offset)
 		system.allegiance = allegiance
 		system.visited = true
 	}
@@ -189,30 +186,30 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	queue.init(&flood, allocator = context.temp_allocator) or_return
 
 	for i := min_x; i < max_x; i += 1 {
-		if system := get_system(sector, i, min_y); !system.visited {
+		if system := get_system(sector, {i, min_y}); !system.visited {
 			queue.push_back(&flood, system) or_return
 		}
-		if system := get_system(sector, i, max_y); !system.visited {
+		if system := get_system(sector, {i, max_y}); !system.visited {
 			queue.push_back(&flood, system) or_return
 		}
 	}
 
 	for i := min_y; i < max_y; i += 1 {
-		if system := get_system(sector, min_x, i); !system.visited {
+		if system := get_system(sector, {min_x, i}); !system.visited {
 			queue.push_back(&flood, system) or_return
 		}
-		if system := get_system(sector, max_x, i); !system.visited {
+		if system := get_system(sector, {max_x, i}); !system.visited {
 			queue.push_back(&flood, system) or_return
 		}
 	}
 
 	for queue.len(flood) != 0 {
 		current := queue.pop_front(&flood)
-		current_hex := qoffset_to_cube({f32(current.x), f32(current.y)})
+		current_hex := qoffset_to_cube(current.offset)
 
 		for i in 0 ..= 5 {
 			neighbor_offset := qoffset_from_cube(hex_neighbor(current_hex, i))
-			neighbor_system := get_system(sector, int(neighbor_offset.x), int(neighbor_offset.y))
+			neighbor_system := get_system(sector, neighbor_offset)
 
 			if !neighbor_system.visited {
 				neighbor_system.visited = true
@@ -223,7 +220,7 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 
 	for y := 0; y < SECTOR_HEIGHT; y += 1 {
 		for x := 0; x < SECTOR_WIDTH; x += 1 {
-			if system := get_system(sector, x, y); !system.visited {
+			if system := get_system(sector, {f32(x), f32(y)}); !system.visited {
 				system.allegiance = allegiance
 			} else {
 				system.visited = false
@@ -252,11 +249,9 @@ read_route :: proc(element: xml.Element, sector: ^Sector) -> Error {
 		case "Allegiance":
 			allegiance = new_allegiance(attribute.val)
 		case "Start":
-			x, y := system_index(attribute.val) or_return
-			start = new_offset(f32(x), f32(y))
+			start = system_index(attribute.val) or_return
 		case "End":
-			x, y := system_index(attribute.val) or_return
-			end = new_offset(f32(x), f32(y))
+			end = system_index(attribute.val) or_return
 		case "StartOffsetX":
 			start_offset.x = read_f32(attribute.val) or_return
 		case "StartOffsetY":
@@ -315,9 +310,11 @@ read_coords :: proc(x_text, y_text: Text, sector: ^Sector) -> Error {
 	x := read_f32(x_text) or_return
 	y := read_f32(y_text) or_return
 
+	M := sector.layout.orientation
+
 	sector.layout.origin = {
-		x * (1.5 * HEX_SIZE) * SECTOR_WIDTH,
-		y * (math.SQRT_THREE * HEX_SIZE) * SECTOR_HEIGHT,
+		x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
+		y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
 	}
 	sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT)
 

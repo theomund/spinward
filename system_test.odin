@@ -16,6 +16,4 @@ test_new_system :: proc(t: ^testing.T) {
 	testing.expect_value(t, system.name, "")
 	testing.expect_value(t, system.allegiance, Allegiance.Unaligned)
 	testing.expect_value(t, system.hex, hex)
-	testing.expect_value(t, system.x, 0)
-	testing.expect_value(t, system.y, 0)
 }

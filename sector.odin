@@ -31,7 +31,7 @@ new_sector :: proc() -> (sector: Sector, err: Error) {
 
 	for y in 0 ..< SECTOR_ROWS {
 		for x in 0 ..< SECTOR_COLUMNS {
-			hex := qoffset_to_cube(new_offset(f32(x) * SUBSECTOR_COLUMNS, f32(y) * SUBSECTOR_ROWS))
+			hex := qoffset_to_cube({f32(x) * SUBSECTOR_COLUMNS, f32(y) * SUBSECTOR_ROWS})
 			origin := hex_to_pixel(sector.layout, hex)
 
 			sector.subsectors[y][x] = new_subsector(sector.layout, origin) or_return
@@ -84,8 +84,7 @@ draw_sector :: proc(sector: Sector, camera: Camera) -> Error {
 }
 
 draw_hovered_hex :: proc(layout: Layout, camera: Camera) {
-	position := rl.GetScreenToWorld2D(rl.GetMousePosition(), camera)
-	hovered := pixel_to_hex_rounded(layout, position)
+	hovered := pixel_to_hex_rounded(layout, rl.GetScreenToWorld2D(rl.GetMousePosition(), camera))
 
 	if contains_hex(hovered) {
 		draw_hex(layout, hovered, rl.YELLOW)

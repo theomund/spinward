@@ -6,11 +6,9 @@
 
 package main
 
-import "core:math"
 import rl "vendor:raylib"
 
 ROUTE_THICKNESS :: 4
-
 
 Route :: struct {
 	allegiance:   Allegiance,
@@ -30,18 +28,20 @@ new_route :: proc(
 }
 
 draw_route :: proc(layout: Layout, route: Route) {
+	M := layout.orientation
+
 	start_layout := layout
 	start_layout.origin += {
-		route.start_offset.x * (1.5 * HEX_SIZE) * SECTOR_WIDTH,
-		route.start_offset.y * (math.SQRT_THREE * HEX_SIZE) * SECTOR_HEIGHT,
+		route.start_offset.x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
+		route.start_offset.y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
 	}
 
 	start := hex_to_pixel(start_layout, qoffset_to_cube(route.start))
 
 	end_layout := layout
 	end_layout.origin += {
-		route.end_offset.x * (1.5 * HEX_SIZE) * SECTOR_WIDTH,
-		route.end_offset.y * (math.SQRT_THREE * HEX_SIZE) * SECTOR_HEIGHT,
+		route.end_offset.x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
+		route.end_offset.y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
 	}
 
 	end := hex_to_pixel(end_layout, qoffset_to_cube(route.end))

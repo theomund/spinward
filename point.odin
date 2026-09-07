@@ -10,16 +10,11 @@ import rl "vendor:raylib"
 
 Point :: rl.Vector2
 
-new_point :: proc(x, y: f32) -> Point {
-	return {x, y}
-}
-
 grid_center :: proc(layout: Layout, width, height: f32) -> Point {
-	min_hex := qoffset_to_cube(new_offset(0, 0))
-	max_hex := qoffset_to_cube(new_offset(width - 1, height - 1))
-	center_hex := (min_hex + max_hex) / 2
-
-	return hex_to_pixel(layout, center_hex)
+	return hex_to_pixel(
+		layout,
+		(qoffset_to_cube({0, 0}) + qoffset_to_cube({width - 1, height - 1})) / 2,
+	)
 }
 
 pixel_to_hex_fractional :: proc(layout: Layout, p: Point) -> Hex {
@@ -27,7 +22,7 @@ pixel_to_hex_fractional :: proc(layout: Layout, p: Point) -> Hex {
 	origin := layout.origin
 	size := layout.size
 
-	pt := new_point((p.x - origin.x) / size.x, (p.y - origin.y) / size.y)
+	pt := Point{(p.x - origin.x) / size.x, (p.y - origin.y) / size.y}
 
 	q := M.b[0, 0] * pt.x + M.b[0, 1] * pt.y
 	r := M.b[1, 0] * pt.x + M.b[1, 1] * pt.y

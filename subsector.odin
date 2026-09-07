@@ -86,19 +86,21 @@ draw_subsector :: proc(subsector: Subsector, camera: Camera) -> Error {
 }
 
 draw_subsector_border :: proc(subsector: Subsector) {
-	p1 := hex_to_pixel(subsector.layout, qoffset_to_cube(new_offset(0, 0)))
+	p1 := hex_to_pixel(subsector.layout, qoffset_to_cube({0, 0}))
 	p2 := hex_to_pixel(
 		subsector.layout,
-		qoffset_to_cube(new_offset(SUBSECTOR_COLUMNS - 1, SUBSECTOR_ROWS - 1)),
+		qoffset_to_cube({SUBSECTOR_COLUMNS - 1, SUBSECTOR_ROWS - 1}),
 	)
 
+	M := subsector.layout.orientation
+
 	draw_rectangle(
-		new_rectangle(
+		{
 			p1.x - HEX_SIZE / (4.0 / 3.0),
-			p1.y - HEX_SIZE * subsector.layout.orientation.f[0][1],
-			p2.x - p1.x + HEX_SIZE * 1.5,
-			p2.y - p1.y + HEX_SIZE * subsector.layout.orientation.f[0][1],
-		),
+			p1.y - HEX_SIZE * M.f[0][1],
+			p2.x - p1.x + HEX_SIZE * M.f[0][0],
+			p2.y - p1.y + HEX_SIZE * M.f[0][1],
+		},
 		rl.GRAY,
 	)
 }

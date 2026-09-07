@@ -20,15 +20,14 @@ System :: struct {
 	allegiance: Allegiance,
 	hex:        Hex,
 	label:      Text,
+	offset:     Offset,
 	visited:    bool,
 	world:      bool,
-	x:          int,
-	y:          int,
 }
 
 new_system :: proc(hex: Hex, index: Text) -> (system: System, err: Error) {
 	system.hex = hex
-	system.x, system.y = system_index(index) or_return
+	system.offset = system_index(index) or_return
 
 	return
 }
@@ -40,16 +39,18 @@ destroy_system :: proc(system: System) -> Error {
 	return nil
 }
 
-system_index :: proc(index: Text) -> (x: int, y: int, err: Error) {
-	x = read_int(index[0:2]) or_return
-	y = read_int(index[2:4]) or_return
+system_index :: proc(index: Text) -> (offset: Offset, err: Error) {
+	x := read_int(index[0:2]) or_return
+	y := read_int(index[2:4]) or_return
 
-	return x - 1, y - 1, nil
+	offset = {f32(x - 1), f32(y - 1)}
+
+	return
 }
 
-get_system :: proc(sector: ^Sector, x, y: int) -> ^System {
-	col := math.clamp(x, 0, 31)
-	row := math.clamp(y, 0, 39)
+get_system :: proc(sector: ^Sector, offset: Offset) -> ^System {
+	col := math.clamp(int(offset.x), 0, 31)
+	row := math.clamp(int(offset.y), 0, 39)
 
 	subsector := &sector.subsectors[row / SUBSECTOR_ROWS][col / SUBSECTOR_COLUMNS]
 	system := &subsector.systems[row % SUBSECTOR_ROWS][col % SUBSECTOR_COLUMNS]
@@ -75,7 +76,7 @@ draw_system :: proc(layout: Layout, system: System, camera: Camera) -> Error {
 	) or_return
 
 	draw_text(
-		fmt.tprintf("%02d%02d", system.x + 1, system.y + 1),
+		fmt.tprintf("%02d%02d", int(system.offset.x + 1), int(system.offset.y + 1)),
 		center + {0, HALF_HEX},
 		FONT_SIZE,
 		FONT_SPACING,
