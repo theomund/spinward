@@ -6,6 +6,7 @@
 
 package main
 
+import "core:fmt"
 import "core:math"
 import rl "vendor:raylib"
 
@@ -18,19 +19,22 @@ System :: struct {
 	name:       Text,
 	allegiance: Allegiance,
 	hex:        Hex,
-	index:      Text,
 	label:      Text,
 	visited:    bool,
 	world:      bool,
+	x:          int,
+	y:          int,
 }
 
-new_system :: proc(hex: Hex, index: Text) -> System {
-	return {hex = hex, index = index}
+new_system :: proc(hex: Hex, index: Text) -> (system: System, err: Error) {
+	system.hex = hex
+	system.x, system.y = system_index(index) or_return
+
+	return
 }
 
 destroy_system :: proc(system: System) -> Error {
 	destroy_text(system.name) or_return
-	destroy_text(system.index) or_return
 	destroy_text(system.label) or_return
 
 	return nil
@@ -56,24 +60,35 @@ get_system :: proc(sector: ^Sector, x, y: int) -> ^System {
 draw_system :: proc(layout: Layout, system: System, camera: Camera) -> Error {
 	center := hex_to_pixel(layout, system.hex)
 
-	color := fade_color(rl.DARKGRAY, camera.zoom, 0.25, 0.5)
-
-	if color.a != 0 {
-		draw_hex(layout, system.hex, color)
-	}
+	draw_hex(layout, system.hex, fade_color(rl.DARKGRAY, camera.zoom, 0.25, 0.5))
 
 	if system.world {
 		rl.DrawCircleV(center, WORLD_SIZE, rl.BLUE)
 	}
 
-	color = fade_color(rl.WHITE, camera.zoom, 0.25, 0.5)
-	draw_text(system.name, center - {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, color) or_return
+	draw_text(
+		system.name,
+		center - {0, HALF_HEX},
+		FONT_SIZE,
+		FONT_SPACING,
+		fade_color(rl.WHITE, camera.zoom, 0.25, 0.5),
+	) or_return
 
-	color = fade_color(rl.DARKGRAY, camera.zoom, 0.25, 0.5)
-	draw_text(system.index, center + {0, HEX_SIZE / 2}, FONT_SIZE, FONT_SPACING, color) or_return
+	draw_text(
+		fmt.tprintf("%02d%02d", system.x + 1, system.y + 1),
+		center + {0, HALF_HEX},
+		FONT_SIZE,
+		FONT_SPACING,
+		fade_color(rl.DARKGRAY, camera.zoom, 0.25, 0.5),
+	) or_return
 
-	color = fade_color(rl.YELLOW, camera.zoom, 0.5, 0.25)
-	draw_text(system.label, center, SUBSECTOR_TITLE_SIZE, SUBSECTOR_TITLE_SPACING, color) or_return
+	draw_text(
+		system.label,
+		center,
+		SUBSECTOR_TITLE_SIZE,
+		SUBSECTOR_TITLE_SPACING,
+		fade_color(rl.YELLOW, camera.zoom, 0.5, 0.25),
+	) or_return
 
 	return nil
 }

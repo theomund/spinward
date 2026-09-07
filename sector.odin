@@ -26,25 +26,22 @@ Sector :: struct {
 	visible:    bool,
 }
 
-new_sector :: proc() -> Sector {
-	layout := flat_layout({0, 0})
-	subsectors: [SECTOR_ROWS][SECTOR_COLUMNS]Subsector
+new_sector :: proc() -> (sector: Sector, err: Error) {
+	sector.layout = flat_layout({0, 0})
 
 	for y in 0 ..< SECTOR_ROWS {
 		for x in 0 ..< SECTOR_COLUMNS {
 			hex := qoffset_to_cube(new_offset(f32(x) * SUBSECTOR_COLUMNS, f32(y) * SUBSECTOR_ROWS))
-			origin := hex_to_pixel(layout, hex)
+			origin := hex_to_pixel(sector.layout, hex)
 
-			subsectors[y][x] = new_subsector(layout, origin)
+			sector.subsectors[y][x] = new_subsector(sector.layout, origin) or_return
 		}
 	}
 
-	return {
-		center = grid_center(layout, SECTOR_WIDTH, SECTOR_HEIGHT),
-		layout = layout,
-		subsectors = subsectors,
-		visible = true,
-	}
+	sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT)
+	sector.visible = true
+
+	return
 }
 
 destroy_sector :: proc(sector: Sector) -> Error {
@@ -96,9 +93,13 @@ draw_hovered_hex :: proc(layout: Layout, camera: Camera) {
 }
 
 draw_sector_title :: proc(sector: Sector, camera: Camera) -> Error {
-	color := fade_color(rl.WHITE, camera.zoom, 0.5, 0.25)
-
-	draw_text(sector.name, sector.center, SECTOR_TITLE_SIZE, SECTOR_TITLE_SPACING, color) or_return
+	draw_text(
+		sector.name,
+		sector.center,
+		SECTOR_TITLE_SIZE,
+		SECTOR_TITLE_SPACING,
+		fade_color(rl.WHITE, camera.zoom, 0.5, 0.25),
+	) or_return
 
 	return nil
 }

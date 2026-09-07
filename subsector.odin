@@ -6,7 +6,6 @@
 
 package main
 
-import "core:math"
 import rl "vendor:raylib"
 
 SUBSECTOR_COLUMNS :: 8
@@ -23,13 +22,11 @@ Subsector :: struct {
 	visible: bool,
 }
 
-new_subsector :: proc(layout: Layout, origin: Point) -> Subsector {
+new_subsector :: proc(layout: Layout, origin: Point) -> (subsector: Subsector, err: Error) {
 	left := 0
 	right := SUBSECTOR_COLUMNS
 	top := 0
 	bottom := SUBSECTOR_ROWS - 1
-
-	systems: [SUBSECTOR_ROWS][SUBSECTOR_COLUMNS]System
 
 	for q := left; q < right; q += 1 {
 		q_offset := q >> 1
@@ -41,19 +38,16 @@ new_subsector :: proc(layout: Layout, origin: Point) -> Subsector {
 			y := i32(offset.y)
 
 			system_index := hex_index(hex + pixel_to_hex_rounded(layout, origin))
-			systems[y][x] = new_system(hex, system_index)
+			subsector.systems[y][x] = new_system(hex, system_index) or_return
 		}
 	}
 
-	subsector_layout := layout
-	subsector_layout.origin = origin
+	subsector.layout = layout
+	subsector.layout.origin = origin
+	subsector.center = grid_center(subsector.layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS)
+	subsector.visible = true
 
-	return {
-		center = grid_center(subsector_layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS),
-		layout = subsector_layout,
-		systems = systems,
-		visible = true,
-	}
+	return
 }
 
 destroy_subsector :: proc(subsector: Subsector) -> Error {
@@ -98,25 +92,24 @@ draw_subsector_border :: proc(subsector: Subsector) {
 		qoffset_to_cube(new_offset(SUBSECTOR_COLUMNS - 1, SUBSECTOR_ROWS - 1)),
 	)
 
-	x := p1.x - HEX_SIZE / (4.0 / 3.0)
-	y := p1.y - HEX_SIZE * (math.SQRT_THREE / 2.0)
-
-	width := p2.x - p1.x + HEX_SIZE * 1.5
-	height := p2.y - p1.y + HEX_SIZE * (math.SQRT_THREE / 2.0)
-
-	rectangle := new_rectangle(x, y, width, height)
-	draw_rectangle(rectangle, rl.GRAY)
+	draw_rectangle(
+		new_rectangle(
+			p1.x - HEX_SIZE / (4.0 / 3.0),
+			p1.y - HEX_SIZE * subsector.layout.orientation.f[0][1],
+			p2.x - p1.x + HEX_SIZE * 1.5,
+			p2.y - p1.y + HEX_SIZE * subsector.layout.orientation.f[0][1],
+		),
+		rl.GRAY,
+	)
 }
 
 draw_subsector_title :: proc(subsector: Subsector, camera: Camera) -> Error {
-	color := fade_color(rl.WHITE, camera.zoom, 0.5, 0.25)
-
 	draw_text(
 		subsector.name,
 		subsector.center,
 		SUBSECTOR_TITLE_SIZE,
 		SUBSECTOR_TITLE_SPACING,
-		color,
+		fade_color(rl.WHITE, camera.zoom, 0.5, 0.25),
 	) or_return
 
 	return nil

@@ -16,21 +16,10 @@ test_new_hex :: proc(t: ^testing.T) {
 
 @(test)
 test_hex_index :: proc(t: ^testing.T) {
-	index := hex_index(new_hex(0, 0, 0))
-	testing.expect_value(t, index, "0101")
-	delete(index)
-
-	index = hex_index(new_hex(1, 0, -1))
-	testing.expect_value(t, index, "0201")
-	delete(index)
-
-	index = hex_index(new_hex(0, 1, -1))
-	testing.expect_value(t, index, "0102")
-	delete(index)
-
-	index = hex_index(new_hex(1, 1, -2))
-	testing.expect_value(t, index, "0202")
-	delete(index)
+	testing.expect_value(t, hex_index(new_hex(0, 0, 0)), "0101")
+	testing.expect_value(t, hex_index(new_hex(1, 0, -1)), "0201")
+	testing.expect_value(t, hex_index(new_hex(0, 1, -1)), "0102")
+	testing.expect_value(t, hex_index(new_hex(1, 1, -2)), "0202")
 }
 
 @(test)

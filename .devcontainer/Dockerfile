@@ -19,6 +19,7 @@ RUN dnf copr enable -y sisyphus1813/odin-lang \
     mesa-libGL-devel-26.1.8 \
     odin-lang-2026.09 \
     ols-2026.08 \
+    perf-7.1.13 \
     yamllint-1.38.0 \
     && dnf clean all
 RUN useradd -m developer

@@ -11,6 +11,7 @@ import "core:math"
 import rl "vendor:raylib"
 
 HEX_SIZE :: 64
+HALF_HEX :: HEX_SIZE / 2
 
 Hex :: rl.Vector3
 
@@ -42,7 +43,7 @@ hex_index :: proc(hex: Hex) -> Text {
 	x := i32(offset.x + 1)
 	y := i32(offset.y + 1)
 
-	return fmt.aprintf("%02d%02d", x, y)
+	return fmt.tprintf("%02d%02d", x, y)
 }
 
 hex_lerp :: proc(a, b: Hex, t: f32) -> Hex {
@@ -85,11 +86,13 @@ hex_round :: proc(hex: Hex) -> Hex {
 }
 
 draw_hex :: proc(layout: Layout, hex: Hex, color: Color, fill := false) {
-	center := hex_to_pixel(layout, hex)
+	if color.a != 0 {
+		center := hex_to_pixel(layout, hex)
 
-	if fill {
-		rl.DrawPoly(center, 6, HEX_SIZE, 0, color)
-	} else {
-		rl.DrawPolyLines(center, 6, HEX_SIZE, 0, color)
+		if fill {
+			rl.DrawPoly(center, 6, HEX_SIZE, 0, color)
+		} else {
+			rl.DrawPolyLines(center, 6, HEX_SIZE, 0, color)
+		}
 	}
 }

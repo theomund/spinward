@@ -6,6 +6,7 @@
 
 package main
 
+import "base:runtime"
 import "core:container/queue"
 import "core:encoding/csv"
 import "core:encoding/xml"
@@ -17,94 +18,51 @@ import "core:strings"
 
 Reader :: csv.Reader
 
-new_reader :: proc() -> Reader {
-	return {
-		comma = '\t',
-		comment = '#',
-		fields_per_record = -1,
-		reuse_record = true,
-		reuse_record_buffer = true,
-	}
-}
-
-destroy_reader :: proc(reader: ^Reader) {
-	csv.reader_destroy(reader)
-}
-
 read_sectors :: proc() -> (sectors: [dynamic]Sector, err: Error) {
 	assets := #load_directory("assets")
 
 	for asset in assets {
 		if asset.name == "M1105.xml" {
-			document := xml.parse(asset.data) or_return
-			defer xml.destroy(document)
-
-			borders_id, sector_id, routes_id, subsectors_id: u32
+			document := xml.parse(asset.data, allocator = context.temp_allocator) or_return
 
 			sector: Sector
 			defer destroy_sector(sector)
 
-			data_read: bool
 			x, y: Text
 
 			for element, index in document.elements {
-				if element.ident == "Sector" {
-					if data_read {
-						if x != "" && y != "" {
-							read_coords(x, y, &sector)
-						}
-
-						append(&sectors, sector) or_return
-					} else {
-						destroy_sector(sector) or_return
-					}
-
-					data_read = false
-					sector = new_sector()
-					sector_id = u32(index)
-				} else if element.parent == sector_id {
-					switch element.ident {
-					case "Borders":
-						borders_id = u32(index)
-					case "DataFile":
-						for file in assets {
-							if file.name == read_value(element) {
-								switch filepath.ext(file.name) {
-								case ".tab":
-									read_tab(&sector, Text(file.data)) or_return
-								}
-
-								data_read = true
-							}
-						}
-					case "MetadataFile":
-						for file in assets {
-							if file.name == read_value(element) {
-								switch filepath.ext(file.name) {
-								case ".xml":
-									read_xml(&sector, file.data, &x, &y) or_return
-								}
-							}
-						}
-					case "Name":
-						if sector.name == "" {
-							read_name(element, &sector) or_return
-						}
-					case "Routes":
-						routes_id = u32(index)
-					case "Subsectors":
-						subsectors_id = u32(index)
-					case "X":
-						x = read_value(element)
-					case "Y":
-						y = read_value(element)
-					}
-				} else if element.parent == borders_id && element.ident == "Border" {
+				switch element.ident {
+				case "Border":
 					read_border(element, &sector) or_return
-				} else if element.parent == routes_id && element.ident == "Route" {
+				case "DataFile":
+					for file in assets {
+						if file.name == read_value(element) && filepath.ext(file.name) == ".tab" {
+							read_tab(&sector, Text(file.data)) or_return
+						}
+					}
+				case "MetadataFile":
+					for file in assets {
+						if file.name == read_value(element) && filepath.ext(file.name) == ".xml" {
+							read_xml(file.data, &sector, &x, &y) or_return
+						}
+					}
+				case "Name":
+					read_name(element, &sector) or_return
+				case "Route":
 					read_route(element, &sector) or_return
-				} else if element.parent == subsectors_id && element.ident == "Subsector" {
+				case "Sector":
+					if x != "" && y != "" {
+						read_coords(x, y, &sector) or_return
+						append(&sectors, sector) or_return
+					}
+
+					sector = new_sector() or_return
+				case "Subsector":
 					read_subsector(element, &sector) or_return
+				case "X":
+					x = read_value(element)
+				case "Y":
+					y = read_value(element)
 				}
 			}
 
@@ -116,8 +74,14 @@ read_sectors :: proc() -> (sectors: [dynamic]Sector, err: Error) {
 }
 
 read_tab :: proc(sector: ^Sector, data: Text) -> Error {
-	reader := new_reader()
-	defer destroy_reader(&reader)
+	reader := Reader {
+		comma               = '\t',
+		comment             = '#',
+		fields_per_record   = -1,
+		reuse_record        = true,
+		reuse_record_buffer = true,
+	}
+	defer csv.reader_destroy(&reader)
 
 	csv.reader_init_with_string(&reader, data)
 
@@ -142,18 +106,15 @@ read_tab :: proc(sector: ^Sector, data: Text) -> Error {
 	return nil
 }
 
-read_xml :: proc(sector: ^Sector, data: []u8, x, y: ^Text) -> Error {
-	document := xml.parse(data) or_return
-	defer xml.destroy(document)
+read_xml :: proc(data: []u8, sector: ^Sector, x, y: ^Text) -> Error {
+	document := xml.parse(data, allocator = context.temp_allocator) or_return
 
 	for element in document.elements {
 		switch element.ident {
 		case "Border":
 			read_border(element, sector) or_return
 		case "Name":
-			if sector.name == "" {
-				read_name(element, sector) or_return
-			}
+			read_name(element, sector) or_return
 		case "Route":
 			read_route(element, sector) or_return
 		case "Subsector":
@@ -201,11 +162,8 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	value, _ = strings.replace_all(value, "  ", " ", context.temp_allocator)
 	borders := strings.split(value, " ", context.temp_allocator) or_return
 
-	xs: [dynamic]int
-	defer delete(xs)
-
-	ys: [dynamic]int
-	defer delete(ys)
+	xs := make([dynamic]int, 0, context.temp_allocator)
+	ys := make([dynamic]int, 0, context.temp_allocator)
 
 	for border in borders {
 		x, y := system_index(border) or_return
@@ -228,8 +186,7 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	max_y += 1
 
 	flood: queue.Queue(^System)
-	queue.init(&flood) or_return
-	defer queue.destroy(&flood)
+	queue.init(&flood, allocator = context.temp_allocator) or_return
 
 	for i := min_x; i < max_x; i += 1 {
 		if system := get_system(sector, i, min_y); !system.visited {
@@ -251,17 +208,11 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 
 	for queue.len(flood) != 0 {
 		current := queue.pop_front(&flood)
-
-		cx, cy := system_index(current.index) or_return
-		current_hex := qoffset_to_cube({f32(cx), f32(cy)})
+		current_hex := qoffset_to_cube({f32(current.x), f32(current.y)})
 
 		for i in 0 ..= 5 {
-			neighbor_hex := hex_neighbor(current_hex, i)
-			neighbor_offset := qoffset_from_cube(neighbor_hex)
-
-			nx := int(neighbor_offset.x)
-			ny := int(neighbor_offset.y)
-			neighbor_system := get_system(sector, nx, ny)
+			neighbor_offset := qoffset_from_cube(hex_neighbor(current_hex, i))
+			neighbor_system := get_system(sector, int(neighbor_offset.x), int(neighbor_offset.y))
 
 			if !neighbor_system.visited {
 				neighbor_system.visited = true
@@ -284,8 +235,9 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 }
 
 read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
-	value := read_value(element)
-	sector.name = new_text(value) or_return
+	if sector.name == "" {
+		sector.name = new_text(read_value(element)) or_return
+	}
 
 	return nil
 }
