@@ -2617,7 +2617,7 @@ Left:   0041 0040 0039 0038 0037 0036 0035 0034 0033 0032 0031 0030 0029 0028 00
     <Y>5</Y>
     <X>-8</X>
     <Name Lang="as">Ohieraoi</Name>
-    <DataFile Source="Solomani and Aslan" Author="Leigh Heron" Ref="https://travellermap.com/data/ohieraoi" Type="TabDelimited">ohieraoi.tab</DataFile> 
+    <DataFile Source="Solomani and Aslan" Author="Leigh Heron" Ref="https://travellermap.com/data/ohieraoi" Type="TabDelimited">ohieraoi.tab</DataFile>
     <Subsectors>
       <Subsector Index="A">Ol</Subsector>
       <Subsector Index="B">Irluikaei</Subsector>
@@ -3131,11 +3131,13 @@ Left:   0041 0040 0039 0038 0037 0036 0035 0034 0033 0032 0031 0030 0029 0028 00
     <X>-3</X>
     <Name Lang="as" Publisher="HIWG">Elyetleisiyea</Name>
   </Sector>
-  <Sector>
+  <Sector Abbreviation="Ahri" Tags="Unofficial">
     <Y>6</Y>
     <X>-2</X>
     <Name Lang="as" Source="GURPS Traveller: Alien Races 2">Ahriman</Name>
     <Name Lang="as" Publisher="HIWG">Eose'o</Name>
+    <DataFile Author="Leigh Heron" Source="GURPS Traveller: Alien Races 2" Milieu="M1105" Type="TabDelimited">Ahriman.tab</DataFile>
+    <MetadataFile Author="Leigh Heron">Ahriman.xml</MetadataFile>
   </Sector>
   <Sector>
     <Y>6</Y>
@@ -3172,13 +3174,13 @@ Left:   0041 0040 0039 0038 0037 0036 0035 0034 0033 0032 0031 0030 0029 0028 00
   <Sector>
     <Y>6</Y>
     <X>4</X>
-    <Name Lang="hv" Publisher="HIWG">Wrence</Name> 
+    <Name Lang="hv" Publisher="HIWG">Wrence</Name>
   </Sector>
   <Sector>
     <Y>6</Y>
     <X>5</X>
     <DataFile Source="General Turokan's Expedition to the Rim" Type="SecondSurvey" Author="Bari Z. Stafford Sr." Ref="https://web.archive.org/web/20030406042613/http://www.geocities.com/traveller_core_route/proj004/proj004.html">Muarne.txt</DataFile>
-    <MetadataFile>Muarne.xml</MetadataFile> 
+    <MetadataFile>Muarne.xml</MetadataFile>
   </Sector>
   <Sector>
     <Y>6</Y>
