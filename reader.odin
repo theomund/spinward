@@ -40,7 +40,8 @@ read_sectors :: proc() -> (sectors: [dynamic]Sector, err: Error) {
 					}
 				case "MetadataFile":
 					for file in assets {
-						if strings.to_lower(file.name) == strings.to_lower(read_value(element)) {
+						if strings.to_lower(file.name, context.temp_allocator) ==
+						   strings.to_lower(read_value(element), context.temp_allocator) {
 							read_xml(file.data, &sector, &x, &y) or_return
 						}
 					}
