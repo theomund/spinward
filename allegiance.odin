@@ -65,9 +65,11 @@ Allegiance :: enum {
 	Strend_Cluster,
 	Sword_Worlds_Confederacy,
 	Sylean_Worlds,
+	The_Two_Thousand_Worlds,
 	Third_Imperium,
 	Thirz_Empire,
 	Thoengling_Empire,
+	Two_Thousand_Worlds,
 	Union_Of_Harmony,
 	United_Followers_Of_Augurgh,
 	Vegan_Autonomous_District,
@@ -139,9 +141,11 @@ allegiances := [Allegiance]Allegiance_Data {
 	.Stormhaven_Republic            = {rl.BLUE, "Stormhaven Republic"},
 	.Strend_Cluster                 = {rl.BROWN, "Strend Cluster"},
 	.Sword_Worlds_Confederacy       = {rl.DARKBLUE, "Sword Worlds Confederacy"},
+	.The_Two_Thousand_Worlds        = {rl.DARKGREEN, "The Two Thousand Worlds"},
 	.Third_Imperium                 = {rl.RED, "Third Imperium"},
 	.Thirz_Empire                   = {rl.GREEN, "Thirz Empire"},
 	.Thoengling_Empire              = {rl.GREEN, "Thoengling Empire"},
+	.Two_Thousand_Worlds            = {rl.DARKGREEN, "Two Thousand Worlds"},
 	.Unaligned                      = {rl.BLANK, ""},
 	.Union_Of_Harmony               = {rl.WHITE, "Union of Harmony"},
 	.United_Followers_Of_Augurgh    = {rl.GREEN, "United Followers of Augurgh"},
@@ -282,12 +286,16 @@ new_allegiance :: proc(text: Text) -> Allegiance {
 		return .Sword_Worlds_Confederacy
 	case "ImSy":
 		return .Sylean_Worlds
+	case "Kk":
+		return .The_Two_Thousand_Worlds
 	case "ImDa", "ImDc", "ImDd", "ImDg", "ImDi", "ImDs", "ImDv":
 		return .Third_Imperium
 	case "VTzE":
 		return .Thirz_Empire
 	case "VThE":
 		return .Thoengling_Empire
+	case "KkTw":
+		return .Two_Thousand_Worlds
 	case "UnHa":
 		return .Union_Of_Harmony
 	case "VAug":
@@ -298,7 +306,7 @@ new_allegiance :: proc(text: Text) -> Allegiance {
 		return .Windhorn_Pact_Of_Two
 	case "SoWu":
 		return .Wuan_Technology_Association
-	case "ZhCo", "ZhIN":
+	case "ZhCa", "ZhCo", "ZhIN", "ZhMe":
 		return .Zhodani_Consulate
 	case "ZyCo":
 		return .Zydarian_Codominium

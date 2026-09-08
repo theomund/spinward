@@ -40,7 +40,7 @@ read_sectors :: proc() -> (sectors: [dynamic]Sector, err: Error) {
 					}
 				case "MetadataFile":
 					for file in assets {
-						if file.name == read_value(element) && filepath.ext(file.name) == ".xml" {
+						if strings.to_lower(file.name) == strings.to_lower(read_value(element)) {
 							read_xml(file.data, &sector, &x, &y) or_return
 						}
 					}
@@ -83,20 +83,32 @@ read_tab :: proc(sector: ^Sector, data: Text) -> Error {
 
 	csv.reader_init_with_string(&reader, data)
 
+	hex_index, allegiance_index, name_index: u32
+
 	for record, _, err in csv.iterator_next(&reader) {
 		if err != nil {
 			return err
 		}
 
 		if record[0] == "Sector" {
+			allegiance_index = 9
+			hex_index = 2
+			name_index = 3
+
+			continue
+		} else if record[0] == "Hex" {
+			allegiance_index = 7
+			hex_index = 0
+			name_index = 1
+
 			continue
 		}
 
-		offset := system_index(record[2]) or_return
+		offset := system_index(record[hex_index]) or_return
 		system := get_system(sector, offset)
 
-		system.allegiance = new_allegiance(record[9])
-		system.name = new_text(record[3] != "" ? record[3] : "????") or_return
+		system.allegiance = new_allegiance(record[allegiance_index])
+		system.name = new_text(record[name_index] != "" ? record[name_index] : "????") or_return
 		system.world = true
 	}
 
