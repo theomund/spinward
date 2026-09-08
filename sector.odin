@@ -26,19 +26,20 @@ Sector :: struct {
 	visible:    bool,
 }
 
-new_sector :: proc() -> (sector: Sector) {
+new_sector :: proc() -> (sector: Sector, err: Error) {
 	sector.layout = flat_layout({0, 0})
-	sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT)
-	sector.visible = true
 
 	for y in 0 ..< SECTOR_ROWS {
 		for x in 0 ..< SECTOR_COLUMNS {
-			hex := qoffset_to_cube(new_offset(f32(x) * SUBSECTOR_COLUMNS, f32(y) * SUBSECTOR_ROWS))
+			hex := qoffset_to_cube({f32(x) * SUBSECTOR_COLUMNS, f32(y) * SUBSECTOR_ROWS})
 			origin := hex_to_pixel(sector.layout, hex)
 
-			sector.subsectors[y][x] = new_subsector(sector.layout, origin)
+			sector.subsectors[y][x] = new_subsector(sector.layout, origin) or_return
 		}
 	}
+
+	sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT)
+	sector.visible = true
 
 	return
 }
@@ -52,7 +53,7 @@ destroy_sector :: proc(sector: Sector) -> Error {
 		}
 	}
 
-	delete(sector.routes)
+	delete(sector.routes) or_return
 
 	return nil
 }
@@ -83,8 +84,7 @@ draw_sector :: proc(sector: Sector, camera: Camera) -> Error {
 }
 
 draw_hovered_hex :: proc(layout: Layout, camera: Camera) {
-	position := rl.GetScreenToWorld2D(rl.GetMousePosition(), camera)
-	hovered := pixel_to_hex_rounded(layout, position)
+	hovered := pixel_to_hex_rounded(layout, rl.GetScreenToWorld2D(rl.GetMousePosition(), camera))
 
 	if contains_hex(hovered) {
 		draw_hex(layout, hovered, rl.YELLOW)
@@ -92,9 +92,13 @@ draw_hovered_hex :: proc(layout: Layout, camera: Camera) {
 }
 
 draw_sector_title :: proc(sector: Sector, camera: Camera) -> Error {
-	color := fade_color(rl.WHITE, camera.zoom, 0.5, 0.25)
-
-	draw_text(sector.name, sector.center, SECTOR_TITLE_SIZE, SECTOR_TITLE_SPACING, color) or_return
+	draw_text(
+		sector.name,
+		sector.center,
+		SECTOR_TITLE_SIZE,
+		SECTOR_TITLE_SPACING,
+		fade_color(rl.WHITE, camera.zoom, 0.5, 0.25),
+	) or_return
 
 	return nil
 }

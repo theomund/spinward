@@ -13,6 +13,8 @@ WINDOW_HEIGHT :: 1080
 WINDOW_TITLE :: "Spinward"
 
 new_window :: proc() -> Error {
+	rl.SetTraceLogCallback(log_callback)
+
 	rl.SetConfigFlags({.MSAA_4X_HINT})
 
 	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)
@@ -24,7 +26,7 @@ destroy_window :: proc() {
 	rl.CloseWindow()
 }
 
-render :: proc(sectors: map[Text]Sector, camera: ^Camera) -> Error {
+render :: proc(sectors: []Sector, camera: ^Camera) -> Error {
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
 
@@ -36,7 +38,7 @@ render :: proc(sectors: map[Text]Sector, camera: ^Camera) -> Error {
 
 		check_visibility(sectors, camera^)
 
-		for _, sector in sectors {
+		for sector in sectors {
 			if sector.visible {
 				draw_sector(sector, camera^) or_return
 			}
@@ -47,6 +49,8 @@ render :: proc(sectors: map[Text]Sector, camera: ^Camera) -> Error {
 		rl.DrawFPS(16, WINDOW_HEIGHT - 32)
 
 		rl.EndDrawing()
+
+		free_all(context.temp_allocator) or_return
 	}
 
 	return nil

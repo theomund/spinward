@@ -10,7 +10,7 @@ import "core:testing"
 
 @(test)
 test_new_sector :: proc(t: ^testing.T) {
-	sector := new_sector()
+	sector, _ := new_sector()
 	defer destroy_sector(sector)
 
 	testing.expect_value(t, sector.name, "")

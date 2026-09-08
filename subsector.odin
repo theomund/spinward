@@ -6,7 +6,6 @@
 
 package main
 
-import "core:math"
 import rl "vendor:raylib"
 
 SUBSECTOR_COLUMNS :: 8
@@ -23,31 +22,30 @@ Subsector :: struct {
 	visible: bool,
 }
 
-new_subsector :: proc(layout: Layout, origin: Point) -> (subsector: Subsector) {
-	subsector.layout = layout
-	subsector.layout.origin = origin
-	subsector.center = grid_center(subsector.layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS)
-	subsector.visible = true
-
-	left := f32(0)
-	right := f32(SUBSECTOR_COLUMNS)
-	top := f32(0)
-	bottom := f32(SUBSECTOR_ROWS - 1)
+new_subsector :: proc(layout: Layout, origin: Point) -> (subsector: Subsector, err: Error) {
+	left := 0
+	right := SUBSECTOR_COLUMNS
+	top := 0
+	bottom := SUBSECTOR_ROWS - 1
 
 	for q := left; q < right; q += 1 {
-		q_offset := math.floor(q / 2.0)
+		q_offset := q >> 1
 		for r := top - q_offset; r <= bottom - q_offset; r += 1 {
-			hex := new_hex(q, r, -q - r)
+			hex := new_hex(f32(q), f32(r), f32(-q - r))
 			offset := qoffset_from_cube(hex)
 
 			x := i32(offset.x)
 			y := i32(offset.y)
 
 			system_index := hex_index(hex + pixel_to_hex_rounded(layout, origin))
-
-			subsector.systems[y][x] = new_system(hex, system_index)
+			subsector.systems[y][x] = new_system(hex, system_index) or_return
 		}
 	}
+
+	subsector.layout = layout
+	subsector.layout.origin = origin
+	subsector.center = grid_center(subsector.layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS)
+	subsector.visible = true
 
 	return
 }
@@ -81,38 +79,30 @@ draw_subsector :: proc(subsector: Subsector, camera: Camera) -> Error {
 		}
 	}
 
-	draw_subsector_border(subsector)
-	draw_subsector_title(subsector, camera) or_return
-
-	return nil
-}
-
-draw_subsector_border :: proc(subsector: Subsector) {
-	p1 := hex_to_pixel(subsector.layout, qoffset_to_cube(new_offset(0, 0)))
+	p1 := hex_to_pixel(subsector.layout, qoffset_to_cube({0, 0}))
 	p2 := hex_to_pixel(
 		subsector.layout,
-		qoffset_to_cube(new_offset(SUBSECTOR_COLUMNS - 1, SUBSECTOR_ROWS - 1)),
+		qoffset_to_cube({SUBSECTOR_COLUMNS - 1, SUBSECTOR_ROWS - 1}),
 	)
 
-	x := p1.x - HEX_SIZE / (4.0 / 3.0)
-	y := p1.y - HEX_SIZE * (math.SQRT_THREE / 2.0)
+	M := subsector.layout.orientation
 
-	width := p2.x - p1.x + HEX_SIZE * 1.5
-	height := p2.y - p1.y + HEX_SIZE * (math.SQRT_THREE / 2.0)
-
-	rectangle := new_rectangle(x, y, width, height)
-	draw_rectangle(rectangle, rl.GRAY)
-}
-
-draw_subsector_title :: proc(subsector: Subsector, camera: Camera) -> Error {
-	color := fade_color(rl.WHITE, camera.zoom, 0.5, 0.25)
+	draw_rectangle(
+		{
+			p1.x - HEX_SIZE / (4.0 / 3.0),
+			p1.y - HEX_SIZE * M.f[0][1],
+			p2.x - p1.x + HEX_SIZE * M.f[0][0],
+			p2.y - p1.y + HEX_SIZE * M.f[0][1],
+		},
+		rl.GRAY,
+	)
 
 	draw_text(
 		subsector.name,
 		subsector.center,
 		SUBSECTOR_TITLE_SIZE,
 		SUBSECTOR_TITLE_SPACING,
-		color,
+		fade_color(rl.WHITE, camera.zoom, 0.5, 0.25),
 	) or_return
 
 	return nil

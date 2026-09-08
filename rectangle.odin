@@ -12,10 +12,6 @@ RECTANGLE_THICKNESS :: 2
 
 Rectangle :: rl.Rectangle
 
-new_rectangle :: proc(x, y, width, height: f32) -> Rectangle {
-	return {x, y, width, height}
-}
-
 draw_rectangle :: proc(rect: Rectangle, color: Color) {
 	rl.DrawRectangleLinesEx(rect, RECTANGLE_THICKNESS, color)
 }

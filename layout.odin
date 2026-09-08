@@ -11,14 +11,6 @@ Layout :: struct {
 	origin, size: Point,
 }
 
-new_layout :: proc(
-	orientation: Orientation,
-	origin: Point,
-	size: Point = {HEX_SIZE, HEX_SIZE},
-) -> Layout {
-	return {orientation, origin, size}
-}
-
 flat_layout :: proc(origin: Point) -> Layout {
-	return new_layout(flat_orientation(), origin)
+	return {flat_orientation(), origin, {HEX_SIZE, HEX_SIZE}}
 }

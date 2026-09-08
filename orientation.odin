@@ -10,20 +10,14 @@ import "core:math"
 import "core:math/linalg"
 
 Orientation :: struct {
-	f:           matrix[2, 2]f32,
-	b:           matrix[2, 2]f32,
-	start_angle: f32,
-}
-
-new_orientation :: proc(f: matrix[2, 2]f32, start_angle: f32 = 0.0) -> Orientation {
-	return {f, linalg.inverse(f), start_angle}
+	f, b: matrix[2, 2]f32,
 }
 
 flat_orientation :: proc() -> Orientation {
 	f := matrix[2, 2]f32{
-		3.0 / 2.0, 0.0,
+		1.5, 0.0,
 		math.SQRT_THREE / 2.0, math.SQRT_THREE,
 	}
 
-	return new_orientation(f)
+	return {f, linalg.inverse(f)}
 }

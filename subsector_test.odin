@@ -13,7 +13,7 @@ test_new_subsector :: proc(t: ^testing.T) {
 	origin := Point{0, 0}
 	layout := flat_layout({0, 0})
 
-	subsector := new_subsector(layout, origin)
+	subsector, _ := new_subsector(layout, origin)
 	defer destroy_subsector(subsector)
 
 	testing.expect_value(t, subsector.name, "")

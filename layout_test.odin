@@ -11,7 +11,7 @@ import "core:testing"
 @(test)
 test_new_layout :: proc(t: ^testing.T) {
 	hex := new_hex(3, 4, -7)
-	layout := new_layout(flat_orientation(), new_point(10.0, 15.0), new_point(35.0, 71.0))
+	layout := flat_layout({10.0, 15.0})
 
 	testing.expect_value(t, pixel_to_hex_rounded(layout, hex_to_pixel(layout, hex)), hex)
 }
