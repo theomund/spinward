@@ -335,14 +335,20 @@ read_coords :: proc(x_text, y_text: Text, sector: ^Sector) -> Error {
 	}
 	sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT) or_return
 
-	for &row in sector.subsectors {
-		for &subsector in row {
+	for &subsector_row in sector.subsectors {
+		for &subsector in subsector_row {
 			subsector.layout.origin += sector.layout.origin
 			subsector.center = grid_center(
 				subsector.layout,
 				SUBSECTOR_COLUMNS,
 				SUBSECTOR_ROWS,
 			) or_return
+
+			for &system_row in subsector.systems {
+				for &system in system_row {
+					system.origin += subsector.layout.origin
+				}
+			}
 		}
 	}
 

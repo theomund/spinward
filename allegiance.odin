@@ -322,5 +322,5 @@ draw_allegiance :: proc(layout: Layout, system: System, camera: Camera) {
 		color.a = 64
 	}
 
-	draw_hex(layout, system.hex, color, true)
+	draw_hex(system.origin, color, true)
 }

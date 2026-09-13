@@ -87,14 +87,12 @@ hex_round :: proc(hex: Hex) -> (Hex, Error) {
 	return new_hex(q, r, s)
 }
 
-draw_hex :: proc(layout: Layout, hex: Hex, color: Color, fill := false) {
+draw_hex :: proc(origin: Point, color: Color, fill := false) {
 	if color.a != 0 {
-		center := hex_to_pixel(layout, hex)
-
 		if fill {
-			rl.DrawPoly(center, 6, HEX_SIZE, 0, color)
+			rl.DrawPoly(origin, 6, HEX_SIZE, 0, color)
 		} else {
-			rl.DrawPolyLines(center, 6, HEX_SIZE, 0, color)
+			rl.DrawPolyLines(origin, 6, HEX_SIZE, 0, color)
 		}
 	}
 }

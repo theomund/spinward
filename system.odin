@@ -18,18 +18,11 @@ WORLD_SIZE :: 12
 System :: struct {
 	name:       Text,
 	allegiance: Allegiance,
-	hex:        Hex,
 	label:      Text,
 	offset:     Offset,
+	origin:     Point,
 	visited:    bool,
 	world:      bool,
-}
-
-new_system :: proc(hex: Hex, index: Text) -> (system: System, err: Error) {
-	system.hex = hex
-	system.offset = system_index(index) or_return
-
-	return
 }
 
 destroy_system :: proc(system: System) -> Error {
@@ -59,17 +52,15 @@ get_system :: proc(sector: ^Sector, offset: Offset) -> ^System {
 }
 
 draw_system :: proc(layout: Layout, system: System, camera: Camera) -> Error {
-	center := hex_to_pixel(layout, system.hex)
-
-	draw_hex(layout, system.hex, fade_color(rl.DARKGRAY, camera.zoom, 0.25, 0.5))
+	draw_hex(system.origin, fade_color(rl.DARKGRAY, camera.zoom, 0.25, 0.5))
 
 	if system.world {
-		rl.DrawCircleV(center, WORLD_SIZE, rl.BLUE)
+		rl.DrawCircleV(system.origin, WORLD_SIZE, rl.BLUE)
 	}
 
 	draw_text(
 		system.name,
-		center - {0, HALF_HEX},
+		system.origin - {0, HALF_HEX},
 		FONT_SIZE,
 		FONT_SPACING,
 		fade_color(rl.WHITE, camera.zoom, 0.25, 0.5),
@@ -77,7 +68,7 @@ draw_system :: proc(layout: Layout, system: System, camera: Camera) -> Error {
 
 	draw_text(
 		fmt.tprintf("%02d%02d", int(system.offset.x + 1), int(system.offset.y + 1)),
-		center + {0, HALF_HEX},
+		system.origin + {0, HALF_HEX},
 		FONT_SIZE,
 		FONT_SPACING,
 		fade_color(rl.DARKGRAY, camera.zoom, 0.25, 0.5),
@@ -85,7 +76,7 @@ draw_system :: proc(layout: Layout, system: System, camera: Camera) -> Error {
 
 	draw_text(
 		system.label,
-		center,
+		system.origin,
 		SUBSECTOR_TITLE_SIZE,
 		SUBSECTOR_TITLE_SPACING,
 		fade_color(rl.YELLOW, camera.zoom, 0.5, 0.25),

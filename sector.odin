@@ -90,7 +90,7 @@ draw_hovered_hex :: proc(layout: Layout, camera: Camera) -> Error {
 	) or_return
 
 	if contains_hex(hovered) {
-		draw_hex(layout, hovered, rl.YELLOW)
+		draw_hex(hex_to_pixel(layout, hovered), rl.YELLOW)
 	}
 
 	return nil

@@ -38,8 +38,11 @@ new_subsector :: proc(layout: Layout, origin: Point) -> (subsector: Subsector, e
 			y := i32(offset.y)
 
 			rounded := pixel_to_hex_rounded(layout, origin) or_return
-			system_index := hex_index(hex + rounded)
-			subsector.systems[y][x] = new_system(hex, system_index) or_return
+
+			subsector.systems[y][x] = System {
+				origin = hex_to_pixel(layout, hex),
+				offset = offset + qoffset_from_cube(rounded),
+			}
 		}
 	}
 
