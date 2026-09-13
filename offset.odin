@@ -19,7 +19,7 @@ qoffset_from_cube :: proc(hex: Hex) -> Offset {
 	return {col, row}
 }
 
-qoffset_to_cube :: proc(offset: Offset) -> Hex {
+qoffset_to_cube :: proc(offset: Offset) -> (Hex, Error) {
 	q := offset.x
 	r := offset.y - (q + ODD_OFFSET * f32(i32(q) & 1)) / 2
 	s := -q - r

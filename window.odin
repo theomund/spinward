@@ -26,21 +26,23 @@ destroy_window :: proc() {
 	rl.CloseWindow()
 }
 
-render :: proc(sectors: []Sector, camera: ^Camera) -> Error {
+render :: proc(sectors: []Sector) -> Error {
+	camera := new_camera()
+
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
 
 		rl.ClearBackground(rl.BLACK)
 
-		poll_camera(camera)
+		poll_camera(&camera)
 
-		rl.BeginMode2D(camera^)
+		rl.BeginMode2D(camera)
 
-		check_visibility(sectors, camera^)
+		check_visibility(sectors, camera)
 
 		for sector in sectors {
 			if sector.visible {
-				draw_sector(sector, camera^) or_return
+				draw_sector(sector, camera) or_return
 			}
 		}
 

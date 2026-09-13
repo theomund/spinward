@@ -7,10 +7,10 @@
 package main
 
 Layout :: struct {
-	orientation:  Orientation,
-	origin, size: Point,
+	orientation: Orientation,
+	origin:      Point,
 }
 
 flat_layout :: proc(origin: Point) -> Layout {
-	return {flat_orientation(), origin, {HEX_SIZE, HEX_SIZE}}
+	return {flat_orientation(), origin}
 }

@@ -315,12 +315,12 @@ new_allegiance :: proc(text: Text) -> Allegiance {
 	}
 }
 
-draw_allegiance :: proc(layout: Layout, system: System, camera: Camera) {
+draw_allegiance :: proc(system: System, camera: Camera) {
 	color := allegiances[system.allegiance].color
 
 	if color != rl.BLANK && color != rl.RAYWHITE {
 		color.a = 64
 	}
 
-	draw_hex(layout, system.hex, color, true)
+	draw_hex(system.origin, color, true)
 }

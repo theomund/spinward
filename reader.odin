@@ -222,7 +222,7 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 
 	for queue.len(flood) != 0 {
 		current := queue.pop_front(&flood)
-		current_hex := qoffset_to_cube(current.offset)
+		current_hex := qoffset_to_cube(current.offset) or_return
 
 		for i in 0 ..= 5 {
 			neighbor_offset := qoffset_from_cube(hex_neighbor(current_hex, i))
@@ -333,12 +333,26 @@ read_coords :: proc(x_text, y_text: Text, sector: ^Sector) -> Error {
 		x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
 		y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
 	}
-	sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT)
+	sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT) or_return
+	sector.rectangle.x += sector.layout.origin.x
+	sector.rectangle.y += sector.layout.origin.y
 
-	for &row in sector.subsectors {
-		for &subsector in row {
+	for &subsector_row in sector.subsectors {
+		for &subsector in subsector_row {
 			subsector.layout.origin += sector.layout.origin
-			subsector.center = grid_center(subsector.layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS)
+			subsector.center = grid_center(
+				subsector.layout,
+				SUBSECTOR_COLUMNS,
+				SUBSECTOR_ROWS,
+			) or_return
+			subsector.rectangle.x += sector.layout.origin.x
+			subsector.rectangle.y += sector.layout.origin.y
+
+			for &system_row in subsector.systems {
+				for &system in system_row {
+					system.origin += subsector.layout.origin
+				}
+			}
 		}
 	}
 

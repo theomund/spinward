@@ -21,6 +21,7 @@ Sector :: struct {
 	name:       Text,
 	center:     Point,
 	layout:     Layout,
+	rectangle:  Rectangle,
 	routes:     [dynamic]Route,
 	subsectors: [SECTOR_ROWS][SECTOR_COLUMNS]Subsector,
 	visible:    bool,
@@ -31,14 +32,17 @@ new_sector :: proc() -> (sector: Sector, err: Error) {
 
 	for y in 0 ..< SECTOR_ROWS {
 		for x in 0 ..< SECTOR_COLUMNS {
-			hex := qoffset_to_cube({f32(x) * SUBSECTOR_COLUMNS, f32(y) * SUBSECTOR_ROWS})
-			origin := hex_to_pixel(sector.layout, hex)
+			hex := qoffset_to_cube({f32(x) * SUBSECTOR_COLUMNS, f32(y) * SUBSECTOR_ROWS}) or_return
 
-			sector.subsectors[y][x] = new_subsector(sector.layout, origin) or_return
+			sector.subsectors[y][x] = new_subsector(
+				sector.layout,
+				hex_to_pixel(sector.layout, hex),
+			) or_return
 		}
 	}
 
-	sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT)
+	sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT) or_return
+	sector.rectangle = new_rectangle(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT) or_return
 	sector.visible = true
 
 	return
@@ -83,12 +87,17 @@ draw_sector :: proc(sector: Sector, camera: Camera) -> Error {
 	return nil
 }
 
-draw_hovered_hex :: proc(layout: Layout, camera: Camera) {
-	hovered := pixel_to_hex_rounded(layout, rl.GetScreenToWorld2D(rl.GetMousePosition(), camera))
+draw_hovered_hex :: proc(layout: Layout, camera: Camera) -> Error {
+	hovered := pixel_to_hex_rounded(
+		layout,
+		rl.GetScreenToWorld2D(rl.GetMousePosition(), camera),
+	) or_return
 
 	if contains_hex(hovered) {
-		draw_hex(layout, hovered, rl.YELLOW)
+		draw_hex(hex_to_pixel(layout, hovered), rl.YELLOW)
 	}
+
+	return nil
 }
 
 draw_sector_title :: proc(sector: Sector, camera: Camera) -> Error {
