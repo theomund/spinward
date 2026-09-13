@@ -34,18 +34,8 @@ new_hex :: proc(q, r, s: f32) -> (Hex, Error) {
 	return {q, r, s}, nil
 }
 
-hex_direction :: proc(direction: int) -> Hex {
-	assert(0 <= direction && direction < 6)
-
-	return hex_directions[direction]
-}
-
-hex_lerp :: proc(a, b: Hex, t: f32) -> Hex {
-	return math.lerp(a, b, t)
-}
-
 hex_neighbor :: proc(hex: Hex, direction: int) -> Hex {
-	return hex + hex_direction(direction)
+	return hex + hex_directions[direction]
 }
 
 hex_to_pixel :: proc(layout: Layout, hex: Hex) -> Point {
