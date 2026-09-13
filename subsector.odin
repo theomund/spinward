@@ -73,13 +73,7 @@ subsector_index :: proc(index: Text) -> u8 {
 draw_subsector :: proc(subsector: Subsector, camera: Camera) -> Error {
 	for row in subsector.systems {
 		for system in row {
-			draw_system(subsector.layout, system, camera) or_return
-		}
-	}
-
-	for row in subsector.systems {
-		for system in row {
-			draw_allegiance(subsector.layout, system, camera)
+			draw_system(system, camera) or_return
 		}
 	}
 

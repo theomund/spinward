@@ -51,7 +51,7 @@ get_system :: proc(sector: ^Sector, offset: Offset) -> ^System {
 	return system
 }
 
-draw_system :: proc(layout: Layout, system: System, camera: Camera) -> Error {
+draw_system :: proc(system: System, camera: Camera) -> Error {
 	draw_hex(system.origin, fade_color(rl.DARKGRAY, camera.zoom, 0.25, 0.5))
 
 	if system.world {
@@ -81,6 +81,8 @@ draw_system :: proc(layout: Layout, system: System, camera: Camera) -> Error {
 		SUBSECTOR_TITLE_SPACING,
 		fade_color(rl.YELLOW, camera.zoom, 0.5, 0.25),
 	) or_return
+
+	draw_allegiance(system, camera)
 
 	return nil
 }
