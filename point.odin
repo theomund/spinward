@@ -20,9 +20,8 @@ grid_center :: proc(layout: Layout, width, height: f32) -> (center: Point, err: 
 pixel_to_hex_fractional :: proc(layout: Layout, p: Point) -> (Hex, Error) {
 	M := layout.orientation
 	origin := layout.origin
-	size := layout.size
 
-	pt := Point{(p.x - origin.x) / size.x, (p.y - origin.y) / size.y}
+	pt := Point{(p.x - origin.x) / HEX_SIZE, (p.y - origin.y) / HEX_SIZE}
 
 	q := M.b[0, 0] * pt.x + M.b[0, 1] * pt.y
 	r := M.b[1, 0] * pt.x + M.b[1, 1] * pt.y

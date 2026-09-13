@@ -15,51 +15,14 @@ check_visibility :: proc(sectors: []Sector, camera: Camera) -> Error {
 	screen := Rectangle{p1.x, p1.y, p2.x - p1.x, p2.y - p1.y}
 
 	for &sector in sectors {
-		sector.visible = rectangle_visible(
-			sector.layout,
-			screen,
-			SECTOR_WIDTH,
-			SECTOR_HEIGHT,
-		) or_return
+		sector.visible = rl.CheckCollisionRecs(screen, sector.rectangle)
 
 		for &row in sector.subsectors {
 			for &subsector in row {
-				subsector.visible = rectangle_visible(
-					subsector.layout,
-					screen,
-					SUBSECTOR_COLUMNS,
-					SUBSECTOR_ROWS,
-				) or_return
+				subsector.visible = rl.CheckCollisionRecs(screen, subsector.rectangle)
 			}
 		}
 	}
 
 	return nil
-}
-
-rectangle_visible :: proc(
-	layout: Layout,
-	screen: Rectangle,
-	col, row: f32,
-) -> (
-	visible: bool,
-	err: Error,
-) {
-	p1_hex := qoffset_to_cube({0, 0}) or_return
-	p1 := hex_to_pixel(layout, p1_hex)
-
-	p2_hex := qoffset_to_cube({col - 1, row - 1}) or_return
-	p2 := hex_to_pixel(layout, p2_hex)
-
-	M := layout.orientation
-
-	x := p1.x - HEX_SIZE / (4.0 / 3.0)
-	y := p1.y - HEX_SIZE * M.f[0][1]
-
-	width := p2.x - p1.x + HEX_SIZE * M.f[0][0]
-	height := p2.y - p1.y + HEX_SIZE * M.f[0][1]
-
-	rect := Rectangle{x, y, width, height}
-
-	return rl.CheckCollisionRecs(screen, rect), nil
 }

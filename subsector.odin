@@ -15,31 +15,25 @@ SUBSECTOR_TITLE_SIZE :: SECTOR_TITLE_SIZE / 4
 SUBSECTOR_TITLE_SPACING :: SECTOR_TITLE_SPACING / 4
 
 Subsector :: struct {
-	name:    Text,
-	center:  Point,
-	layout:  Layout,
-	systems: [SUBSECTOR_ROWS][SUBSECTOR_COLUMNS]System,
-	visible: bool,
+	name:      Text,
+	center:    Point,
+	layout:    Layout,
+	rectangle: Rectangle,
+	systems:   [SUBSECTOR_ROWS][SUBSECTOR_COLUMNS]System,
+	visible:   bool,
 }
 
 new_subsector :: proc(layout: Layout, origin: Point) -> (subsector: Subsector, err: Error) {
-	left := 0
-	right := SUBSECTOR_COLUMNS
-	top := 0
-	bottom := SUBSECTOR_ROWS - 1
-
-	for q := left; q < right; q += 1 {
+	for q in 0 ..< SUBSECTOR_COLUMNS {
 		q_offset := q >> 1
-		for r := top - q_offset; r <= bottom - q_offset; r += 1 {
+
+		for r in -q_offset ..< SUBSECTOR_ROWS - q_offset {
 			hex := new_hex(f32(q), f32(r), f32(-q - r)) or_return
 			offset := qoffset_from_cube(hex)
 
-			x := i32(offset.x)
-			y := i32(offset.y)
-
 			rounded := pixel_to_hex_rounded(layout, origin) or_return
 
-			subsector.systems[y][x] = System {
+			subsector.systems[i32(offset.y)][i32(offset.x)] = System {
 				origin = hex_to_pixel(layout, hex),
 				offset = offset + qoffset_from_cube(rounded),
 			}
@@ -49,6 +43,11 @@ new_subsector :: proc(layout: Layout, origin: Point) -> (subsector: Subsector, e
 	subsector.layout = layout
 	subsector.layout.origin = origin
 	subsector.center = grid_center(subsector.layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS) or_return
+	subsector.rectangle = new_rectangle(
+		subsector.layout,
+		SUBSECTOR_COLUMNS,
+		SUBSECTOR_ROWS,
+	) or_return
 	subsector.visible = true
 
 	return
@@ -77,23 +76,7 @@ draw_subsector :: proc(subsector: Subsector, camera: Camera) -> Error {
 		}
 	}
 
-	p1_hex := qoffset_to_cube({0, 0}) or_return
-	p1 := hex_to_pixel(subsector.layout, p1_hex)
-
-	p2_hex := qoffset_to_cube({SUBSECTOR_COLUMNS - 1, SUBSECTOR_ROWS - 1}) or_return
-	p2 := hex_to_pixel(subsector.layout, p2_hex)
-
-	M := subsector.layout.orientation
-
-	draw_rectangle(
-		{
-			p1.x - HEX_SIZE / (4.0 / 3.0),
-			p1.y - HEX_SIZE * M.f[0][1],
-			p2.x - p1.x + HEX_SIZE * M.f[0][0],
-			p2.y - p1.y + HEX_SIZE * M.f[0][1],
-		},
-		rl.GRAY,
-	)
+	draw_rectangle(subsector.rectangle, rl.GRAY)
 
 	draw_text(
 		subsector.name,

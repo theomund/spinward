@@ -9,6 +9,8 @@ package main
 import "core:math"
 import rl "vendor:raylib"
 
+HEX_ROTATION :: 0
+HEX_SIDES :: 6
 HEX_SIZE :: 64
 HALF_HEX :: HEX_SIZE / 2
 
@@ -48,11 +50,10 @@ hex_neighbor :: proc(hex: Hex, direction: int) -> Hex {
 
 hex_to_pixel :: proc(layout: Layout, hex: Hex) -> Point {
 	M := layout.orientation
-	size := layout.size
 	origin := layout.origin
 
-	x := (M.f[0, 0] * hex.x + M.f[0, 1] * hex.y) * size.x
-	y := (M.f[1, 0] * hex.x + M.f[1, 1] * hex.y) * size.y
+	x := (M.f[0, 0] * hex.x + M.f[0, 1] * hex.y) * HEX_SIZE
+	y := (M.f[1, 0] * hex.x + M.f[1, 1] * hex.y) * HEX_SIZE
 
 	return Point{x + origin.x, y + origin.y}
 }
@@ -80,9 +81,9 @@ hex_round :: proc(hex: Hex) -> (Hex, Error) {
 draw_hex :: proc(origin: Point, color: Color, fill := false) {
 	if color.a != 0 {
 		if fill {
-			rl.DrawPoly(origin, 6, HEX_SIZE, 0, color)
+			rl.DrawPoly(origin, HEX_SIDES, HEX_SIZE, HEX_ROTATION, color)
 		} else {
-			rl.DrawPolyLines(origin, 6, HEX_SIZE, 0, color)
+			rl.DrawPolyLines(origin, HEX_SIDES, HEX_SIZE, HEX_ROTATION, color)
 		}
 	}
 }
