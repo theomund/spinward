@@ -31,20 +31,21 @@ new_subsector :: proc(layout: Layout, origin: Point) -> (subsector: Subsector, e
 	for q := left; q < right; q += 1 {
 		q_offset := q >> 1
 		for r := top - q_offset; r <= bottom - q_offset; r += 1 {
-			hex := new_hex(f32(q), f32(r), f32(-q - r))
+			hex := new_hex(f32(q), f32(r), f32(-q - r)) or_return
 			offset := qoffset_from_cube(hex)
 
 			x := i32(offset.x)
 			y := i32(offset.y)
 
-			system_index := hex_index(hex + pixel_to_hex_rounded(layout, origin))
+			rounded := pixel_to_hex_rounded(layout, origin) or_return
+			system_index := hex_index(hex + rounded)
 			subsector.systems[y][x] = new_system(hex, system_index) or_return
 		}
 	}
 
 	subsector.layout = layout
 	subsector.layout.origin = origin
-	subsector.center = grid_center(subsector.layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS)
+	subsector.center = grid_center(subsector.layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS) or_return
 	subsector.visible = true
 
 	return
@@ -79,11 +80,11 @@ draw_subsector :: proc(subsector: Subsector, camera: Camera) -> Error {
 		}
 	}
 
-	p1 := hex_to_pixel(subsector.layout, qoffset_to_cube({0, 0}))
-	p2 := hex_to_pixel(
-		subsector.layout,
-		qoffset_to_cube({SUBSECTOR_COLUMNS - 1, SUBSECTOR_ROWS - 1}),
-	)
+	p1_hex := qoffset_to_cube({0, 0}) or_return
+	p1 := hex_to_pixel(subsector.layout, p1_hex)
+
+	p2_hex := qoffset_to_cube({SUBSECTOR_COLUMNS - 1, SUBSECTOR_ROWS - 1}) or_return
+	p2 := hex_to_pixel(subsector.layout, p2_hex)
 
 	M := subsector.layout.orientation
 

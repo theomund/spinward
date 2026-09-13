@@ -22,6 +22,7 @@ Error :: union {
 Spinward_Error :: enum {
 	Initialization_Failed,
 	Invalid_Float,
+	Invalid_Hex,
 	Invalid_Index,
 	Invalid_Int,
 	Invalid_Name,

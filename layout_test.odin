@@ -10,8 +10,10 @@ import "core:testing"
 
 @(test)
 test_new_layout :: proc(t: ^testing.T) {
-	hex := new_hex(3, 4, -7)
+	hex, _ := new_hex(3, 4, -7)
 	layout := flat_layout({10.0, 15.0})
 
-	testing.expect_value(t, pixel_to_hex_rounded(layout, hex_to_pixel(layout, hex)), hex)
+	rounded, _ := pixel_to_hex_rounded(layout, hex_to_pixel(layout, hex))
+
+	testing.expect_value(t, rounded, hex)
 }

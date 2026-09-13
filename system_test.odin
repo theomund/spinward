@@ -10,7 +10,7 @@ import "core:testing"
 
 @(test)
 test_new_system :: proc(t: ^testing.T) {
-	hex := new_hex(0, 0, 0)
+	hex, _ := new_hex(0, 0, 0)
 	system, _ := new_system(hex, "0101")
 
 	testing.expect_value(t, system.name, "")

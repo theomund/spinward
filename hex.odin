@@ -25,10 +25,12 @@ hex_directions := [6]Hex {
 	Hex{0, 1, -1},
 }
 
-new_hex :: proc(q, r, s: f32) -> Hex {
-	assert(math.round(q + r + s) == 0)
+new_hex :: proc(q, r, s: f32) -> (Hex, Error) {
+	if math.round(q + r + s) != 0 {
+		return {q, r, s}, .Invalid_Hex
+	}
 
-	return {q, r, s}
+	return {q, r, s}, nil
 }
 
 hex_direction :: proc(direction: int) -> Hex {
@@ -65,7 +67,7 @@ hex_to_pixel :: proc(layout: Layout, hex: Hex) -> Point {
 	return Point{x + origin.x, y + origin.y}
 }
 
-hex_round :: proc(hex: Hex) -> Hex {
+hex_round :: proc(hex: Hex) -> (Hex, Error) {
 	q := math.round(hex.x)
 	r := math.round(hex.y)
 	s := math.round(hex.z)

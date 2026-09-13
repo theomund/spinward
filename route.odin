@@ -27,7 +27,7 @@ new_route :: proc(
 	return {allegiance, start, start_offset, end, end_offset, dashed}
 }
 
-draw_route :: proc(layout: Layout, route: Route) {
+draw_route :: proc(layout: Layout, route: Route) -> Error {
 	M := layout.orientation
 
 	start_layout := layout
@@ -36,7 +36,8 @@ draw_route :: proc(layout: Layout, route: Route) {
 		route.start_offset.y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
 	}
 
-	start := hex_to_pixel(start_layout, qoffset_to_cube(route.start))
+	start_hex := qoffset_to_cube(route.start) or_return
+	start := hex_to_pixel(start_layout, start_hex)
 
 	end_layout := layout
 	end_layout.origin += {
@@ -44,7 +45,8 @@ draw_route :: proc(layout: Layout, route: Route) {
 		route.end_offset.y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
 	}
 
-	end := hex_to_pixel(end_layout, qoffset_to_cube(route.end))
+	end_hex := qoffset_to_cube(route.end) or_return
+	end := hex_to_pixel(end_layout, end_hex)
 
 	color := route.allegiance == .Unaligned ? rl.GREEN : allegiances[route.allegiance].color
 
@@ -53,4 +55,6 @@ draw_route :: proc(layout: Layout, route: Route) {
 	} else {
 		rl.DrawLineV(start, end, color)
 	}
+
+	return nil
 }
