@@ -18,19 +18,6 @@ test_new_hex :: proc(t: ^testing.T) {
 }
 
 @(test)
-test_hex_index :: proc(t: ^testing.T) {
-	a, _ := new_hex(0, 0, 0)
-	b, _ := new_hex(1, 0, -1)
-	c, _ := new_hex(0, 1, -1)
-	d, _ := new_hex(1, 1, -2)
-
-	testing.expect_value(t, hex_index(a), "0101")
-	testing.expect_value(t, hex_index(b), "0201")
-	testing.expect_value(t, hex_index(c), "0102")
-	testing.expect_value(t, hex_index(d), "0202")
-}
-
-@(test)
 test_hex_round :: proc(t: ^testing.T) {
 	a, _ := new_hex(0.0, 0.0, 0.0)
 	b, _ := new_hex(1.0, -1.0, 0.0)

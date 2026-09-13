@@ -39,15 +39,6 @@ hex_direction :: proc(direction: int) -> Hex {
 	return hex_directions[direction]
 }
 
-hex_index :: proc(hex: Hex) -> Text {
-	offset := qoffset_from_cube(hex)
-
-	x := i32(offset.x + 1)
-	y := i32(offset.y + 1)
-
-	return fmt.tprintf("%02d%02d", x, y)
-}
-
 hex_lerp :: proc(a, b: Hex, t: f32) -> Hex {
 	return math.lerp(a, b, t)
 }
