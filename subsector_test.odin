@@ -16,5 +16,5 @@ test_new_subsector :: proc(t: ^testing.T) {
 	subsector, _ := new_subsector(layout, origin)
 	defer destroy_subsector(subsector)
 
-	testing.expect_value(t, subsector.name.content, "")
+	testing.expect_value(t, subsector.name.content, nil)
 }
