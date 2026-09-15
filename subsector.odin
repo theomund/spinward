@@ -32,7 +32,7 @@ new_subsector :: proc(layout: Layout, origin: Point) -> (subsector: Subsector, e
 			hex := new_hex(f32(q), f32(r), f32(-q - r)) or_return
 			offset := qoffset_from_cube(hex)
 
-			rounded := pixel_to_hex_rounded(layout, origin) or_return
+			rounded := pixel_to_hex(layout, origin) or_return
 
 			x := i32(offset.x)
 			y := i32(offset.y)
@@ -80,13 +80,14 @@ subsector_index :: proc(index: string) -> u8 {
 	return index[0] - 'A'
 }
 
-draw_subsector :: proc(subsector: Subsector, camera: Camera) {
+draw_subsector :: proc(subsector: Subsector, zoom: f32) {
 	for row in subsector.systems {
 		for system in row {
-			draw_system(system, camera)
+			draw_system(system, zoom)
 		}
 	}
 
-	draw_rectangle(subsector.rectangle, rl.GRAY)
-	draw_text(subsector.name, camera.zoom, 0.5, 0.25)
+	draw_rectangle(subsector.rectangle, fade_color(rl.WHITE, zoom, 0.05, 0.25))
+
+	draw_text(subsector.name, zoom, 0.05, 0.25)
 }

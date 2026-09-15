@@ -72,25 +72,22 @@ draw_sector :: proc(sector: Sector, camera: Camera) {
 	for row in sector.subsectors {
 		for subsector in row {
 			if subsector.visible {
-				draw_subsector(subsector, camera)
+				draw_subsector(subsector, camera.zoom)
 			}
 		}
 	}
 
 	for route in sector.routes {
-		draw_route(route)
+		draw_route(route, camera.zoom)
 	}
 
 	draw_hovered_hex(sector.layout, camera)
 	draw_text(sector.name, camera.zoom, 0.5, 0.25)
-	draw_rectangle(sector.rectangle, rl.WHITE)
+	draw_rectangle(sector.rectangle, fade_color(rl.WHITE, camera.zoom, 0.05, 0.25))
 }
 
 draw_hovered_hex :: proc(layout: Layout, camera: Camera) -> Error {
-	hovered := pixel_to_hex_rounded(
-		layout,
-		rl.GetScreenToWorld2D(rl.GetMousePosition(), camera),
-	) or_return
+	hovered := pixel_to_hex(layout, rl.GetScreenToWorld2D(rl.GetMousePosition(), camera)) or_return
 
 	if contains_hex(hovered) {
 		draw_hex(hex_to_pixel(layout, hovered), rl.YELLOW)

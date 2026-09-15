@@ -17,7 +17,7 @@ grid_center :: proc(layout: Layout, width, height: f32) -> (center: Point, err: 
 	return hex_to_pixel(layout, (a + b) / 2), nil
 }
 
-pixel_to_hex_fractional :: proc(layout: Layout, p: Point) -> (Hex, Error) {
+pixel_to_hex :: proc(layout: Layout, p: Point) -> (rounded: Hex, err: Error) {
 	M := layout.orientation
 	origin := layout.origin
 
@@ -26,11 +26,7 @@ pixel_to_hex_fractional :: proc(layout: Layout, p: Point) -> (Hex, Error) {
 	q := M.b[0, 0] * pt.x + M.b[0, 1] * pt.y
 	r := M.b[1, 0] * pt.x + M.b[1, 1] * pt.y
 
-	return new_hex(q, r, -q - r)
-}
-
-pixel_to_hex_rounded :: proc(layout: Layout, p: Point) -> (rounded: Hex, err: Error) {
-	fractional := pixel_to_hex_fractional(layout, p) or_return
+	fractional := new_hex(q, r, -q - r) or_return
 
 	return hex_round(fractional)
 }

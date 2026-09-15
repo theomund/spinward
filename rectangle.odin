@@ -32,5 +32,7 @@ new_rectangle :: proc(layout: Layout, width: f32, height: f32) -> (rect: Rectang
 }
 
 draw_rectangle :: proc(rect: Rectangle, color: Color) {
-	rl.DrawRectangleLinesEx(rect, RECTANGLE_THICKNESS, color)
+	if color.a != 0 {
+		rl.DrawRectangleLinesEx(rect, RECTANGLE_THICKNESS, color)
+	}
 }

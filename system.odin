@@ -12,8 +12,6 @@ import rl "vendor:raylib"
 FONT_SIZE :: 16
 FONT_SPACING :: 2
 
-WORLD_SIZE :: 12
-
 System :: struct {
 	name:       Text,
 	allegiance: Allegiance,
@@ -52,16 +50,18 @@ get_system :: proc(sector: ^Sector, offset: Offset) -> ^System {
 	return system
 }
 
-draw_system :: proc(system: System, camera: Camera) {
-	draw_hex(system.origin, fade_color(rl.DARKGRAY, camera.zoom, 0.25, 0.5))
-
-	if system.world {
-		rl.DrawCircleV(system.origin, WORLD_SIZE, rl.BLUE)
+draw_system :: proc(system: System, zoom: f32) {
+	if color := fade_color(rl.DARKGRAY, zoom, 0.25, 0.5); color.a != 0 {
+		draw_hex(system.origin, fade_color(rl.DARKGRAY, zoom, 0.25, 0.5))
 	}
 
-	draw_text(system.name, camera.zoom, 0.25, 0.5)
-	draw_text(system.index, camera.zoom, 0.25, 0.5)
-	draw_text(system.label, camera.zoom, 0.5, 0.25)
+	if system.world {
+		draw_world(system.origin, zoom)
+	}
 
-	draw_allegiance(system, camera)
+	draw_text(system.name, zoom, 0.25, 0.5)
+	draw_text(system.index, zoom, 0.25, 0.5)
+	draw_text(system.label, zoom, 0.05, 0.25)
+
+	draw_allegiance(system)
 }

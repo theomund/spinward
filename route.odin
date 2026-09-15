@@ -55,10 +55,12 @@ new_route :: proc(
 	return
 }
 
-draw_route :: proc(route: Route) {
-	if route.dashed {
-		rl.DrawLineDashed(route.start, route.end, 8, 4, route.color)
-	} else {
-		rl.DrawLineV(route.start, route.end, route.color)
+draw_route :: proc(route: Route, zoom: f32) {
+	if color := fade_color(route.color, zoom, 0.05, 0.25); color.a != 0 {
+		if route.dashed {
+			rl.DrawLineDashed(route.start, route.end, 8, 4, color)
+		} else {
+			rl.DrawLineV(route.start, route.end, color)
+		}
 	}
 }

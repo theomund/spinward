@@ -69,11 +69,9 @@ hex_round :: proc(hex: Hex) -> (Hex, Error) {
 }
 
 draw_hex :: proc(origin: Point, color: Color, fill := false) {
-	if color.a != 0 {
-		if fill {
-			rl.DrawPoly(origin, HEX_SIDES, HEX_SIZE, HEX_ROTATION, color)
-		} else {
-			rl.DrawPolyLines(origin, HEX_SIDES, HEX_SIZE, HEX_ROTATION, color)
-		}
+	if fill {
+		rl.DrawPoly(origin, HEX_SIDES, HEX_SIZE, HEX_ROTATION, color)
+	} else {
+		rl.DrawPolyLines(origin, HEX_SIDES, HEX_SIZE, HEX_ROTATION, color)
 	}
 }

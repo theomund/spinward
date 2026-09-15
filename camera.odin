@@ -33,6 +33,6 @@ zoom_camera :: proc(camera: ^Camera, wheel: f32, position: Point) {
 	camera^ = {
 		offset = position,
 		target = rl.GetScreenToWorld2D(position, camera^),
-		zoom   = clamp(math.exp(math.log(camera.zoom, math.E) + 0.2 * wheel), 0.125, 64.0),
+		zoom   = clamp(math.exp(math.log(camera.zoom, math.E) + 0.2 * wheel), 0.02, 64),
 	}
 }

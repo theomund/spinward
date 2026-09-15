@@ -13,7 +13,7 @@ test_new_layout :: proc(t: ^testing.T) {
 	hex, _ := new_hex(3, 4, -7)
 	layout := flat_layout({10.0, 15.0})
 
-	rounded, _ := pixel_to_hex_rounded(layout, hex_to_pixel(layout, hex))
+	rounded, _ := pixel_to_hex(layout, hex_to_pixel(layout, hex))
 
 	testing.expect_value(t, rounded, hex)
 }
