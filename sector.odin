@@ -68,24 +68,22 @@ contains_hex :: proc(hex: Hex) -> bool {
 	return min(offset.x, offset.y) >= 0 && offset.x < SECTOR_WIDTH && offset.y < SECTOR_HEIGHT
 }
 
-draw_sector :: proc(sector: Sector, camera: Camera) -> Error {
+draw_sector :: proc(sector: Sector, camera: Camera) {
 	for row in sector.subsectors {
 		for subsector in row {
 			if subsector.visible {
-				draw_subsector(subsector, camera) or_return
+				draw_subsector(subsector, camera)
 			}
 		}
 	}
 
 	for route in sector.routes {
-		draw_route(sector.layout, route)
+		draw_route(route)
 	}
 
 	draw_hovered_hex(sector.layout, camera)
 	draw_text(sector.name, camera.zoom, 0.5, 0.25)
 	draw_rectangle(sector.rectangle, rl.WHITE)
-
-	return nil
 }
 
 draw_hovered_hex :: proc(layout: Layout, camera: Camera) -> Error {

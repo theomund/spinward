@@ -11,50 +11,54 @@ import rl "vendor:raylib"
 ROUTE_THICKNESS :: 4
 
 Route :: struct {
-	allegiance:   Allegiance,
-	start:        Offset,
-	start_offset: Offset,
-	end:          Offset,
-	end_offset:   Offset,
-	dashed:       bool,
+	color:  Color,
+	dashed: bool,
+	end:    Offset,
+	start:  Offset,
 }
 
 new_route :: proc(
 	allegiance: Allegiance,
-	start, start_offset, end, end_offset: Offset,
 	dashed: bool,
-) -> Route {
-	return {allegiance, start, start_offset, end, end_offset, dashed}
-}
+	end_offset: Offset,
+	end: Offset,
+	layout: Layout,
+	start_offset: Offset,
+	start: Offset,
+) -> (
+	route: Route,
+	err: Error,
+) {
+	route.color = allegiance == .Unaligned ? rl.GREEN : allegiances[allegiance].color
+	route.dashed = dashed
 
-draw_route :: proc(layout: Layout, route: Route) -> Error {
 	M := layout.orientation
 
 	start_layout := layout
 	start_layout.origin += {
-		route.start_offset.x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
-		route.start_offset.y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
+		start_offset.x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
+		start_offset.y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
 	}
 
-	start_hex := qoffset_to_cube(route.start) or_return
-	start := hex_to_pixel(start_layout, start_hex)
+	start_hex := qoffset_to_cube(start) or_return
+	route.start = hex_to_pixel(start_layout, start_hex)
 
 	end_layout := layout
 	end_layout.origin += {
-		route.end_offset.x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
-		route.end_offset.y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
+		end_offset.x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
+		end_offset.y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
 	}
 
-	end_hex := qoffset_to_cube(route.end) or_return
-	end := hex_to_pixel(end_layout, end_hex)
+	end_hex := qoffset_to_cube(end) or_return
+	route.end = hex_to_pixel(end_layout, end_hex)
 
-	color := route.allegiance == .Unaligned ? rl.GREEN : allegiances[route.allegiance].color
+	return
+}
 
+draw_route :: proc(route: Route) {
 	if route.dashed {
-		rl.DrawLineDashed(start, end, 8, 4, color)
+		rl.DrawLineDashed(route.start, route.end, 8, 4, route.color)
 	} else {
-		rl.DrawLineV(start, end, color)
+		rl.DrawLineV(route.start, route.end, route.color)
 	}
-
-	return nil
 }

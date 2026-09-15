@@ -80,15 +80,13 @@ subsector_index :: proc(index: string) -> u8 {
 	return index[0] - 'A'
 }
 
-draw_subsector :: proc(subsector: Subsector, camera: Camera) -> Error {
+draw_subsector :: proc(subsector: Subsector, camera: Camera) {
 	for row in subsector.systems {
 		for system in row {
-			draw_system(system, camera) or_return
+			draw_system(system, camera)
 		}
 	}
 
 	draw_rectangle(subsector.rectangle, rl.GRAY)
 	draw_text(subsector.name, camera.zoom, 0.5, 0.25)
-
-	return nil
 }

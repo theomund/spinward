@@ -52,7 +52,7 @@ get_system :: proc(sector: ^Sector, offset: Offset) -> ^System {
 	return system
 }
 
-draw_system :: proc(system: System, camera: Camera) -> Error {
+draw_system :: proc(system: System, camera: Camera) {
 	draw_hex(system.origin, fade_color(rl.DARKGRAY, camera.zoom, 0.25, 0.5))
 
 	if system.world {
@@ -64,6 +64,4 @@ draw_system :: proc(system: System, camera: Camera) -> Error {
 	draw_text(system.label, camera.zoom, 0.5, 0.25)
 
 	draw_allegiance(system, camera)
-
-	return nil
 }

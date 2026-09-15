@@ -42,7 +42,7 @@ render :: proc(sectors: []Sector) -> Error {
 
 		for sector in sectors {
 			if sector.visible {
-				draw_sector(sector, camera) or_return
+				draw_sector(sector, camera)
 			}
 		}
 

@@ -299,7 +299,16 @@ read_route :: proc(element: xml.Element, sector: ^Sector) -> Error {
 		}
 	}
 
-	route := new_route(allegiance, start, start_offset, end, end_offset, dashed)
+	route := new_route(
+		allegiance,
+		dashed,
+		end_offset,
+		end,
+		sector.layout,
+		start_offset,
+		start,
+	) or_return
+
 	append(&sector.routes, route) or_return
 
 	return nil
@@ -363,6 +372,11 @@ read_coords :: proc(x_text, y_text: string, sector: ^Sector) -> Error {
 
 	sector.rectangle.x += sector.layout.origin.x
 	sector.rectangle.y += sector.layout.origin.y
+
+	for &route in sector.routes {
+		route.start += sector.layout.origin
+		route.end += sector.layout.origin
+	}
 
 	for &subsector_row in sector.subsectors {
 		for &subsector in subsector_row {
