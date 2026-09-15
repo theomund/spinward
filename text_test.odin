@@ -13,5 +13,5 @@ test_new_text :: proc(t: ^testing.T) {
 	world, _ := new_text("Flammarion")
 	defer destroy_text(world)
 
-	testing.expect_value(t, world, "Flammarion")
+	testing.expect_value(t, world.content, "Flammarion")
 }

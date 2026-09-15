@@ -6,7 +6,6 @@
 
 package main
 
-import "core:fmt"
 import "core:math"
 import rl "vendor:raylib"
 
@@ -18,6 +17,7 @@ WORLD_SIZE :: 12
 System :: struct {
 	name:       Text,
 	allegiance: Allegiance,
+	index:      Text,
 	label:      Text,
 	offset:     Offset,
 	origin:     Point,
@@ -26,13 +26,14 @@ System :: struct {
 }
 
 destroy_system :: proc(system: System) -> Error {
-	destroy_text(system.name) or_return
+	destroy_text(system.index) or_return
 	destroy_text(system.label) or_return
+	destroy_text(system.name) or_return
 
 	return nil
 }
 
-system_index :: proc(index: Text) -> (offset: Offset, err: Error) {
+system_index :: proc(index: string) -> (offset: Offset, err: Error) {
 	x := read_int(index[0:2]) or_return
 	y := read_int(index[2:4]) or_return
 
@@ -58,29 +59,9 @@ draw_system :: proc(system: System, camera: Camera) -> Error {
 		rl.DrawCircleV(system.origin, WORLD_SIZE, rl.BLUE)
 	}
 
-	draw_text(
-		system.name,
-		system.origin - {0, HALF_HEX},
-		FONT_SIZE,
-		FONT_SPACING,
-		fade_color(rl.WHITE, camera.zoom, 0.25, 0.5),
-	) or_return
-
-	draw_text(
-		fmt.tprintf("%02d%02d", int(system.offset.x + 1), int(system.offset.y + 1)),
-		system.origin + {0, HALF_HEX},
-		FONT_SIZE,
-		FONT_SPACING,
-		fade_color(rl.DARKGRAY, camera.zoom, 0.25, 0.5),
-	) or_return
-
-	draw_text(
-		system.label,
-		system.origin,
-		SUBSECTOR_TITLE_SIZE,
-		SUBSECTOR_TITLE_SPACING,
-		fade_color(rl.YELLOW, camera.zoom, 0.5, 0.25),
-	) or_return
+	draw_text(system.name, camera.zoom, 0.25, 0.5)
+	draw_text(system.index, camera.zoom, 0.25, 0.5)
+	draw_text(system.label, camera.zoom, 0.5, 0.25)
 
 	draw_allegiance(system, camera)
 

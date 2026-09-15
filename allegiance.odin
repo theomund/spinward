@@ -81,7 +81,7 @@ Allegiance :: enum {
 
 Allegiance_Data :: struct {
 	color: Color,
-	label: Text,
+	label: string,
 }
 
 @(rodata)
@@ -156,8 +156,8 @@ allegiances := [Allegiance]Allegiance_Data {
 	.Zydarian_Codominium            = {rl.PINK, "Zydarian Codominium"},
 }
 
-new_allegiance :: proc(text: Text) -> Allegiance {
-	switch text {
+new_allegiance :: proc(value: string) -> Allegiance {
+	switch value {
 	case "ImAp":
 		return .Amec_Protectorate
 	case "AnTC":

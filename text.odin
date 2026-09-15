@@ -9,31 +9,58 @@ package main
 import "core:strings"
 import rl "vendor:raylib"
 
-Text :: string
+Text :: struct {
+	color:   Color,
+	content: cstring,
+	origin:  Point,
+	size:    f32,
+	spacing: f32,
+}
 
-new_text :: proc(value: Text) -> (text: Text, err: Error) {
-	text = strings.clone(value) or_return
+new_text :: proc(
+	value: string,
+	color := rl.WHITE,
+	origin := Point{0, 0},
+	size := f32(FONT_SIZE),
+	spacing := f32(FONT_SPACING),
+) -> (
+	text: Text,
+	err: Error,
+) {
+	content: cstring
+
+	if value != "" {
+		content = strings.clone_to_cstring(value) or_return
+	}
+
+	text = {
+		content = content,
+		color   = color,
+		origin  = origin - rl.MeasureTextEx(rl.GetFontDefault(), content, size, spacing) / 2,
+		size    = size,
+		spacing = spacing,
+	}
 
 	return
 }
 
 destroy_text :: proc(text: Text) -> Error {
-	if text != "" {
-		delete(text) or_return
+	if text.content != "" {
+		delete(text.content) or_return
 	}
 
 	return nil
 }
 
-draw_text :: proc(text: Text, center: Point, size, spacing: f32, color: Color) -> Error {
-	if color.a != 0 {
-		font := rl.GetFontDefault()
-
-		text_clone := strings.clone_to_cstring(text, context.temp_allocator) or_return
-		text_size := rl.MeasureTextEx(font, text_clone, size, spacing)
-
-		rl.DrawTextEx(font, text_clone, center - text_size / 2, size, spacing, color)
+draw_text :: proc(text: Text, zoom, start, end: f32) {
+	if color := fade_color(text.color, zoom, start, end); color.a != 0 {
+		rl.DrawTextEx(
+			rl.GetFontDefault(),
+			text.content,
+			text.origin,
+			text.size,
+			text.spacing,
+			color,
+		)
 	}
-
-	return nil
 }

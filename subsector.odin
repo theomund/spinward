@@ -6,6 +6,7 @@
 
 package main
 
+import "core:fmt"
 import rl "vendor:raylib"
 
 SUBSECTOR_COLUMNS :: 8
@@ -33,8 +34,18 @@ new_subsector :: proc(layout: Layout, origin: Point) -> (subsector: Subsector, e
 
 			rounded := pixel_to_hex_rounded(layout, origin) or_return
 
-			subsector.systems[i32(offset.y)][i32(offset.x)] = System {
-				origin = hex_to_pixel(layout, hex),
+			x := i32(offset.x)
+			y := i32(offset.y)
+
+			system_origin := hex_to_pixel(layout, hex)
+
+			subsector.systems[y][x] = System {
+				index  = new_text(
+					value = fmt.tprintf("%02d%02d", x + 1, y + 1),
+					color = rl.GRAY,
+					origin = system_origin + {0, HALF_HEX},
+				) or_return,
+				origin = system_origin,
 				offset = offset + qoffset_from_cube(rounded),
 			}
 		}
@@ -65,7 +76,7 @@ destroy_subsector :: proc(subsector: Subsector) -> Error {
 	return nil
 }
 
-subsector_index :: proc(index: Text) -> u8 {
+subsector_index :: proc(index: string) -> u8 {
 	return index[0] - 'A'
 }
 
@@ -77,14 +88,7 @@ draw_subsector :: proc(subsector: Subsector, camera: Camera) -> Error {
 	}
 
 	draw_rectangle(subsector.rectangle, rl.GRAY)
-
-	draw_text(
-		subsector.name,
-		subsector.center,
-		SUBSECTOR_TITLE_SIZE,
-		SUBSECTOR_TITLE_SPACING,
-		fade_color(rl.WHITE, camera.zoom, 0.5, 0.25),
-	) or_return
+	draw_text(subsector.name, camera.zoom, 0.5, 0.25)
 
 	return nil
 }

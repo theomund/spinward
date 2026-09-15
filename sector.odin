@@ -82,7 +82,8 @@ draw_sector :: proc(sector: Sector, camera: Camera) -> Error {
 	}
 
 	draw_hovered_hex(sector.layout, camera)
-	draw_sector_title(sector, camera) or_return
+	draw_text(sector.name, camera.zoom, 0.5, 0.25)
+	draw_rectangle(sector.rectangle, rl.WHITE)
 
 	return nil
 }
@@ -96,18 +97,6 @@ draw_hovered_hex :: proc(layout: Layout, camera: Camera) -> Error {
 	if contains_hex(hovered) {
 		draw_hex(hex_to_pixel(layout, hovered), rl.YELLOW)
 	}
-
-	return nil
-}
-
-draw_sector_title :: proc(sector: Sector, camera: Camera) -> Error {
-	draw_text(
-		sector.name,
-		sector.center,
-		SECTOR_TITLE_SIZE,
-		SECTOR_TITLE_SPACING,
-		fade_color(rl.WHITE, camera.zoom, 0.5, 0.25),
-	) or_return
 
 	return nil
 }

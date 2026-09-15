@@ -13,6 +13,7 @@ import "core:path/filepath"
 import "core:slice"
 import "core:strconv"
 import "core:strings"
+import rl "vendor:raylib"
 
 Reader :: csv.Reader
 
@@ -26,7 +27,7 @@ read_sectors :: proc() -> (sectors: [dynamic]Sector, err: Error) {
 			sector: Sector
 			defer destroy_sector(sector)
 
-			x, y: Text
+			x, y: string
 
 			for element in document.elements {
 				switch element.ident {
@@ -35,7 +36,7 @@ read_sectors :: proc() -> (sectors: [dynamic]Sector, err: Error) {
 				case "DataFile":
 					for file in assets {
 						if file.name == read_value(element) && filepath.ext(file.name) == ".tab" {
-							read_tab(&sector, Text(file.data)) or_return
+							read_tab(&sector, string(file.data)) or_return
 						}
 					}
 				case "MetadataFile":
@@ -72,7 +73,7 @@ read_sectors :: proc() -> (sectors: [dynamic]Sector, err: Error) {
 	return sectors, .Initialization_Failed
 }
 
-read_tab :: proc(sector: ^Sector, data: Text) -> Error {
+read_tab :: proc(sector: ^Sector, data: string) -> Error {
 	reader := Reader {
 		comma               = '\t',
 		comment             = '#',
@@ -109,14 +110,17 @@ read_tab :: proc(sector: ^Sector, data: Text) -> Error {
 		system := get_system(sector, offset)
 
 		system.allegiance = new_allegiance(record[allegiance_index])
-		system.name = new_text(record[name_index] != "" ? record[name_index] : "????") or_return
+		system.name = new_text(
+			value = record[name_index] != "" ? record[name_index] : "????",
+			origin = system.origin - {0, HALF_HEX},
+		) or_return
 		system.world = true
 	}
 
 	return nil
 }
 
-read_xml :: proc(data: []u8, sector: ^Sector, x, y: ^Text) -> Error {
+read_xml :: proc(data: []u8, sector: ^Sector, x, y: ^string) -> Error {
 	document := xml.parse(data, allocator = context.temp_allocator) or_return
 
 	for element in document.elements {
@@ -145,8 +149,8 @@ read_xml :: proc(data: []u8, sector: ^Sector, x, y: ^Text) -> Error {
 
 read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	allegiance: Allegiance
-	label: Text
-	label_position: Text
+	label: string
+	label_position: string
 
 	for attribute in element.attribs {
 		switch attribute.key {
@@ -167,7 +171,13 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 		offset := system_index(label_position) or_return
 
 		system := get_system(sector, offset)
-		system.label = new_text(label) or_return
+		system.label = new_text(
+			value = label,
+			color = rl.YELLOW,
+			origin = system.origin,
+			size = SUBSECTOR_TITLE_SIZE,
+			spacing = SUBSECTOR_TITLE_SPACING,
+		) or_return
 	}
 
 	value := read_value(element)
@@ -249,8 +259,13 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 }
 
 read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
-	if sector.name == "" {
-		sector.name = new_text(read_value(element)) or_return
+	if sector.name.content == "" {
+		sector.name = new_text(
+			value = read_value(element),
+			origin = sector.center,
+			size = SECTOR_TITLE_SIZE,
+			spacing = SECTOR_TITLE_SPACING,
+		) or_return
 	}
 
 	return nil
@@ -290,7 +305,7 @@ read_route :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	return nil
 }
 
-read_f32 :: proc(text: Text) -> (f32, Error) {
+read_f32 :: proc(text: string) -> (f32, Error) {
 	value, value_ok := strconv.parse_f32(text)
 	if !value_ok {
 		return value, .Invalid_Float
@@ -299,7 +314,7 @@ read_f32 :: proc(text: Text) -> (f32, Error) {
 	return value, nil
 }
 
-read_int :: proc(text: Text) -> (int, Error) {
+read_int :: proc(text: string) -> (int, Error) {
 	value, value_ok := strconv.parse_int(text, 10)
 	if !value_ok {
 		return value, .Invalid_Int
@@ -318,12 +333,20 @@ read_subsector :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	}
 
 	value := read_value(element)
-	sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS].name = new_text(value) or_return
+
+	subsector := &sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS]
+
+	subsector.name = new_text(
+		value = value,
+		origin = subsector.center,
+		size = SUBSECTOR_TITLE_SIZE,
+		spacing = SUBSECTOR_TITLE_SPACING,
+	) or_return
 
 	return nil
 }
 
-read_coords :: proc(x_text, y_text: Text, sector: ^Sector) -> Error {
+read_coords :: proc(x_text, y_text: string, sector: ^Sector) -> Error {
 	x := read_f32(x_text) or_return
 	y := read_f32(y_text) or_return
 
@@ -333,24 +356,36 @@ read_coords :: proc(x_text, y_text: Text, sector: ^Sector) -> Error {
 		x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
 		y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
 	}
+
 	sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT) or_return
+
+	sector.name.origin += sector.layout.origin
+
 	sector.rectangle.x += sector.layout.origin.x
 	sector.rectangle.y += sector.layout.origin.y
 
 	for &subsector_row in sector.subsectors {
 		for &subsector in subsector_row {
 			subsector.layout.origin += sector.layout.origin
+
 			subsector.center = grid_center(
 				subsector.layout,
 				SUBSECTOR_COLUMNS,
 				SUBSECTOR_ROWS,
 			) or_return
+
 			subsector.rectangle.x += sector.layout.origin.x
 			subsector.rectangle.y += sector.layout.origin.y
+
+			subsector.name.origin += sector.layout.origin
 
 			for &system_row in subsector.systems {
 				for &system in system_row {
 					system.origin += subsector.layout.origin
+
+					system.index.origin += subsector.layout.origin
+					system.label.origin += subsector.layout.origin
+					system.name.origin += subsector.layout.origin
 				}
 			}
 		}
@@ -359,6 +394,6 @@ read_coords :: proc(x_text, y_text: Text, sector: ^Sector) -> Error {
 	return nil
 }
 
-read_value :: proc(element: xml.Element) -> Text {
-	return len(element.value) > 0 ? element.value[0].(Text) : ""
+read_value :: proc(element: xml.Element) -> string {
+	return len(element.value) > 0 ? element.value[0].(string) : ""
 }
