@@ -6,6 +6,7 @@
 
 package main
 
+import "base:runtime"
 import "core:container/queue"
 import "core:encoding/csv"
 import "core:encoding/xml"
@@ -22,49 +23,12 @@ read_sectors :: proc() -> (sectors: [dynamic]Sector, err: Error) {
 
 	for asset in assets {
 		if asset.name == "M1105.xml" {
-			document := xml.parse(asset.data, allocator = context.temp_allocator) or_return
-
 			sector: Sector
 			defer destroy_sector(sector)
 
 			x, y: string
 
-			for element in document.elements {
-				switch element.ident {
-				case "Border":
-					read_border(element, &sector) or_return
-				case "DataFile":
-					for file in assets {
-						if file.name == read_value(element) && filepath.ext(file.name) == ".tab" {
-							read_tab(&sector, string(file.data)) or_return
-						}
-					}
-				case "MetadataFile":
-					for file in assets {
-						if strings.to_lower(file.name, context.temp_allocator) ==
-						   strings.to_lower(read_value(element), context.temp_allocator) {
-							read_xml(file.data, &sector, &x, &y) or_return
-						}
-					}
-				case "Name":
-					read_name(element, &sector) or_return
-				case "Route":
-					read_route(element, &sector) or_return
-				case "Sector":
-					if x != "" && y != "" {
-						read_coords(x, y, &sector) or_return
-						append(&sectors, sector) or_return
-					}
-
-					sector = new_sector() or_return
-				case "Subsector":
-					read_subsector(element, &sector) or_return
-				case "X":
-					x = read_value(element)
-				case "Y":
-					y = read_value(element)
-				}
-			}
+			read_xml(assets, asset.data, false, &sector, &sectors, &x, &y) or_return
 
 			return
 		}
@@ -120,17 +84,49 @@ read_tab :: proc(sector: ^Sector, data: string) -> Error {
 	return nil
 }
 
-read_xml :: proc(data: []u8, sector: ^Sector, x, y: ^string) -> Error {
+read_xml :: proc(
+	assets: []runtime.Load_Directory_File,
+	data: []u8,
+	metadata: bool,
+	sector: ^Sector,
+	sectors: ^[dynamic]Sector,
+	x, y: ^string,
+) -> Error {
 	document := xml.parse(data, allocator = context.temp_allocator) or_return
 
 	for element in document.elements {
 		switch element.ident {
 		case "Border":
 			read_border(element, sector) or_return
+		case "DataFile":
+			for file in assets {
+				if file.name == read_value(element) && filepath.ext(file.name) == ".tab" {
+					read_tab(sector, string(file.data)) or_return
+				}
+			}
+		case "MetadataFile":
+			for file in assets {
+				if strings.to_lower(file.name, context.temp_allocator) ==
+				   strings.to_lower(read_value(element), context.temp_allocator) {
+					read_xml(assets, file.data, true, sector, sectors, x, y) or_return
+				}
+			}
 		case "Name":
 			read_name(element, sector) or_return
 		case "Route":
 			read_route(element, sector) or_return
+		case "Sector":
+			if !metadata {
+				if x^ != "" && y^ != "" {
+					read_coords(x^, y^, sector) or_return
+					append(sectors, sector^) or_return
+
+					x^ = ""
+					y^ = ""
+				}
+
+				sector^ = new_sector() or_return
+			}
 		case "Subsector":
 			read_subsector(element, sector) or_return
 		case "X":
