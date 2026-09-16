@@ -51,9 +51,7 @@ get_system :: proc(sector: ^Sector, offset: Offset) -> ^System {
 }
 
 draw_system :: proc(system: System, zoom: f32) {
-	if color := fade_color(rl.DARKGRAY, zoom, 0.25, 0.5); color.a != 0 {
-		draw_hex(system.origin, fade_color(rl.DARKGRAY, zoom, 0.25, 0.5))
-	}
+	draw_hex(system.origin, fade_color(rl.DARKGRAY, zoom, 0.25, 0.5))
 
 	if system.world {
 		draw_world(system.origin, zoom)
