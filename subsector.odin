@@ -87,7 +87,7 @@ draw_subsector :: proc(subsector: Subsector, zoom: f32) {
 		}
 	}
 
-	draw_rectangle(subsector.rectangle, fade_color(rl.WHITE, zoom, 0.05, 0.25))
+	draw_rectangle(subsector.rectangle, fade_color(rl.GRAY, zoom, 0.05, 0.25))
 
 	draw_text(subsector.name, zoom, 0.05, 0.25)
 }
