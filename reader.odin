@@ -10,6 +10,7 @@ import "base:runtime"
 import "core:container/queue"
 import "core:encoding/csv"
 import "core:encoding/xml"
+import "core:math/linalg"
 import "core:path/filepath"
 import "core:slice"
 import "core:strconv"
@@ -178,46 +179,45 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 
 	borders := strings.fields(read_value(element), context.temp_allocator) or_return
 
-	xs := make([dynamic]f32, 0, context.temp_allocator)
-	ys := make([dynamic]f32, 0, context.temp_allocator)
+	offsets := make([dynamic]Offset, 0, context.temp_allocator)
 
 	for border in borders {
 		offset := system_index(border) or_return
-
-		append(&xs, offset.x) or_return
-		append(&ys, offset.y) or_return
+		append(&offsets, offset)
 
 		system := get_system(sector, offset)
 		system.allegiance = allegiance
 		system.visited = true
 	}
 
-	min_x, max_x, _ := slice.min_max(xs[:])
-	min_y, max_y, _ := slice.min_max(ys[:])
+	min_offset := offsets[0]
+	max_offset := offsets[0]
 
-	min_x -= 1
-	max_x += 1
+	for offset in offsets[1:] {
+		min_offset = linalg.min(min_offset, offset)
+		max_offset = linalg.max(max_offset, offset)
+	}
 
-	min_y -= 1
-	max_y += 1
+	min_offset -= {1, 1}
+	max_offset += {1, 1}
 
 	flood: queue.Queue(^System)
 	queue.init(&flood, allocator = context.temp_allocator) or_return
 
-	for i := min_x; i < max_x; i += 1 {
-		if system := get_system(sector, {i, min_y}); !system.visited {
+	for i := min_offset.x; i < max_offset.x; i += 1 {
+		if system := get_system(sector, {i, min_offset.y}); !system.visited {
 			queue.push_back(&flood, system) or_return
 		}
-		if system := get_system(sector, {i, max_y}); !system.visited {
+		if system := get_system(sector, {i, max_offset.y}); !system.visited {
 			queue.push_back(&flood, system) or_return
 		}
 	}
 
-	for i := min_y; i < max_y; i += 1 {
-		if system := get_system(sector, {min_x, i}); !system.visited {
+	for i := min_offset.y; i < max_offset.y; i += 1 {
+		if system := get_system(sector, {min_offset.x, i}); !system.visited {
 			queue.push_back(&flood, system) or_return
 		}
-		if system := get_system(sector, {max_x, i}); !system.visited {
+		if system := get_system(sector, {max_offset.x, i}); !system.visited {
 			queue.push_back(&flood, system) or_return
 		}
 	}
