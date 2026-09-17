@@ -10,10 +10,10 @@ import "core:testing"
 
 @(test)
 test_new_subsector :: proc(t: ^testing.T) {
+	sector_origin := Point{0, 0}
 	origin := Point{0, 0}
-	layout := flat_layout({0, 0})
 
-	subsector, _ := new_subsector(layout, origin)
+	subsector, _ := new_subsector(sector_origin, origin)
 	defer destroy_subsector(subsector)
 
 	testing.expect_value(t, subsector.name.content, nil)

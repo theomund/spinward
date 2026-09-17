@@ -300,7 +300,7 @@ read_route :: proc(element: xml.Element, sector: ^Sector) -> Error {
 		dashed,
 		end_offset,
 		end,
-		sector.layout,
+		sector.origin,
 		start_offset,
 		start,
 	) or_return
@@ -355,47 +355,45 @@ read_coords :: proc(x_text, y_text: string, sector: ^Sector) -> Error {
 	x := read_f32(x_text) or_return
 	y := read_f32(y_text) or_return
 
-	M := sector.layout.orientation
-
-	sector.layout.origin = {
+	sector.origin = {
 		x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
 		y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
 	}
 
-	sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT) or_return
+	sector.center = grid_center(sector.origin, SECTOR_WIDTH, SECTOR_HEIGHT) or_return
 
-	sector.name.origin += sector.layout.origin
+	sector.name.origin += sector.origin
 
-	sector.rectangle.x += sector.layout.origin.x
-	sector.rectangle.y += sector.layout.origin.y
+	sector.rectangle.x += sector.origin.x
+	sector.rectangle.y += sector.origin.y
 
 	for &route in sector.routes {
-		route.start += sector.layout.origin
-		route.end += sector.layout.origin
+		route.start += sector.origin
+		route.end += sector.origin
 	}
 
 	for &subsector_row in sector.subsectors {
 		for &subsector in subsector_row {
-			subsector.layout.origin += sector.layout.origin
+			subsector.origin += sector.origin
 
 			subsector.center = grid_center(
-				subsector.layout,
+				subsector.origin,
 				SUBSECTOR_COLUMNS,
 				SUBSECTOR_ROWS,
 			) or_return
 
-			subsector.rectangle.x += sector.layout.origin.x
-			subsector.rectangle.y += sector.layout.origin.y
+			subsector.rectangle.x += sector.origin.x
+			subsector.rectangle.y += sector.origin.y
 
-			subsector.name.origin += sector.layout.origin
+			subsector.name.origin += sector.origin
 
 			for &system_row in subsector.systems {
 				for &system in system_row {
-					system.origin += subsector.layout.origin
+					system.origin += subsector.origin
 
-					system.index.origin += subsector.layout.origin
-					system.label.origin += subsector.layout.origin
-					system.name.origin += subsector.layout.origin
+					system.index.origin += subsector.origin
+					system.label.origin += subsector.origin
+					system.name.origin += subsector.origin
 				}
 			}
 		}

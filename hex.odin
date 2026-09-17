@@ -38,10 +38,7 @@ hex_neighbor :: proc(hex: Hex, direction: int) -> Hex {
 	return hex + hex_directions[direction]
 }
 
-hex_to_pixel :: proc(layout: Layout, hex: Hex) -> Point {
-	M := layout.orientation
-	origin := layout.origin
-
+hex_to_pixel :: proc(origin: Point, hex: Hex) -> Point {
 	x := (M.f[0, 0] * hex.x + M.f[0, 1] * hex.y) * HEX_SIZE
 	y := (M.f[1, 0] * hex.x + M.f[1, 1] * hex.y) * HEX_SIZE
 

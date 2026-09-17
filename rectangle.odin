@@ -12,14 +12,12 @@ RECTANGLE_THICKNESS :: 2
 
 Rectangle :: rl.Rectangle
 
-new_rectangle :: proc(layout: Layout, width: f32, height: f32) -> (rect: Rectangle, err: Error) {
+new_rectangle :: proc(origin: Point, width: f32, height: f32) -> (rect: Rectangle, err: Error) {
 	h1 := qoffset_to_cube({0, 0}) or_return
-	p1 := hex_to_pixel(layout, h1)
+	p1 := hex_to_pixel(origin, h1)
 
 	h2 := qoffset_to_cube({width - 1, height - 1}) or_return
-	p2 := hex_to_pixel(layout, h2)
-
-	M := layout.orientation
+	p2 := hex_to_pixel(origin, h2)
 
 	rect = {
 		p1.x - HEX_SIZE / (4.0 / 3.0),

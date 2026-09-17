@@ -22,7 +22,7 @@ new_route :: proc(
 	dashed: bool,
 	end_offset: Offset,
 	end: Offset,
-	layout: Layout,
+	origin: Point,
 	start_offset: Offset,
 	start: Offset,
 ) -> (
@@ -32,25 +32,23 @@ new_route :: proc(
 	route.color = allegiance == .Unaligned ? rl.GREEN : allegiances[allegiance].color
 	route.dashed = dashed
 
-	M := layout.orientation
-
-	start_layout := layout
-	start_layout.origin += {
+	start_origin := origin
+	start_origin += {
 		start_offset.x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
 		start_offset.y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
 	}
 
 	start_hex := qoffset_to_cube(start) or_return
-	route.start = hex_to_pixel(start_layout, start_hex)
+	route.start = hex_to_pixel(start_origin, start_hex)
 
-	end_layout := layout
-	end_layout.origin += {
+	end_origin := origin
+	end_origin += {
 		end_offset.x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
 		end_offset.y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
 	}
 
 	end_hex := qoffset_to_cube(end) or_return
-	route.end = hex_to_pixel(end_layout, end_hex)
+	route.end = hex_to_pixel(end_origin, end_hex)
 
 	return
 }

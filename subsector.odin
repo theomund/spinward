@@ -18,13 +18,19 @@ SUBSECTOR_TITLE_SPACING :: SECTOR_TITLE_SPACING / 4
 Subsector :: struct {
 	name:      Text,
 	center:    Point,
-	layout:    Layout,
+	origin:    Point,
 	rectangle: Rectangle,
 	systems:   [SUBSECTOR_ROWS][SUBSECTOR_COLUMNS]System,
 	visible:   bool,
 }
 
-new_subsector :: proc(layout: Layout, origin: Point) -> (subsector: Subsector, err: Error) {
+new_subsector :: proc(
+	sector_origin: Point,
+	origin: Point,
+) -> (
+	subsector: Subsector,
+	err: Error,
+) {
 	for q in 0 ..< SUBSECTOR_COLUMNS {
 		q_offset := q >> 1
 
@@ -32,12 +38,12 @@ new_subsector :: proc(layout: Layout, origin: Point) -> (subsector: Subsector, e
 			hex := new_hex(f32(q), f32(r), f32(-q - r)) or_return
 			offset := qoffset_from_cube(hex)
 
-			rounded := pixel_to_hex(layout, origin) or_return
+			rounded := pixel_to_hex(sector_origin, origin) or_return
 
 			x := i32(offset.x)
 			y := i32(offset.y)
 
-			system_origin := hex_to_pixel(layout, hex)
+			system_origin := hex_to_pixel(sector_origin, hex)
 
 			subsector.systems[y][x] = System {
 				index  = new_text(
@@ -51,11 +57,10 @@ new_subsector :: proc(layout: Layout, origin: Point) -> (subsector: Subsector, e
 		}
 	}
 
-	subsector.layout = layout
-	subsector.layout.origin = origin
-	subsector.center = grid_center(subsector.layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS) or_return
+	subsector.origin = origin
+	subsector.center = grid_center(subsector.origin, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS) or_return
 	subsector.rectangle = new_rectangle(
-		subsector.layout,
+		subsector.origin,
 		SUBSECTOR_COLUMNS,
 		SUBSECTOR_ROWS,
 	) or_return

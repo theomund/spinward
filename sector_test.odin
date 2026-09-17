@@ -14,5 +14,5 @@ test_new_sector :: proc(t: ^testing.T) {
 	defer destroy_sector(sector)
 
 	testing.expect_value(t, sector.name.content, nil)
-	testing.expect_value(t, sector.layout.origin, Point{0, 0})
+	testing.expect_value(t, sector.origin, Point{0, 0})
 }
