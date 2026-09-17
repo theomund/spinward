@@ -176,11 +176,7 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 		) or_return
 	}
 
-	value := read_value(element)
-	value, _ = strings.remove_all(value, "\n", context.temp_allocator)
-	value, _ = strings.replace_all(value, "      ", " ", context.temp_allocator)
-	value, _ = strings.replace_all(value, "  ", " ", context.temp_allocator)
-	borders := strings.split(value, " ", context.temp_allocator) or_return
+	borders := strings.fields(read_value(element), context.temp_allocator) or_return
 
 	xs := make([dynamic]f32, 0, context.temp_allocator)
 	ys := make([dynamic]f32, 0, context.temp_allocator)
