@@ -24,13 +24,7 @@ Subsector :: struct {
 	visible:   bool,
 }
 
-new_subsector :: proc(
-	sector_origin: Point,
-	origin: Point,
-) -> (
-	subsector: Subsector,
-	err: Error,
-) {
+new_subsector :: proc(sector_origin: Point, origin: Point) -> (subsector: Subsector, err: Error) {
 	for q in 0 ..< SUBSECTOR_COLUMNS {
 		q_offset := q >> 1
 
