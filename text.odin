@@ -10,19 +10,19 @@ import "core:strings"
 import rl "vendor:raylib"
 
 Text :: struct {
-	color:   Color,
 	content: cstring,
 	origin:  Point,
 	size:    f32,
 	spacing: f32,
+	color:   Color,
 }
 
 new_text :: proc(
 	value: string,
-	color := rl.WHITE,
 	origin := Point{0, 0},
 	size := f32(FONT_SIZE),
 	spacing := f32(FONT_SPACING),
+	color := rl.WHITE,
 ) -> (
 	text: Text,
 	err: Error,
@@ -34,11 +34,11 @@ new_text :: proc(
 	}
 
 	text = {
-		content = content,
-		color   = color,
-		origin  = origin - rl.MeasureTextEx(rl.GetFontDefault(), content, size, spacing) / 2,
-		size    = size,
-		spacing = spacing,
+		content,
+		origin - rl.MeasureTextEx(rl.GetFontDefault(), content, size, spacing) / 2,
+		size,
+		spacing,
+		color,
 	}
 
 	return

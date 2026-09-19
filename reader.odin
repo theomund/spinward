@@ -168,11 +168,11 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 
 		system := get_system(sector, offset)
 		system.label = new_text(
-			value = label,
-			color = rl.YELLOW,
-			origin = system.origin,
-			size = SUBSECTOR_TITLE_SIZE,
-			spacing = SUBSECTOR_TITLE_SPACING,
+			label,
+			system.origin,
+			SUBSECTOR_TITLE_SIZE,
+			SUBSECTOR_TITLE_SPACING,
+			rl.YELLOW,
 		) or_return
 	}
 
@@ -250,10 +250,10 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 read_name :: proc(element: xml.Element, sector: ^Sector) -> Error {
 	if sector.name.content == "" {
 		sector.name = new_text(
-			value = read_value(element),
-			origin = sector.center,
-			size = SECTOR_TITLE_SIZE,
-			spacing = SECTOR_TITLE_SPACING,
+			read_value(element),
+			sector.center,
+			SECTOR_TITLE_SIZE,
+			SECTOR_TITLE_SPACING,
 		) or_return
 	}
 

@@ -29,9 +29,6 @@ new_route :: proc(
 	route: Route,
 	err: Error,
 ) {
-	route.color = allegiance == .Unaligned ? rl.GREEN : allegiances[allegiance].color
-	route.dashed = dashed
-
 	start_origin := origin
 	start_origin += {
 		start_offset.x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
@@ -39,7 +36,6 @@ new_route :: proc(
 	}
 
 	start_hex := qoffset_to_cube(start) or_return
-	route.start = hex_to_pixel(start_origin, start_hex)
 
 	end_origin := origin
 	end_origin += {
@@ -48,7 +44,13 @@ new_route :: proc(
 	}
 
 	end_hex := qoffset_to_cube(end) or_return
-	route.end = hex_to_pixel(end_origin, end_hex)
+
+	route = {
+		allegiance == .Unaligned ? rl.GREEN : allegiances[allegiance].color,
+		dashed,
+		hex_to_pixel(end_origin, end_hex),
+		hex_to_pixel(start_origin, start_hex),
+	}
 
 	return
 }
