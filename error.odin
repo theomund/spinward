@@ -26,5 +26,5 @@ Spinward_Error :: enum {
 	Invalid_Index,
 	Invalid_Int,
 	Invalid_Name,
-	Invalid_Subsector
+	Invalid_Subsector,
 }
