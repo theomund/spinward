@@ -353,8 +353,7 @@ read_coords :: proc(x_text, y_text: string, sector: ^Sector) -> Error {
 		y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
 	}
 
-	sector.center = grid_center(sector.origin, SECTOR_WIDTH, SECTOR_HEIGHT) or_return
-
+	sector.center += sector.origin
 	sector.name.origin += sector.origin
 
 	sector.rectangle.x += sector.origin.x
@@ -368,12 +367,7 @@ read_coords :: proc(x_text, y_text: string, sector: ^Sector) -> Error {
 	for &subsector_row in sector.subsectors {
 		for &subsector in subsector_row {
 			subsector.origin += sector.origin
-
-			subsector.center = grid_center(
-				subsector.origin,
-				SUBSECTOR_COLUMNS,
-				SUBSECTOR_ROWS,
-			) or_return
+			subsector.center += sector.origin
 
 			subsector.rectangle.x += sector.origin.x
 			subsector.rectangle.y += sector.origin.y
