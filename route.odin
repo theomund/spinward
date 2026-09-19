@@ -11,46 +11,54 @@ import rl "vendor:raylib"
 ROUTE_THICKNESS :: 4
 
 Route :: struct {
-	allegiance:   Allegiance,
-	start:        Offset,
-	start_offset: Offset,
-	end:          Offset,
-	end_offset:   Offset,
-	dashed:       bool,
+	color:  Color,
+	dashed: bool,
+	end:    Offset,
+	start:  Offset,
 }
 
 new_route :: proc(
 	allegiance: Allegiance,
-	start, start_offset, end, end_offset: Offset,
 	dashed: bool,
-) -> Route {
-	return {allegiance, start, start_offset, end, end_offset, dashed}
+	end_offset: Offset,
+	end: Offset,
+	origin: Point,
+	start_offset: Offset,
+	start: Offset,
+) -> (
+	route: Route,
+	err: Error,
+) {
+	start_origin := Point {
+		origin.x + start_offset.x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
+		origin.y + start_offset.y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
+	}
+
+	start_hex := qoffset_to_cube(start) or_return
+
+	end_origin := Point {
+		origin.x + end_offset.x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
+		origin.y + end_offset.y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
+	}
+
+	end_hex := qoffset_to_cube(end) or_return
+
+	route = {
+		allegiance == .Unaligned ? rl.GREEN : allegiances[allegiance].color,
+		dashed,
+		hex_to_pixel(end_origin, end_hex),
+		hex_to_pixel(start_origin, start_hex),
+	}
+
+	return
 }
 
-draw_route :: proc(layout: Layout, route: Route) {
-	M := layout.orientation
-
-	start_layout := layout
-	start_layout.origin += {
-		route.start_offset.x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
-		route.start_offset.y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
-	}
-
-	start := hex_to_pixel(start_layout, qoffset_to_cube(route.start))
-
-	end_layout := layout
-	end_layout.origin += {
-		route.end_offset.x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
-		route.end_offset.y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
-	}
-
-	end := hex_to_pixel(end_layout, qoffset_to_cube(route.end))
-
-	color := route.allegiance == .Unaligned ? rl.GREEN : allegiances[route.allegiance].color
-
-	if route.dashed {
-		rl.DrawLineDashed(start, end, 8, 4, color)
-	} else {
-		rl.DrawLineV(start, end, color)
+draw_route :: proc(route: Route, zoom: f32) {
+	if color := fade_color(route.color, zoom, 0.05, 0.25); color.a != 0 {
+		if route.dashed {
+			rl.DrawLineDashed(route.start, route.end, 8, 4, color)
+		} else {
+			rl.DrawLineV(route.start, route.end, color)
+		}
 	}
 }

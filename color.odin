@@ -12,8 +12,5 @@ import rl "vendor:raylib"
 Color :: rl.Color
 
 fade_color :: proc(color: Color, zoom, start, end: f32) -> Color {
-	faded := color
-	faded.a = u8(math.clamp((start - zoom) / (start - end), 0, 1) * 255)
-
-	return faded
+	return rl.Fade(color, math.clamp((start - zoom) / (start - end), 0, 1))
 }

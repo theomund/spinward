@@ -7,17 +7,18 @@
 package main
 
 import "core:math"
-import "core:math/linalg"
 
 Orientation :: struct {
 	f, b: matrix[2, 2]f32,
 }
 
-flat_orientation :: proc() -> Orientation {
-	f := matrix[2, 2]f32{
+M :: Orientation {
+	f = matrix[2, 2]f32{
 		1.5, 0.0,
 		math.SQRT_THREE / 2.0, math.SQRT_THREE,
-	}
-
-	return {f, linalg.inverse(f)}
+	},
+	b = matrix[2, 2]f32{
+		2.0 / 3.0, -0.0,
+		-1.0 / 3.0, math.SQRT_THREE / 3.0,
+	},
 }

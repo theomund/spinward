@@ -10,12 +10,10 @@ run :: proc() -> Error {
 	new_window() or_return
 	defer destroy_window()
 
-	camera := new_camera()
-
 	sectors := read_sectors() or_return
 	defer delete(sectors)
 
-	render(sectors[:], &camera) or_return
+	render(sectors[:]) or_return
 
 	for sector in sectors {
 		destroy_sector(sector) or_return

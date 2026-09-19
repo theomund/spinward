@@ -10,12 +10,20 @@ import "core:testing"
 
 @(test)
 test_qoffset_from_cube :: proc(t: ^testing.T) {
-	testing.expect_value(t, qoffset_from_cube(new_hex(-2, 3, -1)), Offset{-2, 2})
-	testing.expect_value(t, qoffset_from_cube(new_hex(-1, -1, 2)), Offset{-1, -2})
+	a, _ := new_hex(-2, 3, -1)
+	b, _ := new_hex(-1, -1, 2)
+
+	testing.expect_value(t, qoffset_from_cube(a), Offset{-2, 2})
+	testing.expect_value(t, qoffset_from_cube(b), Offset{-1, -2})
 }
 
 @(test)
 test_qoffset_to_cube :: proc(t: ^testing.T) {
-	testing.expect_value(t, qoffset_to_cube(Offset{-2, 2}), new_hex(-2, 3, -1))
-	testing.expect_value(t, qoffset_to_cube(Offset{-1, -2}), new_hex(-1, -1, 2))
+	a, _ := new_hex(-2, 3, -1)
+	b, _ := new_hex(-1, -1, 2)
+	c, _ := qoffset_to_cube(Offset{-2, 2})
+	d, _ := qoffset_to_cube(Offset{-1, -2})
+
+	testing.expect_value(t, c, a)
+	testing.expect_value(t, d, b)
 }

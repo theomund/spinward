@@ -8,41 +8,21 @@ package main
 
 import rl "vendor:raylib"
 
-check_visibility :: proc(sectors: []Sector, camera: Camera) {
+check_visibility :: proc(sectors: []Sector, camera: Camera) -> Error {
 	p1 := rl.GetScreenToWorld2D({0, 0}, camera)
 	p2 := rl.GetScreenToWorld2D({WINDOW_WIDTH, WINDOW_HEIGHT}, camera)
 
 	screen := Rectangle{p1.x, p1.y, p2.x - p1.x, p2.y - p1.y}
 
 	for &sector in sectors {
-		sector.visible = rectangle_visible(sector.layout, screen, SECTOR_WIDTH, SECTOR_HEIGHT)
+		sector.visible = rl.CheckCollisionRecs(screen, sector.rectangle)
 
 		for &row in sector.subsectors {
 			for &subsector in row {
-				subsector.visible = rectangle_visible(
-					subsector.layout,
-					screen,
-					SUBSECTOR_COLUMNS,
-					SUBSECTOR_ROWS,
-				)
+				subsector.visible = rl.CheckCollisionRecs(screen, subsector.rectangle)
 			}
 		}
 	}
-}
 
-rectangle_visible :: proc(layout: Layout, screen: Rectangle, col, row: f32) -> bool {
-	p1 := hex_to_pixel(layout, qoffset_to_cube({0, 0}))
-	p2 := hex_to_pixel(layout, qoffset_to_cube({col - 1, row - 1}))
-
-	M := layout.orientation
-
-	x := p1.x - HEX_SIZE / (4.0 / 3.0)
-	y := p1.y - HEX_SIZE * M.f[0][1]
-
-	width := p2.x - p1.x + HEX_SIZE * M.f[0][0]
-	height := p2.y - p1.y + HEX_SIZE * M.f[0][1]
-
-	rect := Rectangle{x, y, width, height}
-
-	return rl.CheckCollisionRecs(screen, rect)
+	return nil
 }

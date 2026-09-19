@@ -6,12 +6,12 @@
 
 package main
 
-import "core:testing"
+import rl "vendor:raylib"
 
-@(test)
-test_new_layout :: proc(t: ^testing.T) {
-	hex := new_hex(3, 4, -7)
-	layout := flat_layout({10.0, 15.0})
+WORLD_SIZE :: 12
 
-	testing.expect_value(t, pixel_to_hex_rounded(layout, hex_to_pixel(layout, hex)), hex)
+draw_world :: proc(origin: Point, zoom: f32) {
+	if color := fade_color(rl.BLUE, zoom, 0.05, 0.25); color.a != 0 {
+		rl.DrawCircleV(origin, WORLD_SIZE, color)
+	}
 }
