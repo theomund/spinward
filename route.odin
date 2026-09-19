@@ -29,18 +29,16 @@ new_route :: proc(
 	route: Route,
 	err: Error,
 ) {
-	start_origin := origin
-	start_origin += {
-		start_offset.x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
-		start_offset.y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
+	start_origin := Point {
+		origin.x + start_offset.x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
+		origin.y + start_offset.y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
 	}
 
 	start_hex := qoffset_to_cube(start) or_return
 
-	end_origin := origin
-	end_origin += {
-		end_offset.x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
-		end_offset.y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
+	end_origin := Point {
+		origin.x + end_offset.x * (M.f[0][0] * HEX_SIZE) * SECTOR_WIDTH,
+		origin.y + end_offset.y * (M.f[1][1] * HEX_SIZE) * SECTOR_HEIGHT,
 	}
 
 	end_hex := qoffset_to_cube(end) or_return
