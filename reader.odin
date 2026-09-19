@@ -223,15 +223,13 @@ read_border :: proc(element: xml.Element, sector: ^Sector) -> Error {
 
 	for queue.len(flood) != 0 {
 		current := queue.pop_front(&flood)
-		current_hex := qoffset_to_cube(current.offset) or_return
+		hex := qoffset_to_cube(current.offset) or_return
 
-		for i in 0 ..= 5 {
-			neighbor_offset := qoffset_from_cube(hex_neighbor(current_hex, i))
-			neighbor_system := get_system(sector, neighbor_offset)
-
-			if !neighbor_system.visited {
-				neighbor_system.visited = true
-				queue.push_back(&flood, neighbor_system) or_return
+		for i in 0 ..< 6 {
+			if system := get_system(sector, qoffset_from_cube(hex_neighbor(hex, i)));
+			   !system.visited {
+				system.visited = true
+				queue.push_back(&flood, system) or_return
 			}
 		}
 	}
