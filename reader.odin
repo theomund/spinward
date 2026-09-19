@@ -328,10 +328,10 @@ read_subsector :: proc(element: xml.Element, sector: ^Sector) -> Error {
 			subsector := &sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS]
 
 			subsector.name = new_text(
-				value = read_value(element),
-				origin = subsector.center,
-				size = SUBSECTOR_TITLE_SIZE,
-				spacing = SUBSECTOR_TITLE_SPACING,
+				read_value(element),
+				subsector.center,
+				SUBSECTOR_TITLE_SIZE,
+				SUBSECTOR_TITLE_SPACING,
 			) or_return
 
 			return nil
