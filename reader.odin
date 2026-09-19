@@ -322,26 +322,23 @@ read_int :: proc(text: string) -> (int, Error) {
 }
 
 read_subsector :: proc(element: xml.Element, sector: ^Sector) -> Error {
-	index: u8
-
 	for attribute in element.attribs {
 		if attribute.key == "Index" {
-			index = subsector_index(attribute.val)
+			index := subsector_index(attribute.val)
+			subsector := &sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS]
+
+			subsector.name = new_text(
+				value = read_value(element),
+				origin = subsector.center,
+				size = SUBSECTOR_TITLE_SIZE,
+				spacing = SUBSECTOR_TITLE_SPACING,
+			) or_return
+
+			return nil
 		}
 	}
 
-	value := read_value(element)
-
-	subsector := &sector.subsectors[index / SECTOR_ROWS][index % SECTOR_ROWS]
-
-	subsector.name = new_text(
-		value = value,
-		origin = subsector.center,
-		size = SUBSECTOR_TITLE_SIZE,
-		spacing = SUBSECTOR_TITLE_SPACING,
-	) or_return
-
-	return nil
+	return .Invalid_Subsector
 }
 
 read_coords :: proc(x_text, y_text: string, sector: ^Sector) -> Error {
