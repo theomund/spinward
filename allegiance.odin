@@ -21,7 +21,6 @@ Allegiance :: enum {
 	Council_Of_Leh_Perash,
 	Cytralin_Unity,
 	Darrian_Confederacy,
-	Debug,
 	Dzarrgh_Federate,
 	Empire_Of_Varroerth,
 	Federation_Of_Heron,
@@ -81,7 +80,7 @@ Allegiance :: enum {
 
 Allegiance_Data :: struct {
 	color: Color,
-	label: Text,
+	label: string,
 }
 
 @(rodata)
@@ -97,7 +96,6 @@ allegiances := [Allegiance]Allegiance_Data {
 	.Council_Of_Leh_Perash          = {rl.DARKBLUE, "Council of Leh Perash"},
 	.Cytralin_Unity                 = {rl.ORANGE, "Cytralin Unity"},
 	.Darrian_Confederacy            = {rl.WHITE, "Darrian Confederacy"},
-	.Debug                          = {rl.RAYWHITE, "Debug"},
 	.Dzarrgh_Federate               = {rl.GREEN, "Dzarrgh Federate"},
 	.Empire_Of_Varroerth            = {rl.GREEN, "Empire of Varroerth"},
 	.Federation_Of_Heron            = {rl.ORANGE, "Federation of Heron"},
@@ -156,8 +154,8 @@ allegiances := [Allegiance]Allegiance_Data {
 	.Zydarian_Codominium            = {rl.PINK, "Zydarian Codominium"},
 }
 
-new_allegiance :: proc(text: Text) -> Allegiance {
-	switch text {
+new_allegiance :: proc(value: string) -> Allegiance {
+	switch value {
 	case "ImAp":
 		return .Amec_Protectorate
 	case "AnTC":
@@ -315,12 +313,12 @@ new_allegiance :: proc(text: Text) -> Allegiance {
 	}
 }
 
-draw_allegiance :: proc(layout: Layout, system: System, camera: Camera) {
+draw_allegiance :: proc(system: System) {
 	color := allegiances[system.allegiance].color
 
-	if color != rl.BLANK && color != rl.RAYWHITE {
+	if color != rl.BLANK {
 		color.a = 64
 	}
 
-	draw_hex(layout, system.hex, color, true)
+	draw_hex(system.origin, color, true)
 }

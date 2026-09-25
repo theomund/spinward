@@ -6,6 +6,7 @@
 
 package main
 
+import "core:fmt"
 import rl "vendor:raylib"
 
 SUBSECTOR_COLUMNS :: 8
@@ -15,36 +16,48 @@ SUBSECTOR_TITLE_SIZE :: SECTOR_TITLE_SIZE / 4
 SUBSECTOR_TITLE_SPACING :: SECTOR_TITLE_SPACING / 4
 
 Subsector :: struct {
-	name:    Text,
-	center:  Point,
-	layout:  Layout,
-	systems: [SUBSECTOR_ROWS][SUBSECTOR_COLUMNS]System,
-	visible: bool,
+	name:      Text,
+	center:    Point,
+	origin:    Point,
+	rectangle: Rectangle,
+	systems:   [SUBSECTOR_ROWS][SUBSECTOR_COLUMNS]System,
+	visible:   bool,
 }
 
-new_subsector :: proc(layout: Layout, origin: Point) -> (subsector: Subsector, err: Error) {
-	left := 0
-	right := SUBSECTOR_COLUMNS
-	top := 0
-	bottom := SUBSECTOR_ROWS - 1
-
-	for q := left; q < right; q += 1 {
+new_subsector :: proc(sector_origin: Point, origin: Point) -> (subsector: Subsector, err: Error) {
+	for q in 0 ..< SUBSECTOR_COLUMNS {
 		q_offset := q >> 1
-		for r := top - q_offset; r <= bottom - q_offset; r += 1 {
-			hex := new_hex(f32(q), f32(r), f32(-q - r))
+
+		for r in -q_offset ..< SUBSECTOR_ROWS - q_offset {
+			hex := new_hex(f32(q), f32(r), f32(-q - r)) or_return
 			offset := qoffset_from_cube(hex)
+
+			rounded := pixel_to_hex(sector_origin, origin) or_return
 
 			x := i32(offset.x)
 			y := i32(offset.y)
 
-			system_index := hex_index(hex + pixel_to_hex_rounded(layout, origin))
-			subsector.systems[y][x] = new_system(hex, system_index) or_return
+			system_origin := hex_to_pixel(sector_origin, hex)
+
+			subsector.systems[y][x] = System {
+				index  = new_text(
+					value = fmt.tprintf("%02d%02d", x + 1, y + 1),
+					color = rl.GRAY,
+					origin = system_origin + {0, HALF_HEX},
+				) or_return,
+				origin = system_origin,
+				offset = offset + qoffset_from_cube(rounded),
+			}
 		}
 	}
 
-	subsector.layout = layout
-	subsector.layout.origin = origin
-	subsector.center = grid_center(subsector.layout, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS)
+	subsector.origin = origin
+	subsector.center = grid_center(subsector.origin, SUBSECTOR_COLUMNS, SUBSECTOR_ROWS) or_return
+	subsector.rectangle = new_rectangle(
+		subsector.origin,
+		SUBSECTOR_COLUMNS,
+		SUBSECTOR_ROWS,
+	) or_return
 	subsector.visible = true
 
 	return
@@ -62,48 +75,18 @@ destroy_subsector :: proc(subsector: Subsector) -> Error {
 	return nil
 }
 
-subsector_index :: proc(index: Text) -> u8 {
+subsector_index :: proc(index: string) -> u8 {
 	return index[0] - 'A'
 }
 
-draw_subsector :: proc(subsector: Subsector, camera: Camera) -> Error {
+draw_subsector :: proc(subsector: Subsector, zoom: f32) {
 	for row in subsector.systems {
 		for system in row {
-			draw_system(subsector.layout, system, camera) or_return
+			draw_system(system, zoom)
 		}
 	}
 
-	for row in subsector.systems {
-		for system in row {
-			draw_allegiance(subsector.layout, system, camera)
-		}
-	}
+	draw_rectangle(subsector.rectangle, fade_color(rl.GRAY, zoom, 0.05, 0.25))
 
-	p1 := hex_to_pixel(subsector.layout, qoffset_to_cube({0, 0}))
-	p2 := hex_to_pixel(
-		subsector.layout,
-		qoffset_to_cube({SUBSECTOR_COLUMNS - 1, SUBSECTOR_ROWS - 1}),
-	)
-
-	M := subsector.layout.orientation
-
-	draw_rectangle(
-		{
-			p1.x - HEX_SIZE / (4.0 / 3.0),
-			p1.y - HEX_SIZE * M.f[0][1],
-			p2.x - p1.x + HEX_SIZE * M.f[0][0],
-			p2.y - p1.y + HEX_SIZE * M.f[0][1],
-		},
-		rl.GRAY,
-	)
-
-	draw_text(
-		subsector.name,
-		subsector.center,
-		SUBSECTOR_TITLE_SIZE,
-		SUBSECTOR_TITLE_SPACING,
-		fade_color(rl.WHITE, camera.zoom, 0.5, 0.25),
-	) or_return
-
-	return nil
+	draw_text(subsector.name, zoom, 0.05, 0.25)
 }

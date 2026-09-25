@@ -6,40 +6,32 @@
 
 package main
 
-import "core:fmt"
 import "core:math"
 import rl "vendor:raylib"
 
 FONT_SIZE :: 16
 FONT_SPACING :: 2
 
-WORLD_SIZE :: 12
-
 System :: struct {
 	name:       Text,
 	allegiance: Allegiance,
-	hex:        Hex,
+	index:      Text,
 	label:      Text,
 	offset:     Offset,
+	origin:     Point,
 	visited:    bool,
 	world:      bool,
 }
 
-new_system :: proc(hex: Hex, index: Text) -> (system: System, err: Error) {
-	system.hex = hex
-	system.offset = system_index(index) or_return
-
-	return
-}
-
 destroy_system :: proc(system: System) -> Error {
-	destroy_text(system.name) or_return
+	destroy_text(system.index) or_return
 	destroy_text(system.label) or_return
+	destroy_text(system.name) or_return
 
 	return nil
 }
 
-system_index :: proc(index: Text) -> (offset: Offset, err: Error) {
+system_index :: proc(index: string) -> (offset: Offset, err: Error) {
 	x := read_int(index[0:2]) or_return
 	y := read_int(index[2:4]) or_return
 
@@ -58,38 +50,16 @@ get_system :: proc(sector: ^Sector, offset: Offset) -> ^System {
 	return system
 }
 
-draw_system :: proc(layout: Layout, system: System, camera: Camera) -> Error {
-	center := hex_to_pixel(layout, system.hex)
-
-	draw_hex(layout, system.hex, fade_color(rl.DARKGRAY, camera.zoom, 0.25, 0.5))
+draw_system :: proc(system: System, zoom: f32) {
+	draw_hex(system.origin, fade_color(rl.DARKGRAY, zoom, 0.25, 0.5))
 
 	if system.world {
-		rl.DrawCircleV(center, WORLD_SIZE, rl.BLUE)
+		draw_world(system.origin, zoom)
 	}
 
-	draw_text(
-		system.name,
-		center - {0, HALF_HEX},
-		FONT_SIZE,
-		FONT_SPACING,
-		fade_color(rl.WHITE, camera.zoom, 0.25, 0.5),
-	) or_return
+	draw_text(system.name, zoom, 0.25, 0.5)
+	draw_text(system.index, zoom, 0.25, 0.5)
+	draw_text(system.label, zoom, 0.05, 0.25)
 
-	draw_text(
-		fmt.tprintf("%02d%02d", int(system.offset.x + 1), int(system.offset.y + 1)),
-		center + {0, HALF_HEX},
-		FONT_SIZE,
-		FONT_SPACING,
-		fade_color(rl.DARKGRAY, camera.zoom, 0.25, 0.5),
-	) or_return
-
-	draw_text(
-		system.label,
-		center,
-		SUBSECTOR_TITLE_SIZE,
-		SUBSECTOR_TITLE_SPACING,
-		fade_color(rl.YELLOW, camera.zoom, 0.5, 0.25),
-	) or_return
-
-	return nil
+	draw_allegiance(system)
 }

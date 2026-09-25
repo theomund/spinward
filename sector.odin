@@ -20,25 +20,29 @@ SECTOR_TITLE_SPACING :: 16
 Sector :: struct {
 	name:       Text,
 	center:     Point,
-	layout:     Layout,
+	origin:     Point,
+	rectangle:  Rectangle,
 	routes:     [dynamic]Route,
 	subsectors: [SECTOR_ROWS][SECTOR_COLUMNS]Subsector,
 	visible:    bool,
 }
 
 new_sector :: proc() -> (sector: Sector, err: Error) {
-	sector.layout = flat_layout({0, 0})
+	sector.origin = {0, 0}
 
 	for y in 0 ..< SECTOR_ROWS {
 		for x in 0 ..< SECTOR_COLUMNS {
-			hex := qoffset_to_cube({f32(x) * SUBSECTOR_COLUMNS, f32(y) * SUBSECTOR_ROWS})
-			origin := hex_to_pixel(sector.layout, hex)
+			hex := qoffset_to_cube({f32(x) * SUBSECTOR_COLUMNS, f32(y) * SUBSECTOR_ROWS}) or_return
 
-			sector.subsectors[y][x] = new_subsector(sector.layout, origin) or_return
+			sector.subsectors[y][x] = new_subsector(
+				sector.origin,
+				hex_to_pixel(sector.origin, hex),
+			) or_return
 		}
 	}
 
-	sector.center = grid_center(sector.layout, SECTOR_WIDTH, SECTOR_HEIGHT)
+	sector.center = grid_center(sector.origin, SECTOR_WIDTH, SECTOR_HEIGHT) or_return
+	sector.rectangle = new_rectangle(sector.origin, SECTOR_WIDTH, SECTOR_HEIGHT) or_return
 	sector.visible = true
 
 	return
@@ -64,41 +68,30 @@ contains_hex :: proc(hex: Hex) -> bool {
 	return min(offset.x, offset.y) >= 0 && offset.x < SECTOR_WIDTH && offset.y < SECTOR_HEIGHT
 }
 
-draw_sector :: proc(sector: Sector, camera: Camera) -> Error {
+draw_sector :: proc(sector: Sector, camera: Camera) {
 	for row in sector.subsectors {
 		for subsector in row {
 			if subsector.visible {
-				draw_subsector(subsector, camera) or_return
+				draw_subsector(subsector, camera.zoom)
 			}
 		}
 	}
 
 	for route in sector.routes {
-		draw_route(sector.layout, route)
+		draw_route(route, camera.zoom)
 	}
 
-	draw_hovered_hex(sector.layout, camera)
-	draw_sector_title(sector, camera) or_return
-
-	return nil
+	draw_hovered_hex(sector.origin, camera)
+	draw_text(sector.name, camera.zoom, 0.5, 0.25)
+	draw_rectangle(sector.rectangle, fade_color(rl.WHITE, camera.zoom, 0.05, 0.25))
 }
 
-draw_hovered_hex :: proc(layout: Layout, camera: Camera) {
-	hovered := pixel_to_hex_rounded(layout, rl.GetScreenToWorld2D(rl.GetMousePosition(), camera))
+draw_hovered_hex :: proc(origin: Point, camera: Camera) -> Error {
+	hovered := pixel_to_hex(origin, rl.GetScreenToWorld2D(rl.GetMousePosition(), camera)) or_return
 
 	if contains_hex(hovered) {
-		draw_hex(layout, hovered, rl.YELLOW)
+		draw_hex(hex_to_pixel(origin, hovered), rl.YELLOW)
 	}
-}
-
-draw_sector_title :: proc(sector: Sector, camera: Camera) -> Error {
-	draw_text(
-		sector.name,
-		sector.center,
-		SECTOR_TITLE_SIZE,
-		SECTOR_TITLE_SPACING,
-		fade_color(rl.WHITE, camera.zoom, 0.5, 0.25),
-	) or_return
 
 	return nil
 }

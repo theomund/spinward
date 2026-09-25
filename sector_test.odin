@@ -13,7 +13,6 @@ test_new_sector :: proc(t: ^testing.T) {
 	sector, _ := new_sector()
 	defer destroy_sector(sector)
 
-	testing.expect_value(t, sector.name, "")
-	testing.expect_value(t, sector.layout.origin, Point{0, 0})
-	testing.expect_value(t, sector.layout.size, Point{HEX_SIZE, HEX_SIZE})
+	testing.expect_value(t, sector.name.content, nil)
+	testing.expect_value(t, sector.origin, Point{0, 0})
 }

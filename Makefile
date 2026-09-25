@@ -12,7 +12,7 @@ endif
 all: lint test build
 
 build:
-	odin build .
+	odin build . -o:speed
 
 clean:
 	git clean -fdxe ".env"
